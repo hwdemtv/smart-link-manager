@@ -1,15 +1,27 @@
-import { eq, and, or, sql } from "drizzle-orm";
+import { eq, and, or, sql, desc, asc, inArray, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, InsertLink, InsertLinkStat, InsertLinkCheck, InsertNotification, InsertDomain, InsertTenant, InsertSubscription, InsertUsageLog, links, linkStats, linkChecks, notifications, domains, tenants, subscriptionPlans, subscriptions, usageLogs } from "../drizzle/schema";
+import { 
+  InsertUser, users, 
+  InsertLink, links,
+  InsertLinkStat, linkStats, 
+  InsertLinkCheck, linkChecks, 
+  InsertNotification, notifications, 
+  InsertDomain, domains, 
+  InsertTenant, tenants, 
+  InsertSubscription, subscriptionPlans, subscriptions, 
+  InsertUsageLog, usageLogs,
+  InsertTenantConfig, tenantConfigs
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+export let db: ReturnType<typeof drizzle>;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
       _db = drizzle(process.env.DATABASE_URL);
+      db = _db;
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -18,165 +30,168 @@ export async function getDb() {
   return _db;
 }
 
-export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
-  }
-
+// === User Management ===
+export async function upsertUser(user: InsertUser) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
-    return;
-  }
-
-  try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
-    const updateSet: Record<string, unknown> = {};
-
-    const textFields = ["name", "email", "loginMethod", "tenantId"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
-    }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
-    }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
-  } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
-    throw error;
-  }
+  if (!db) return;
+  const updateSet: any = { ...user };
+  delete updateSet.openId;
+  await db.insert(users).values(user).onDuplicateKeyUpdate({ set: updateSet });
 }
 
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
-  }
-
+  if (!db) return undefined;
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
-  return result.length > 0 ? result[0] : undefined;
+  return result[0];
 }
 
-// Link management queries
+export async function getUserByUsername(username: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  return result[0];
+}
+
+export async function getUserById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return result[0];
+}
+
+export async function getUsersByTenant(tenantId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(users).where(eq(users.tenantId, tenantId)).orderBy(desc(users.createdAt));
+}
+
+export async function updateUser(id: number, data: Partial<InsertUser>) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users).set(data).where(eq(users.id, id));
+}
+
+export async function deleteUser(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(users).where(eq(users.id, id));
+}
+
+export async function getTenantAdminCount(tenantId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select({ count: sql<number>`count(*)` })
+    .from(users)
+    .where(and(eq(users.tenantId, tenantId), eq(users.role, "tenant_admin")));
+  return result[0]?.count || 0;
+}
+
+// === Link Management ===
 export async function createLink(data: InsertLink) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  const result = await db.insert(links).values(data);
-  return result;
+  const [result] = await (db as any).insert(links).values(data);
+  return { ...data, id: result.insertId };
 }
 
 export async function getLinkByShortCode(shortCode: string) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return undefined;
   const result = await db.select().from(links).where(eq(links.shortCode, shortCode)).limit(1);
+  return result[0];
+}
+
+export async function getLinkById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(links).where(eq(links.id, id)).limit(1);
   return result[0];
 }
 
 export async function getLinksByUserId(userId: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(links).where(eq(links.userId, userId)).orderBy(links.createdAt);
-  return result;
+  if (!db) return [];
+  return db.select().from(links).where(eq(links.userId, userId)).orderBy(desc(links.createdAt));
 }
 
-export async function getLinkById(linkId: number) {
+export async function getLinksByTenant(tenantId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(links).where(eq(links.id, linkId)).limit(1);
-  return result[0];
+  return db.select().from(links).where(eq(links.tenantId, tenantId)).orderBy(desc(links.createdAt));
 }
 
-export async function updateLink(linkId: number, data: Partial<{
-  originalUrl: string;
-  shortCode: string;
-  customDomain: string | null;
-  description: string | null;
-  isActive: number;
-  isValid: number;
-  expiresAt: Date | null;
-}>) {
+export async function updateLink(id: number, data: Partial<InsertLink>) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  await db.update(links).set({
-    ...data,
-    updatedAt: new Date(),
-  }).where(eq(links.id, linkId));
-  
-  return getLinkById(linkId);
+  if (!db) return;
+  await db.update(links).set(data).where(eq(links.id, id));
 }
 
-export async function deleteLink(linkId: number) {
+export async function deleteLink(id: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) return;
+  await db.delete(links).where(eq(links.id, id));
+}
+
+export async function batchDeleteLinks(userId: number, ids: number[]) {
+  const db = await getDb();
+  if (!db || ids.length === 0) return;
+  await db.delete(links).where(and(eq(links.userId, userId), inArray(links.id, ids)));
+}
+
+export async function batchUpdateLinks(userId: number, ids: number[], data: Partial<InsertLink>) {
+  const db = await getDb();
+  if (!db || ids.length === 0) return;
+  await db.update(links).set(data).where(and(eq(links.userId, userId), inArray(links.id, ids)));
+}
+
+export async function batchUpdateLinksTags(userId: number, ids: number[], tags: string[], mode: 'add' | 'remove' | 'set') {
+  const db = await getDb();
+  if (!db || ids.length === 0) return;
   
-  // 先删除关联的统计数据
-  await db.delete(linkStats).where(eq(linkStats.linkId, linkId));
-  await db.delete(linkChecks).where(eq(linkChecks.linkId, linkId));
-  await db.delete(notifications).where(eq(notifications.linkId, linkId));
+  if (mode === 'set') {
+    await db.update(links).set({ tags }).where(and(eq(links.userId, userId), inArray(links.id, ids)));
+    return;
+  }
+
+  // 对于 add 和 remove，需要先拉取现有的标签
+  const targetLinks = await db.select({ id: links.id, tags: links.tags }).from(links).where(and(eq(links.userId, userId), inArray(links.id, ids)));
   
-  // 删除链接
-  await db.delete(links).where(eq(links.id, linkId));
+  for (const link of targetLinks) {
+    let newTags = [...(link.tags || [])];
+    if (mode === 'add') {
+      newTags = Array.from(new Set([...newTags, ...tags]));
+    } else if (mode === 'remove') {
+      newTags = newTags.filter(t => !tags.includes(t));
+    }
+    await db.update(links).set({ tags: newTags }).where(eq(links.id, link.id));
+  }
 }
 
 export async function searchLinks(userId: number, query: {
   search?: string;
+  tag?: string;
   status?: 'all' | 'active' | 'invalid';
   orderBy?: 'createdAt' | 'clickCount' | 'updatedAt';
   order?: 'asc' | 'desc';
 }) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) return [];
   
-  let queryBuilder = db.select().from(links).where(eq(links.userId, userId));
-  
-  // 搜索条件
-  const conditions = [eq(links.userId, userId)];
+  const conditions: any[] = [eq(links.userId, userId)];
   
   if (query.search) {
-    // 搜索短码或原始URL
     conditions.push(
       or(
-        sql`${links.shortCode} LIKE ${`%${query.search}%`}`,
-        sql`${links.originalUrl} LIKE ${`%${query.search}%`}`
+        like(links.shortCode, `%${query.search}%`),
+        like(links.originalUrl, `%${query.search}%`),
+        like(links.description, `%${query.search}%`)
       )
     );
+  }
+
+  if (query.tag) {
+    conditions.push(sql`JSON_CONTAINS(${links.tags}, ${`"${query.tag}"`})`);
   }
   
   if (query.status === 'active') {
@@ -188,9 +203,8 @@ export async function searchLinks(userId: number, query: {
   
   const result = await db.select().from(links).where(and(...conditions));
   
-  // 排序
   if (query.orderBy) {
-    result.sort((a, b) => {
+    result.sort((a: any, b: any) => {
       const aVal = a[query.orderBy!] ?? 0;
       const bVal = b[query.orderBy!] ?? 0;
       const order = query.order === 'desc' ? -1 : 1;
@@ -204,20 +218,44 @@ export async function searchLinks(userId: number, query: {
   return result;
 }
 
+export async function checkShortCodes(shortCodes: string[]) {
+  const db = await getDb();
+  if (!db || shortCodes.length === 0) return [];
+  const result = await db.select({ shortCode: links.shortCode }).from(links).where(inArray(links.shortCode, shortCodes));
+  return result.map((r: any) => r.shortCode);
+}
+
+// === Stats and Monitoring ===
+export async function updateLinkClickCount(linkId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(links).set({ clickCount: sql`clickCount + 1` }).where(eq(links.id, linkId));
+}
+
+export async function recordLinkStat(data: InsertLinkStat) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(linkStats).values(data);
+}
+
+export async function getLinkStats(linkId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(linkStats).where(eq(linkStats.linkId, linkId)).orderBy(desc(linkStats.clickedAt)).limit(100);
+}
+
 export async function getLinkStatsSummary(linkId: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) return { totalClicks: 0, deviceStats: {}, last7Days: {}, recentClicks: [] };
   
   const stats = await db.select().from(linkStats).where(eq(linkStats.linkId, linkId));
   
-  // 按设备类型统计
-  const deviceStats = stats.reduce((acc, stat) => {
+  const deviceStats = stats.reduce((acc: Record<string, number>, stat: any) => {
     const device = stat.deviceType || 'unknown';
     acc[device] = (acc[device] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
   
-  // 按日期统计（最近7天）
   const last7Days: Record<string, number> = {};
   const now = new Date();
   for (let i = 6; i >= 0; i--) {
@@ -227,260 +265,370 @@ export async function getLinkStatsSummary(linkId: number) {
     last7Days[dateStr] = 0;
   }
   
-  stats.forEach(stat => {
+  stats.forEach((stat: any) => {
     const dateStr = new Date(stat.clickedAt).toISOString().split('T')[0];
     if (last7Days.hasOwnProperty(dateStr)) {
       last7Days[dateStr]++;
     }
   });
+
+  const recentClicks = stats.slice(-10).reverse();
   
   return {
     totalClicks: stats.length,
     deviceStats,
     last7Days,
-    recentClicks: stats.slice(-10).reverse(),
+    recentClicks,
   };
 }
 
-export async function updateLinkClickCount(linkId: number) {
+export async function getGlobalStatsSummary(tenantId: number, days: number = 7) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) return { totalLinks: 0, totalClicks: 0, timeSeries: {}, deviceStats: {}, countryStats: {}, cityStats: {}, browserStats: {} };
   
-  const link = await db.select().from(links).where(eq(links.id, linkId)).limit(1);
-  if (link.length > 0) {
-    await db.update(links).set({ clickCount: (link[0].clickCount || 0) + 1 }).where(eq(links.id, linkId));
+  const linksQuery = await db.select({ 
+    id: links.id, 
+    clickCount: links.clickCount 
+  }).from(links).where(eq(links.tenantId, tenantId));
+
+  const totalLinks = linksQuery.length;
+  const totalClicks = linksQuery.reduce((sum: number, link: any) => sum + (link.clickCount || 0), 0);
+
+  const timeSeries: Record<string, number> = {};
+  const deviceStats: Record<string, number> = {};
+  const countryStats: Record<string, number> = {};
+  const cityStats: Record<string, number> = {};
+  const browserStats: Record<string, number> = {};
+
+  const now = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    timeSeries[dateStr] = 0;
   }
-}
 
-export async function recordLinkStat(data: InsertLinkStat) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  await db.insert(linkStats).values(data);
-}
+  if (linksQuery.length === 0) {
+    return { totalLinks, totalClicks, timeSeries, deviceStats, countryStats, cityStats, browserStats };
+  }
 
-export async function getLinkStats(linkId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(linkStats).where(eq(linkStats.linkId, linkId));
-  return result;
+  const linkIds = linksQuery.map((l: any) => l.id);
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+
+  const stats = await db.select().from(linkStats)
+    .where(
+      and(
+        inArray(linkStats.linkId, linkIds),
+        sql`${linkStats.clickedAt} >= ${startDate}`
+      )
+    );
+
+  for (const stat of stats) {
+    const dateStr = new Date(stat.clickedAt).toISOString().split('T')[0];
+    if (timeSeries[dateStr] !== undefined) {
+      timeSeries[dateStr]++;
+    }
+
+    const device = stat.deviceType || 'unknown';
+    deviceStats[device] = (deviceStats[device] || 0) + 1;
+
+    const country = stat.country || 'Unknown';
+    countryStats[country] = (countryStats[country] || 0) + 1;
+
+    const city = stat.city || 'Unknown';
+    cityStats[city] = (cityStats[city] || 0) + 1;
+
+    const browser = stat.browserName || 'Unknown';
+    browserStats[browser] = (browserStats[browser] || 0) + 1;
+  }
+
+  return { totalLinks, totalClicks, timeSeries, deviceStats, countryStats, cityStats, browserStats };
 }
 
 export async function recordLinkCheck(data: InsertLinkCheck) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return;
   await db.insert(linkChecks).values(data);
 }
 
 export async function updateLinkValidity(linkId: number, isValid: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return;
   await db.update(links).set({ isValid, lastCheckedAt: new Date() }).where(eq(links.id, linkId));
 }
 
-export async function getInvalidLinks() {
+export async function getInvalidLinks(tenantId: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(links).where(eq(links.isValid, 0));
-  return result;
+  if (!db) return [];
+  return db.select().from(links).where(and(eq(links.tenantId, tenantId), eq(links.isValid, 0)));
 }
 
+// === Notifications ===
 export async function createNotification(data: InsertNotification) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return;
   await db.insert(notifications).values(data);
 }
 
 export async function getUnreadNotifications(userId: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(notifications).where(
-    and(eq(notifications.userId, userId), eq(notifications.isRead, 0))
-  );
-  return result;
+  if (!db) return [];
+  return db.select().from(notifications).where(and(eq(notifications.userId, userId), eq(notifications.isRead, 0)));
 }
 
-// Domain management queries
+// === Domain Management ===
 export async function addDomain(data: InsertDomain) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return;
   await db.insert(domains).values(data);
 }
 
 export async function getUserDomains(userId: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(domains).where(eq(domains.userId, userId));
-  return result;
+  if (!db) return [];
+  return db.select().from(domains).where(eq(domains.userId, userId));
+}
+
+export async function getDomainsByTenant(tenantId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(domains).where(eq(domains.tenantId, tenantId));
 }
 
 export async function getDomainByName(domain: string) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return undefined;
   const result = await db.select().from(domains).where(eq(domains.domain, domain)).limit(1);
   return result[0];
 }
 
 export async function verifyDomain(domainId: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return;
   await db.update(domains).set({ isVerified: 1, verifiedAt: new Date() }).where(eq(domains.id, domainId));
 }
 
 export async function getLinkByDomainAndCode(domain: string, shortCode: string) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(links).where(
-    and(eq(links.customDomain, domain), eq(links.shortCode, shortCode))
-  ).limit(1);
+  if (!db) return undefined;
+  const result = await db.select().from(links).where(and(eq(links.customDomain, domain), eq(links.shortCode, shortCode))).limit(1);
   return result[0];
 }
 
 export async function deleteDomain(domainId: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return;
   await db.delete(domains).where(eq(domains.id, domainId));
 }
 
-
-
-// Tenant management queries
+// === Tenant Management ===
 export async function createTenant(data: InsertTenant) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  const result = await db.insert(tenants).values(data);
-  return result;
+  const [result] = await (db as any).insert(tenants).values(data);
+  return { ...data, id: result.insertId };
 }
 
 export async function getTenantBySlug(slug: string) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return undefined;
   const result = await db.select().from(tenants).where(eq(tenants.slug, slug)).limit(1);
   return result[0];
 }
 
 export async function getTenantById(id: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return undefined;
   const result = await db.select().from(tenants).where(eq(tenants.id, id)).limit(1);
   return result[0];
 }
 
 export async function getAllTenants() {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(tenants).where(eq(tenants.isActive, 1));
-  return result;
+  if (!db) return [];
+  return db.select().from(tenants);
 }
 
 export async function updateTenant(id: number, data: Partial<InsertTenant>) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return;
   await db.update(tenants).set(data).where(eq(tenants.id, id));
 }
 
 export async function deleteTenant(id: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return;
+
+  // Delete in order to respect foreign key constraints
+  // 1. Get all users for this tenant
+  const tenantUsers = await db.select({ id: users.id }).from(users).where(eq(users.tenantId, id));
+  const userIds = tenantUsers.map((u: any) => u.id);
+
+  // 2. Get all links for this tenant
+  const tenantLinks = await db.select({ id: links.id }).from(links).where(eq(links.tenantId, id));
+  const linkIds = tenantLinks.map((l: any) => l.id);
+
+  // 3. Delete link stats
+  if (linkIds.length > 0) {
+    await db.delete(linkStats).where(inArray(linkStats.linkId, linkIds));
+  }
+
+  // 4. Delete link checks
+  if (linkIds.length > 0) {
+    await db.delete(linkChecks).where(inArray(linkChecks.linkId, linkIds));
+  }
+
+  // 5. Delete notifications (by tenant)
+  await db.delete(notifications).where(eq(notifications.tenantId, id));
+
+  // 6. Delete links
+  await db.delete(links).where(eq(links.tenantId, id));
+
+  // 7. Delete domains
+  await db.delete(domains).where(eq(domains.tenantId, id));
+
+  // 8. Delete subscriptions
+  await db.delete(subscriptions).where(eq(subscriptions.tenantId, id));
+
+  // 9. Delete usage logs
+  await db.delete(usageLogs).where(eq(usageLogs.tenantId, id));
+
+  // 10. Delete tenant users
+  if (userIds.length > 0) {
+    await db.delete(users).where(eq(users.tenantId, id));
+  }
+
+  // 11. Finally delete the tenant
   await db.delete(tenants).where(eq(tenants.id, id));
 }
 
-// Subscription management queries
+// === Subscription Management ===
 export async function getSubscriptionPlans() {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(subscriptionPlans).where(eq(subscriptionPlans.isActive, 1));
-  return result;
+  if (!db) return [];
+  return db.select().from(subscriptionPlans).where(eq(subscriptionPlans.isActive, 1));
 }
 
 export async function getSubscriptionPlanById(id: number) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return undefined;
   const result = await db.select().from(subscriptionPlans).where(eq(subscriptionPlans.id, id)).limit(1);
   return result[0];
+}
+
+export async function getFreePlan() {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(subscriptionPlans).where(eq(subscriptionPlans.slug, "free")).limit(1);
+  return result[0];
+}
+
+export async function getTenantSubscription(tenantId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(subscriptions).where(
+    and(eq(subscriptions.tenantId, tenantId), eq(subscriptions.status, "active"))
+  ).orderBy(desc(subscriptions.createdAt)).limit(1);
+  return result[0];
+}
+
+export async function getAllSubscriptions() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(subscriptions).orderBy(desc(subscriptions.createdAt));
+}
+
+export async function getSubscriptionsWithDetails() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db
+    .select({
+      subscription: subscriptions,
+      tenant: tenants,
+      plan: subscriptionPlans,
+    })
+    .from(subscriptions)
+    .leftJoin(tenants, eq(subscriptions.tenantId, tenants.id))
+    .leftJoin(subscriptionPlans, eq(subscriptions.planId, subscriptionPlans.id))
+    .orderBy(desc(subscriptions.createdAt));
+
+  return result;
 }
 
 export async function createSubscription(data: InsertSubscription) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
   await db.insert(subscriptions).values(data);
-}
-
-export async function getTenantSubscription(tenantId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const result = await db.select().from(subscriptions)
-    .where(and(eq(subscriptions.tenantId, tenantId), eq(subscriptions.status, "active")))
-    .limit(1);
-  return result[0];
 }
 
 export async function updateSubscription(id: number, data: Partial<InsertSubscription>) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return;
   await db.update(subscriptions).set(data).where(eq(subscriptions.id, id));
 }
 
-// Usage tracking queries
+// === Usage tracking ===
 export async function recordUsage(data: InsertUsageLog) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  // Check if usage log for today exists
+  if (!db) return;
   const today = new Date().toISOString().split('T')[0];
   const existing = await db.select().from(usageLogs)
     .where(and(eq(usageLogs.tenantId, data.tenantId), eq(usageLogs.date, today)))
     .limit(1);
-  
   if (existing.length > 0) {
-    // Update existing log
     await db.update(usageLogs).set({
       linksCreated: (existing[0].linksCreated || 0) + (data.linksCreated || 0),
       apiCalls: (existing[0].apiCalls || 0) + (data.apiCalls || 0),
       totalClicks: (existing[0].totalClicks || 0) + (data.totalClicks || 0),
     }).where(eq(usageLogs.id, existing[0].id));
   } else {
-    // Create new log
     await db.insert(usageLogs).values(data);
   }
 }
 
 export async function getTenantUsage(tenantId: number, days: number = 30) {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
+  if (!db) return [];
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
   const startDateStr = startDate.toISOString().split('T')[0];
-  
-  const result = await db.select().from(usageLogs)
-    .where(and(eq(usageLogs.tenantId, tenantId)))
+  return db.select().from(usageLogs)
+    .where(and(eq(usageLogs.tenantId, tenantId), sql`${usageLogs.date} >= ${startDateStr}`))
     .orderBy(usageLogs.date);
-  
-  return result.filter(log => log.date >= startDateStr);
 }
 
+export async function getTenantLinkCount(tenantId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db.select({ count: sql<number>`count(*)` }).from(links).where(eq(links.tenantId, tenantId));
+  return result[0]?.count || 0;
+}
+// === Tenant Config Management ===
+export async function getTenantConfig(tenantId: number, configKey: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(tenantConfigs)
+    .where(and(eq(tenantConfigs.tenantId, tenantId), eq(tenantConfigs.configKey, configKey)))
+    .limit(1);
+  return result[0];
+}
 
+export async function upsertTenantConfig(tenantId: number, configKey: string, value: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await getTenantConfig(tenantId, configKey);
+  if (existing) {
+    await db.update(tenantConfigs)
+      .set({ configValue: value, updatedAt: new Date() })
+      .where(eq(tenantConfigs.id, existing.id));
+  } else {
+    await db.insert(tenantConfigs).values({
+      tenantId,
+      configKey,
+      configValue: value
+    });
+  }
+}

@@ -1,21 +1,31 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import React, { useEffect, useState } from "react";
+import { useLocation, useParams } from "wouter";
 import * as QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Copy, Download, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
+import { useTranslation } from "react-i18next";
 
 export default function QRPage() {
-  const [, setLocation] = useLocation();
-  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const { t } = useTranslation();
+  const [qrDataUrl, setQrDataUrl] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Get query parameters from URL
+  const { shortCode: routeShortCode } = useParams() as any;
   const params = new URLSearchParams(window.location.search);
-  const shortCode = params.get("code") || "";
-  const originalUrl = params.get("url") || "";
-  const description = params.get("desc") || "";
+  // 优先使用路由参数（/qr/:shortCode），兼容旧的 Query string
+  const shortCode = routeShortCode || params.get("code") || "";
+
+  // 通过短码向后端请求原始链接详情，不再依赖 URL 参数传递
+  const { data: link } = trpc.links.getByShortCode.useQuery(
+    { shortCode },
+    { enabled: !!shortCode }
+  );
+
+  const originalUrl = link?.originalUrl || "";
+  const description = link?.description || "";
 
   const fullUrl = `${window.location.origin}/s/${shortCode}`;
 
@@ -47,19 +57,19 @@ export default function QRPage() {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(fullUrl);
-    toast.success("Link copied to clipboard!");
+    toast.success(t("qr.copySuccess"));
   };
 
   const handleDownloadQR = () => {
     if (!qrDataUrl) return;
 
-    const link = document.createElement("a");
-    link.href = qrDataUrl;
-    link.download = `qrcode-${shortCode}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("QR code downloaded!");
+    const downloadLink = document.createElement("a");
+    downloadLink.href = qrDataUrl;
+    downloadLink.download = `qrcode-${shortCode}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    toast.success(t("qr.downloadSuccess"));
   };
 
   return (
@@ -67,9 +77,9 @@ export default function QRPage() {
       <Card className="w-full max-w-md p-8 space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold">Scan to Open</h1>
+          <h1 className="text-2xl font-bold">{t("qr.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Use your phone camera to scan the QR code below
+            {t("qr.subtitle")}
           </p>
         </div>
 
@@ -79,7 +89,7 @@ export default function QRPage() {
             <div className="w-72 h-72 bg-secondary rounded-lg flex items-center justify-center">
               <div className="text-center">
                 <div className="w-8 h-8 border-4 border-border border-t-accent rounded-full animate-spin mx-auto mb-2"></div>
-                <p className="text-sm text-muted-foreground">Generating QR code...</p>
+                <p className="text-sm text-muted-foreground">{t("qr.generating")}</p>
               </div>
             </div>
           ) : qrDataUrl ? (
@@ -92,15 +102,15 @@ export default function QRPage() {
             </div>
           ) : (
             <div className="w-72 h-72 bg-secondary rounded-lg flex items-center justify-center">
-              <p className="text-muted-foreground">Failed to generate QR code</p>
+              <p className="text-muted-foreground">{t("qr.failed")}</p>
             </div>
           )}
         </div>
 
         {/* Short Code Display */}
         <div className="text-center space-y-2">
-          <p className="text-sm text-muted-foreground">Short Link</p>
-          <p className="font-mono text-lg font-semibold text-accent-blue break-all">
+          <p className="text-sm text-muted-foreground">{t("qr.shortLink")}</p>
+          <p className="font-mono text-lg font-semibold text-accent break-all">
             {fullUrl}
           </p>
         </div>
@@ -120,7 +130,7 @@ export default function QRPage() {
             className="w-full gap-2"
           >
             <Copy className="w-4 h-4" />
-            Copy Link
+            {t("qr.copyLink")}
           </Button>
 
           <Button
@@ -130,25 +140,13 @@ export default function QRPage() {
             disabled={!qrDataUrl}
           >
             <Download className="w-4 h-4" />
-            Download QR
+            {t("qr.download")}
           </Button>
-
-          {originalUrl && (
-            <Button
-              onClick={() => {
-                if (originalUrl) window.open(originalUrl, "_blank");
-              }}
-              className="w-full gap-2"
-            >
-              <ArrowRight className="w-4 h-4" />
-              Open Link
-            </Button>
-          )}
         </div>
 
         {/* Footer */}
         <div className="text-center text-xs text-muted-foreground pt-4 border-t border-border">
-          <p>This QR code will redirect to your link</p>
+          <p>{t("qr.footer")}</p>
         </div>
       </Card>
     </div>

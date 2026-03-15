@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
+import { createTenant, upsertUser, getTenantBySlug, getUserByOpenId } from "./db";
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
-function createAuthContext(userId: number = 1): TrpcContext {
+function createAuthContext(userId: number = 1, tenantId: number = 1): TrpcContext {
   const user: AuthenticatedUser = {
     id: userId,
     openId: `test-user-${userId}`,
@@ -12,6 +13,7 @@ function createAuthContext(userId: number = 1): TrpcContext {
     name: `Test User ${userId}`,
     loginMethod: "test",
     role: "user",
+    tenantId: tenantId,
     createdAt: new Date(),
     updatedAt: new Date(),
     lastSignedIn: new Date(),
@@ -34,9 +36,34 @@ function createAuthContext(userId: number = 1): TrpcContext {
 describe("Link Management", () => {
   let shortCode: string;
   let linkId: number;
+  let testTenantId: number;
+  let testUserId: number;
+
+  beforeAll(async () => {
+    // Seed a test tenant
+    const tenantSlug = "test-tenant-" + Date.now();
+    await createTenant({
+      name: "Test Tenant",
+      slug: tenantSlug,
+      isActive: 1,
+    });
+    const tenant = await getTenantBySlug(tenantSlug);
+    testTenantId = tenant!.id;
+
+    // Seed a test user
+    const openId = "test-user-" + Date.now();
+    await upsertUser({
+      openId,
+      name: "Test User",
+      role: "user",
+      tenantId: testTenantId,
+    });
+    const user = await getUserByOpenId(openId);
+    testUserId = user!.id;
+  });
 
   it("should create a short link", async () => {
-    const ctx = createAuthContext(1);
+    const ctx = createAuthContext(testUserId, testTenantId);
     const caller = appRouter.createCaller(ctx);
 
     shortCode = `test-${Date.now()}`;
@@ -51,7 +78,7 @@ describe("Link Management", () => {
   });
 
   it("should reject duplicate short codes", async () => {
-    const ctx = createAuthContext(1);
+    const ctx = createAuthContext(testUserId, testTenantId);
     const caller = appRouter.createCaller(ctx);
 
     try {
@@ -67,7 +94,7 @@ describe("Link Management", () => {
   });
 
   it("should validate short code format", async () => {
-    const ctx = createAuthContext(1);
+    const ctx = createAuthContext(testUserId, testTenantId);
     const caller = appRouter.createCaller(ctx);
 
     try {
@@ -83,7 +110,7 @@ describe("Link Management", () => {
   });
 
   it("should list user links", async () => {
-    const ctx = createAuthContext(1);
+    const ctx = createAuthContext(testUserId, testTenantId);
     const caller = appRouter.createCaller(ctx);
 
     const links = await caller.links.list();
@@ -94,7 +121,7 @@ describe("Link Management", () => {
   });
 
   it("should get link by short code", async () => {
-    const ctx = createAuthContext(1);
+    const ctx = createAuthContext(testUserId, testTenantId);
     const caller = appRouter.createCaller(ctx);
 
     const link = await caller.links.getByShortCode({
@@ -107,7 +134,7 @@ describe("Link Management", () => {
   });
 
   it("should record click statistics", async () => {
-    const ctx = createAuthContext(1);
+    const ctx = createAuthContext(testUserId, testTenantId);
     const caller = appRouter.createCaller(ctx);
 
     const result = await caller.links.recordClick({
@@ -120,7 +147,7 @@ describe("Link Management", () => {
   });
 
   it("should create notifications", async () => {
-    const ctx = createAuthContext(1);
+    const ctx = createAuthContext(testUserId, testTenantId);
     const caller = appRouter.createCaller(ctx);
 
     // First create a link to get its ID

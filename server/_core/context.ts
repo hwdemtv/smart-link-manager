@@ -1,6 +1,8 @@
+import { COOKIE_NAME } from "@shared/const";
+import { parse as parseCookieHeader } from "cookie";
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
-import { sdk } from "./sdk";
+import { authService } from "./sdk";
 import * as db from "../db";
 
 // 开发模式下的默认用户
@@ -30,6 +32,7 @@ async function ensureDevUserAndTenant(): Promise<User> {
   if (!user) {
     await db.upsertUser({
       openId: DEV_USER_OPEN_ID,
+      username: "dev",
       name: "Developer",
       email: "dev@localhost",
       role: "admin",
@@ -46,18 +49,37 @@ export async function createContext(
 ): Promise<TrpcContext> {
   let user: User | null = null;
 
+  // 从 Cookie 中获取 JWT Session Token 并验证
   try {
-    user = await sdk.authenticateRequest(opts.req);
+    const cookieHeader = opts.req.headers.cookie;
+    if (cookieHeader) {
+      const cookies = parseCookieHeader(cookieHeader);
+      const sessionCookie = cookies[COOKIE_NAME];
+      if (sessionCookie) {
+        const session = await authService.verifySession(sessionCookie);
+
+        if (session) {
+          const dbUser = await db.getUserByOpenId(session.openId);
+          if (dbUser) {
+            user = dbUser;
+          }
+        }
+      }
+    }
   } catch (error) {
-    // Authentication is optional for public procedures.
+    // 认证失败不影响公开接口
+    console.error("[Auth] Session verification error:", error);
     user = null;
   }
 
-  // 开发模式：如果没有用户，使用临时开发用户
-  if (!user && process.env.NODE_ENV === "development") {
+  // 开发模式：只有在没有任何 cookie 时才使用临时开发用户
+  // 如果有 session cookie（无论有效与否），说明用户正在尝试登录，不应该自动使用开发用户
+  const hasAnyCookie = opts.req.headers.cookie && opts.req.headers.cookie.length > 0;
+
+  if (!user && !hasAnyCookie && process.env.NODE_ENV === "development") {
     try {
       user = await ensureDevUserAndTenant();
-      console.log("[Dev] Using temporary dev user for development");
+      console.log("[Dev] Using temporary dev user for development (no cookies)");
     } catch (error) {
       console.error("[Dev] Failed to create dev user:", error);
     }

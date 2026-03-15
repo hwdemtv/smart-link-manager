@@ -3,12 +3,34 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Check, AlertCircle, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
+interface DomainRecord {
+  id: number;
+  domain: string;
+  isVerified: boolean;
+  verificationMethod: string;
+  verificationToken?: string;
+  createdAt: Date | string;
+}
 
 export default function Domains() {
+  const { t } = useTranslation();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [domain, setDomain] = useState("");
   const [verificationMethod, setVerificationMethod] = useState<"cname" | "txt" | "file">("cname");
@@ -22,98 +44,96 @@ export default function Domains() {
     e.preventDefault();
 
     if (!domain) {
-      toast.error("Please enter a domain");
+      toast.error(t("domains.enterDomain"));
       return;
     }
 
     try {
-      const result = await addDomainMutation.mutateAsync({
+      await (addDomainMutation.mutateAsync as any)({
         domain,
         verificationMethod,
       });
 
-      toast.success("Domain added! Please verify it using the instructions below.");
+      toast.success(t("domains.addSuccess"));
       setDomain("");
       setIsAddOpen(false);
       domainsQuery.refetch();
     } catch (error: any) {
-      toast.error(error.message || "Failed to add domain");
+      toast.error(error.message || t("domains.failedToAdd"));
     }
   };
 
   const handleVerifyDomain = async (domainId: number) => {
     try {
-      await verifyDomainMutation.mutateAsync({ domainId });
-      toast.success("Domain verified!");
+      await (verifyDomainMutation.mutateAsync as any)({ domainId });
+      toast.success(t("domains.verifiedSuccess"));
       domainsQuery.refetch();
     } catch (error: any) {
-      toast.error(error.message || "Failed to verify domain");
+      toast.error(error.message || t("domains.failedToVerify"));
     }
   };
 
   const handleDeleteDomain = async (domainId: number) => {
-    if (confirm("Are you sure you want to delete this domain?")) {
-      try {
-        await deleteDomainMutation.mutateAsync({ domainId });
-        toast.success("Domain deleted!");
-        domainsQuery.refetch();
-      } catch (error: any) {
-        toast.error(error.message || "Failed to delete domain");
-      }
+    try {
+      await (deleteDomainMutation.mutateAsync as any)({ domainId });
+      toast.success(t("domains.deleteSuccess"));
+      domainsQuery.refetch();
+    } catch (error: any) {
+      toast.error(error.message || t("domains.failedToDelete"));
     }
   };
 
-  const domains = domainsQuery.data || [];
+  const domains = (domainsQuery.data as unknown as DomainRecord[]) || [];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-border bg-card">
+    <div className="min-h-content bg-background">
+      {/* Header (Simplified for Layout) */}
+      <div className="border-b border-border/50 bg-card/10">
         <div className="container py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Custom Domains</h1>
-              <p className="mt-1 text-muted-foreground">Manage your short link domains</p>
+              <h1 className="text-3xl font-bold text-foreground">{t("domains.title")}</h1>
+              <p className="mt-1 text-muted-foreground">{t("domains.subtitle")}</p>
             </div>
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
               <DialogTrigger asChild>
                 <Button size="lg" className="gap-2">
                   <Plus className="w-4 h-4" />
-                  Add Domain
+                  {t("domains.addDomain")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Add Custom Domain</DialogTitle>
+                  <DialogTitle>{t("domains.addDomainTitle")}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleAddDomain} className="space-y-4">
                   <div>
-                    <Label htmlFor="domain">Domain *</Label>
+                    <Label htmlFor="domain">{t("domains.domainLabel")} *</Label>
                     <Input
                       id="domain"
                       placeholder="s.yourdomain.com"
                       value={domain}
-                      onChange={(e) => setDomain(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDomain(e.target.value)}
                       required
                       pattern="^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                      title="Valid domain name"
+                      title={t("domains.domainLabel")}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="method">Verification Method</Label>
+                    <Label htmlFor="method">{t("domains.verificationMethod")}</Label>
                     <select
                       id="method"
                       value={verificationMethod}
-                      onChange={(e) => setVerificationMethod(e.target.value as any)}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVerificationMethod(e.target.value as any)}
                       className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
                     >
-                      <option value="cname">CNAME Record</option>
-                      <option value="txt">TXT Record</option>
-                      <option value="file">File Upload</option>
+                      <option value="cname">{t("domains.cnameRecord")}</option>
+                      <option value="txt">{t("domains.txtRecord")}</option>
+                      <option value="file">{t("domains.fileUpload")}</option>
                     </select>
                   </div>
                   <Button type="submit" className="w-full" disabled={addDomainMutation.isPending}>
-                    {addDomainMutation.isPending ? "Adding..." : "Add Domain"}
+                    {addDomainMutation.isPending ? t("domains.adding") : t("domains.addDomain")}
                   </Button>
                 </form>
               </DialogContent>
@@ -126,14 +146,14 @@ export default function Domains() {
       <div className="container py-8">
         <Card className="p-6">
           {domainsQuery.isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Loading...</div>
+            <div className="text-center py-8 text-muted-foreground">{t("common.loading")}</div>
           ) : domains.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No domains yet. Add your first custom domain to get started!</p>
+              <p>{t("domains.noDomains")}</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {domains.map((domain) => (
+              {domains.map((domain: DomainRecord) => (
                 <div key={domain.id} className="p-4 border border-border rounded-lg hover:bg-secondary/50 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -142,22 +162,22 @@ export default function Domains() {
                         {domain.isVerified ? (
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 rounded text-xs font-medium">
                             <Check className="w-3 h-3" />
-                            Verified
+                            {t("domains.verified")}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100 rounded text-xs font-medium">
                             <AlertCircle className="w-3 h-3" />
-                            Pending
+                            {t("domains.pending")}
                           </span>
                         )}
                       </div>
 
                       {!domain.isVerified && (
                         <div className="mt-3 p-3 bg-secondary/50 rounded text-sm space-y-2">
-                          <p className="font-semibold">Verification Instructions ({domain.verificationMethod})</p>
+                          <p className="font-semibold">{t("domains.verificationInstructions", { method: domain.verificationMethod.toUpperCase() })}</p>
                           {domain.verificationMethod === "cname" && (
                             <div>
-                              <p>Add this CNAME record to your DNS:</p>
+                              <p>{t("domains.addCnamePrompt")}</p>
                               <code className="block bg-background p-2 rounded mt-1 font-mono text-xs break-all">
                                 s CNAME {window.location.hostname}
                               </code>
@@ -165,7 +185,7 @@ export default function Domains() {
                           )}
                           {domain.verificationMethod === "txt" && (
                             <div>
-                              <p>Add this TXT record to your DNS:</p>
+                              <p>{t("domains.addTxtPrompt")}</p>
                               <code className="block bg-background p-2 rounded mt-1 font-mono text-xs break-all">
                                 v=verification {domain.verificationToken}
                               </code>
@@ -173,7 +193,7 @@ export default function Domains() {
                           )}
                           {domain.verificationMethod === "file" && (
                             <div>
-                              <p>Upload this file to your domain:</p>
+                              <p>{t("domains.uploadFilePrompt")}</p>
                               <code className="block bg-background p-2 rounded mt-1 font-mono text-xs">
                                 /.well-known/verification-{domain.verificationToken}
                               </code>
@@ -183,7 +203,7 @@ export default function Domains() {
                       )}
 
                       <p className="text-xs text-muted-foreground mt-2">
-                        Added on {new Date(domain.createdAt).toLocaleDateString()}
+                        {t("domains.addedOn", { date: new Date(domain.createdAt).toLocaleDateString() })}
                       </p>
                     </div>
 
@@ -195,17 +215,38 @@ export default function Domains() {
                           onClick={() => handleVerifyDomain(domain.id)}
                           disabled={verifyDomainMutation.isPending}
                         >
-                          Verify
+                          {t("domains.verify")}
                         </Button>
                       )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeleteDomain(domain.id)}
-                        disabled={deleteDomainMutation.isPending}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={deleteDomainMutation.isPending}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t("domains.deleteConfirm")}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t("common.thisActionCannotBeUndone")}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteDomain(domain.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              {t("common.delete")}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 </div>
@@ -218,16 +259,16 @@ export default function Domains() {
       {/* Info Section */}
       <div className="container py-8">
         <Card className="p-6 bg-secondary/50">
-          <h2 className="text-lg font-semibold mb-4">How to Use Custom Domains</h2>
-          <div className="space-y-3 text-sm">
+          <h2 className="text-lg font-semibold mb-4">{t("domains.howToUse")}</h2>
+          <div className="space-y-3 text-sm text-muted-foreground">
             <p>
-              Custom domains allow you to create short links with your own domain, such as <code className="bg-background px-2 py-1 rounded">https://s.yourdomain.com/abc123</code>
+              {t("domains.howToUseDesc1")} <code className="bg-background px-2 py-1 rounded text-foreground">https://s.yourdomain.com/abc123</code>
             </p>
             <p>
-              After adding a domain, you'll need to verify it by adding DNS records or uploading a verification file. Once verified, you can use it when creating new short links.
+              {t("domains.howToUseDesc2")}
             </p>
             <p>
-              The same short code can be used with different domains, so you can have <code className="bg-background px-2 py-1 rounded">s1.domain.com/abc123</code> and <code className="bg-background px-2 py-1 rounded">s2.domain.com/abc123</code> pointing to different links.
+              {t("domains.howToUseDesc3")}
             </p>
           </div>
         </Card>

@@ -1,4 +1,5 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { sql } from "drizzle-orm";
+import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Tenants table: represents each SaaS customer
@@ -11,8 +12,8 @@ export const tenants = mysqlTable("tenants", {
   logo: text("logo"), // URL to tenant logo
   primaryColor: varchar("primaryColor", { length: 7 }), // Hex color for branding
   isActive: int("isActive").default(1).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
 });
 
 export type Tenant = typeof tenants.$inferSelect;
@@ -29,16 +30,20 @@ export const users = mysqlTable("users", {
    * Use this for relations between tables.
    */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
+  /** 用户唯一标识符，用于内部关联 */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
+  /** 登录用户名 */
+  username: varchar("username", { length: 64 }).unique(),
+  /** 密码哈希（scrypt） */
+  passwordHash: varchar("passwordHash", { length: 256 }),
   tenantId: int("tenantId").references(() => tenants.id), // NULL for platform admins
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin", "tenant_admin"]).default("user").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
+  lastSignedIn: timestamp("lastSignedIn").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -60,8 +65,13 @@ export const links = mysqlTable("links", {
   lastCheckedAt: timestamp("lastCheckedAt"),
   clickCount: int("clickCount").default(0).notNull(),
   expiresAt: timestamp("expiresAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  passwordHash: varchar("passwordHash", { length: 256 }), // 访问密码（scrypt 存储）
+  tags: json("tags").$type<string[]>(), // JSON格式标签数组 [ "营销", "内部" ]
+  seoTitle: varchar("seoTitle", { length: 255 }),
+  seoDescription: text("seoDescription"),
+  seoImage: text("seoImage"),
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
 });
 
 export type Link = typeof links.$inferSelect;
@@ -79,8 +89,8 @@ export const domains = mysqlTable("domains", {
   verificationToken: varchar("verificationToken", { length: 255 }),
   verificationMethod: varchar("verificationMethod", { length: 50 }), // 'cname', 'txt', 'file'
   verifiedAt: timestamp("verifiedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
 });
 
 export type Domain = typeof domains.$inferSelect;
@@ -100,7 +110,7 @@ export const linkStats = mysqlTable("link_stats", {
   country: varchar("country", { length: 100 }),
   city: varchar("city", { length: 100 }),
   referer: text("referer"),
-  clickedAt: timestamp("clickedAt").defaultNow().notNull(),
+  clickedAt: timestamp("clickedAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export type LinkStat = typeof linkStats.$inferSelect;
@@ -115,7 +125,7 @@ export const linkChecks = mysqlTable("link_checks", {
   isValid: int("isValid").notNull(), // 1 = valid, 0 = invalid
   statusCode: int("statusCode"),
   errorMessage: text("errorMessage"),
-  checkedAt: timestamp("checkedAt").defaultNow().notNull(),
+  checkedAt: timestamp("checkedAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export type LinkCheck = typeof linkChecks.$inferSelect;
@@ -133,7 +143,7 @@ export const notifications = mysqlTable("notifications", {
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message"),
   isRead: int("isRead").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export type Notification = typeof notifications.$inferSelect;
@@ -154,8 +164,8 @@ export const subscriptionPlans = mysqlTable("subscription_plans", {
   maxCustomDomains: int("maxCustomDomains").notNull(),
   features: text("features"), // JSON array of features
   isActive: int("isActive").default(1).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
 });
 
 export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
@@ -173,8 +183,8 @@ export const subscriptions = mysqlTable("subscriptions", {
   currentPeriodStart: timestamp("currentPeriodStart").notNull(),
   currentPeriodEnd: timestamp("currentPeriodEnd").notNull(),
   cancelledAt: timestamp("cancelledAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
 });
 
 export type Subscription = typeof subscriptions.$inferSelect;
@@ -190,8 +200,44 @@ export const usageLogs = mysqlTable("usage_logs", {
   linksCreated: int("linksCreated").default(0).notNull(),
   apiCalls: int("apiCalls").default(0).notNull(),
   totalClicks: int("totalClicks").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export type UsageLog = typeof usageLogs.$inferSelect;
 export type InsertUsageLog = typeof usageLogs.$inferInsert;
+
+/**
+ * API Keys table: stores hashed API keys for developer access
+ */
+export const apiKeys = mysqlTable("api_keys", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(), // Label for the key
+  prefix: varchar("prefix", { length: 16 }).notNull(), // slm_...
+  keyHash: varchar("keyHash", { length: 256 }).notNull(), // Hashed full key
+  lastUsedAt: timestamp("lastUsedAt"),
+  expiresAt: timestamp("expiresAt"),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
+});
+
+export type ApiKey = typeof apiKeys.$inferSelect;
+export type InsertApiKey = typeof apiKeys.$inferInsert;
+
+/**
+ * Tenant Configs table: stores dynamic, key-value settings for each tenant
+ * Used for AI model parameters, branding preferences, etc.
+ */
+export const tenantConfigs = mysqlTable("tenant_configs", {
+  id: int("id").autoincrement().primaryKey(),
+  tenantId: int("tenantId").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  configKey: varchar("configKey", { length: 100 }).notNull(), // e.g., 'ai_model_config'
+  configValue: json("configValue").notNull(), // JSON blob of parameters
+  createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
+});
+
+export type TenantConfig = typeof tenantConfigs.$inferSelect;
+export type InsertTenantConfig = typeof tenantConfigs.$inferInsert;

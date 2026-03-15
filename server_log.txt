@@ -1,0 +1,15 @@
+
+> smart-link-manager@1.0.0 dev D:\杞欢寮€鍙慭smart-link-manager
+> tsx watch server/_core/index.ts
+
+[Init] Creating default admin account: admin
+[Init] Default admin created successfully (admin/admin123)
+Server running on http://localhost:3000/
+[Dev] Using temporary dev user for development
+[Dev] Using temporary dev user for development
+[Dev] Using temporary dev user for development
+09:55:19 [tsx] change in ./server\db.ts Restarting...
+c[Init] Creating default admin account: admin
+[Init] Default admin created successfully (admin/admin123)
+Server running on http://localhost:3000/
+[Dev] Using temporary dev user for development

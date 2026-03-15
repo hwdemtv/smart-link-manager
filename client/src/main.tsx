@@ -1,24 +1,27 @@
 import { trpc } from "@/lib/trpc";
-import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
-import { getLoginUrl } from "./const";
 import "./index.css";
+import "@/lib/i18n";
 
 const queryClient = new QueryClient();
 
+// 未认证时重定向到登录页（非 OAuth）
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
   if (typeof window === "undefined") return;
 
-  const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
-
+  const isUnauthorized = error.message === "Please login (10001)";
   if (!isUnauthorized) return;
 
-  window.location.href = getLoginUrl();
+  // 如果已经在登录页或首页，不重定向
+  const path = window.location.pathname;
+  if (path === "/login" || path === "/" || path.startsWith("/qr/") || path.startsWith("/s/")) return;
+
+  window.location.href = "/login";
 };
 
 queryClient.getQueryCache().subscribe(event => {

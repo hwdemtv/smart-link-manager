@@ -87,6 +87,42 @@ export function detectDevice(userAgent: string): DeviceInfo {
 }
 
 /**
+ * Detect social media and search engine bots
+ */
+export function isBot(userAgent: string): boolean {
+  const bots = [
+    /googlebot/i,
+    /bingbot/i,
+    /slurp/i,
+    /duckduckbot/i,
+    /baiduspider/i,
+    /yandexbot/i,
+    /facebookexternalhit/i,
+    /twitterbot/i,
+    /rogerbot/i,
+    /linkedinbot/i,
+    /embedly/i,
+    /quora link preview/i,
+    /showyoubot/i,
+    /outbrain/i,
+    /pinterest/i,
+    /slackbot/i,
+    /vkShare/i,
+    /W3C_Validator/i,
+    /redditbot/i,
+    /Applebot/i,
+    /WhatsApp/i,
+    /flipboard/i,
+    /tumblr/i,
+    /bitlybot/i,
+    /SkypeShell/i,
+    /TelegramBot/i,
+    /Discordbot/i,
+  ];
+  return bots.some(pattern => pattern.test(userAgent));
+}
+
+/**
  * Check if device is mobile
  */
 export function isMobile(userAgent: string): boolean {
