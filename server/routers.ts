@@ -2,7 +2,7 @@ import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
-import { tenantRouter } from "./tenantRouter";
+import { userRouter } from "./userRouter";
 import { authService } from "./_core/sdk";
 import { generateSeoFromUrl } from "./aiSeoService";
 import { z } from "zod";
@@ -15,7 +15,6 @@ import {
   createLink,
   getLinkByShortCode,
   getLinksByUserId,
-  getLinksByTenant,
   getLinkById,
   updateLink,
   deleteLink,
@@ -31,24 +30,23 @@ import {
   getUnreadNotifications,
   addDomain,
   getUserDomains,
-  getDomainsByTenant,
   getDomainByName,
   verifyDomain,
   getLinkByDomainAndCode,
   deleteDomain,
   getUserByUsername,
   upsertUser,
-  getTenantBySlug,
-  createTenant,
   checkShortCodes,
   getGlobalStatsSummary,
   batchDeleteLinks,
   batchUpdateLinks,
   batchUpdateLinksTags,
-  getTenantConfig,
-  upsertTenantConfig,
+  getUserLinkCount,
+  getUserDomainCount,
+  recordUsage,
 } from "./db";
 import { apiKeyService } from "./apiKeyService";
+import { licenseService } from "./licenseService";
 
 const scryptAsync = promisify(scrypt);
 
@@ -88,7 +86,7 @@ export const appRouter = router({
         console.log(`[LOGIN] Attempt for username: ${input.username}`);
         const user = await getUserByUsername(input.username);
         console.log(`[LOGIN] User fetched:`, user);
-        
+
         if (!user || !user.passwordHash) {
           console.error(`[LOGIN] User not found or no password hash for: ${input.username}`);
           throw new TRPCError({
@@ -129,6 +127,7 @@ export const appRouter = router({
             username: user.username,
             name: user.name,
             role: user.role,
+            subscriptionTier: user.subscriptionTier,
           },
         };
       }),
@@ -153,24 +152,13 @@ export const appRouter = router({
         const passwordHash = await hashPassword(input.password);
         const openId = `user-${randomBytes(12).toString("hex")}`;
 
-        // 确保默认租户存在
-        let tenant = await getTenantBySlug("default");
-        if (!tenant) {
-          await createTenant({
-            name: "Default Tenant",
-            slug: "default",
-            isActive: 1,
-          });
-          tenant = await getTenantBySlug("default");
-        }
-
         await upsertUser({
           openId,
           username: input.username,
           passwordHash,
           name: input.name || input.username,
           role: "user",
-          tenantId: tenant?.id,
+          subscriptionTier: "free",
           lastSignedIn: new Date(),
         });
 
@@ -247,17 +235,21 @@ export const appRouter = router({
           }
         }
 
-        if (!ctx.user.tenantId) {
+        // Quota check based on subscription tier
+        const tier = ctx.user.subscriptionTier || 'free';
+        const limits = licenseService.getTierLimits(tier);
+        const currentLinks = await getUserLinkCount(ctx.user.id);
+
+        if (limits.maxLinks !== -1 && currentLinks >= limits.maxLinks) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: ErrorCodes.FORBIDDEN_NO_TENANT,
+            message: `Quota exceeded: Maximum ${limits.maxLinks} links for your current plan. Please upgrade your subscription.`,
           });
         }
 
         const passwordHash = input.password ? await hashPassword(input.password) : null;
 
         const link = await createLink({
-          tenantId: ctx.user.tenantId,
           userId: ctx.user.id,
           originalUrl: input.originalUrl,
           shortCode: input.shortCode,
@@ -271,6 +263,13 @@ export const appRouter = router({
           seoImage: input.seoImage,
         });
 
+        // 记录使用情况
+        await recordUsage({
+          userId: ctx.user.id,
+          date: new Date().toISOString().split("T")[0],
+          linksCreated: 1,
+        });
+
         return {
           success: true,
           shortCode: input.shortCode,
@@ -281,13 +280,9 @@ export const appRouter = router({
         };
       }),
 
-    // Get all links for the user (or tenant if tenant admin)
+    // Get all links for the user
     list: protectedProcedure.query(async ({ ctx }) => {
-      // Tenant admin can see all links in their tenant
-      // Regular user only sees their own links
-      const links = (ctx.user.role === "tenant_admin" || ctx.user.role === "admin") && ctx.user.tenantId
-        ? await getLinksByTenant(ctx.user.tenantId)
-        : await getLinksByUserId(ctx.user.id);
+      const links = await getLinksByUserId(ctx.user.id);
 
       return links.map((link: any) => ({
         ...link,
@@ -333,11 +328,8 @@ export const appRouter = router({
             message: ErrorCodes.LINK_NOT_FOUND,
           });
         }
-        // Tenant admin can access any link in their tenant
-        // Regular user can only access their own links
-        const canAccess = ctx.user.role === "admin" ||
-          (ctx.user.role === "tenant_admin" && link.tenantId === ctx.user.tenantId) ||
-          link.userId === ctx.user.id;
+        // Admin can access any link, regular user can only access their own
+        const canAccess = ctx.user.role === "admin" || link.userId === ctx.user.id;
 
         if (!canAccess) {
           throw new TRPCError({
@@ -378,11 +370,8 @@ export const appRouter = router({
           });
         }
 
-        // Tenant admin can update any link in their tenant
-        // Regular user can only update their own links
-        const canUpdate = ctx.user.role === "admin" ||
-          (ctx.user.role === "tenant_admin" && link.tenantId === ctx.user.tenantId) ||
-          link.userId === ctx.user.id;
+        // Admin can update any link, regular user can only update their own
+        const canUpdate = ctx.user.role === "admin" || link.userId === ctx.user.id;
 
         if (!canUpdate) {
           throw new TRPCError({
@@ -439,11 +428,8 @@ export const appRouter = router({
           });
         }
 
-        // Tenant admin can delete any link in their tenant
-        // Regular user can only delete their own links
-        const canDelete = ctx.user.role === "admin" ||
-          (ctx.user.role === "tenant_admin" && link.tenantId === ctx.user.tenantId) ||
-          link.userId === ctx.user.id;
+        // Admin can delete any link, regular user can only delete their own
+        const canDelete = ctx.user.role === "admin" || link.userId === ctx.user.id;
 
         if (!canDelete) {
           throw new TRPCError({
@@ -461,7 +447,7 @@ export const appRouter = router({
       .input(z.object({ linkId: z.number() }))
       .query(async ({ ctx, input }) => {
         const link = await getLinkById(input.linkId);
-        if (!link || link.userId !== ctx.user.id) {
+        if (!link || (link.userId !== ctx.user.id && ctx.user.role !== "admin")) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: ErrorCodes.LINK_NOT_FOUND,
@@ -474,13 +460,7 @@ export const appRouter = router({
     globalStats: protectedProcedure
       .input(z.object({ days: z.number().default(7) }).optional())
       .query(async ({ ctx, input }) => {
-        if (!ctx.user.tenantId) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: ErrorCodes.FORBIDDEN_NO_TENANT,
-          });
-        }
-        return await getGlobalStatsSummary(ctx.user.tenantId, input?.days || 7);
+        return await getGlobalStatsSummary(ctx.user.id, input?.days || 7);
       }),
 
     // Check if short codes are already taken
@@ -558,10 +538,15 @@ export const appRouter = router({
         })),
       }))
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.user.tenantId) {
+        // Check quota
+        const tier = ctx.user.subscriptionTier || 'free';
+        const limits = licenseService.getTierLimits(tier);
+        const currentLinks = await getUserLinkCount(ctx.user.id);
+
+        if (limits.maxLinks !== -1 && currentLinks + input.links.length > limits.maxLinks) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: ErrorCodes.FORBIDDEN_NO_TENANT,
+            message: `Import would exceed quota. Maximum ${limits.maxLinks} links for your current plan.`,
           });
         }
 
@@ -587,7 +572,6 @@ export const appRouter = router({
             }
 
             await createLink({
-              tenantId: ctx.user.tenantId,
               userId: ctx.user.id,
               originalUrl: linkData.originalUrl,
               shortCode,
@@ -822,15 +806,7 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.user.tenantId) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: ErrorCodes.FORBIDDEN_NO_TENANT,
-          });
-        }
-
         await createNotification({
-          tenantId: ctx.user.tenantId,
           userId: ctx.user.id,
           linkId: input.linkId,
           type: input.type,
@@ -861,16 +837,20 @@ export const appRouter = router({
           });
         }
 
-        if (!ctx.user.tenantId) {
+        // Check domain quota
+        const tier = ctx.user.subscriptionTier || 'free';
+        const limits = licenseService.getTierLimits(tier);
+        const currentDomains = await getUserDomainCount(ctx.user.id);
+
+        if (limits.maxDomains !== -1 && currentDomains >= limits.maxDomains) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: ErrorCodes.FORBIDDEN_NO_TENANT,
+            message: `Maximum ${limits.maxDomains} domains for your current plan.`,
           });
         }
 
         const verificationToken = Math.random().toString(36).substring(2, 15);
         await addDomain({
-          tenantId: ctx.user.tenantId,
           userId: ctx.user.id,
           domain: input.domain,
           isVerified: 0,
@@ -886,13 +866,9 @@ export const appRouter = router({
         };
       }),
 
-    // Get user's domains (or tenant's domains if tenant admin)
+    // Get user's domains
     list: protectedProcedure.query(async ({ ctx }) => {
-      // Tenant admin can see all domains in their tenant
-      // Regular user only sees their own domains
-      const domains = (ctx.user.role === "tenant_admin" || ctx.user.role === "admin") && ctx.user.tenantId
-        ? await getDomainsByTenant(ctx.user.tenantId)
-        : await getUserDomains(ctx.user.id);
+      const domains = await getUserDomains(ctx.user.id);
       return domains;
     }),
 
@@ -930,18 +906,20 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({ name: z.string().min(1).max(50) }))
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.user.tenantId) {
+        // Check API key quota
+        const tier = ctx.user.subscriptionTier || 'free';
+        const limits = licenseService.getTierLimits(tier);
+        const existingKeys = await apiKeyService.listKeys(ctx.user.id);
+        const activeKeys = existingKeys.filter((k: any) => k.isActive);
+
+        if (limits.maxApiKeys !== -1 && activeKeys.length >= limits.maxApiKeys) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "User must belong to a tenant to generate API keys",
+            message: `Maximum ${limits.maxApiKeys} API keys for your current plan.`,
           });
         }
-        return apiKeyService.generateKey(ctx.user.tenantId, ctx.user.id, input.name);
-      }),
-    generateSeo: protectedProcedure
-      .input(z.object({ url: z.string().url() }))
-      .mutation(async ({ ctx, input }) => {
-        return generateSeoFromUrl(input.url, ctx.user.tenantId || undefined);
+
+        return apiKeyService.generateKey(ctx.user.id, input.name);
       }),
     revoke: protectedProcedure
       .input(z.object({ id: z.number() }))
@@ -951,15 +929,16 @@ export const appRouter = router({
   }),
 
   configs: router({
-    getAiConfig: protectedProcedure
-      .query(async ({ ctx }) => {
-        if (!ctx.user.tenantId) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant required" });
-        }
-        const config = await getTenantConfig(ctx.user.tenantId, "ai_model_config");
-        return (config?.configValue as any) || null;
-      }),
-    
+    getAiConfig: protectedProcedure.query(async () => {
+      // Return global AI config from environment variables
+      return {
+        provider: "openai",
+        baseUrl: process.env.FORGE_API_URL || "",
+        apiKey: "", // Never expose API key
+        model: "gpt-4o",
+        temperature: 0.3,
+      };
+    }),
     updateAiConfig: protectedProcedure
       .input(z.object({
         provider: z.string().default("openai"),
@@ -969,15 +948,14 @@ export const appRouter = router({
         temperature: z.number().min(0).max(2).default(0.3),
       }))
       .mutation(async ({ ctx, input }) => {
-        if (!ctx.user.tenantId) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "Tenant required" });
-        }
-        await upsertTenantConfig(ctx.user.tenantId, "ai_model_config", input);
-        return { success: true };
+        // In the new architecture, AI config is managed via environment variables
+        // This endpoint is kept for UI compatibility but changes are not persisted
+        // To change AI config, update the .env file
+        return { success: true, message: "AI config is managed via environment variables" };
       }),
   }),
 
-  tenant: tenantRouter,
+  user: userRouter,
 });
 
 export type AppRouter = typeof appRouter;

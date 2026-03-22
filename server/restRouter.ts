@@ -1,6 +1,6 @@
 import express from "express";
 import { apiKeyService } from "./apiKeyService";
-import { createLink, getLinkByShortCode, getLinksByTenant } from "./db";
+import { createLink, getLinkByShortCode, getLinksByUserId } from "./db";
 import { logger } from "./_core/logger";
 
 const router = express.Router();
@@ -22,7 +22,6 @@ const apiKeyAuth = async (req: any, res: any, next: any) => {
   }
 
   req.user = { id: identity.userId };
-  req.tenant = { id: identity.tenantId };
   next();
 };
 
@@ -31,11 +30,11 @@ router.use(apiKeyAuth);
 
 /**
  * GET /api/v1/links
- * List all links for the tenant
+ * List all links for the user
  */
 router.get("/links", async (req: any, res) => {
   try {
-    const links = await getLinksByTenant(req.tenant.id);
+    const links = await getLinksByUserId(req.user.id);
     res.json(links);
   } catch (error) {
     logger.error("[REST API] Failed to list links:", error);
@@ -62,7 +61,6 @@ router.post("/links", async (req: any, res) => {
     }
 
     const newLink = await createLink({
-      tenantId: req.tenant.id,
       userId: req.user.id,
       originalUrl,
       shortCode,

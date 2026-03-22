@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Globe, ShieldCheck, Link2, Terminal, Bot } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Globe, ShieldCheck, Link2, Terminal, Bot, Settings, Key, ChevronRight } from "lucide-react";
 import * as React from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -30,18 +30,17 @@ import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
-const DEFAULT_WIDTH = 260;
+const DEFAULT_WIDTH = 280;
 const MIN_WIDTH = 200;
 const MAX_WIDTH = 480;
 
 export default function DashboardLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: any) {
   const [sidebarWidth, setSidebarWidth] = React.useState(() => {
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
-    return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
+    const parsed = saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
+    return parsed < DEFAULT_WIDTH ? DEFAULT_WIDTH : parsed;
   });
   const { loading, user } = useAuth();
   const { t } = useTranslation();
@@ -85,7 +84,9 @@ export default function DashboardLayout({
       style={
         {
           "--sidebar-width": `${sidebarWidth}px`,
-        } as React.CSSProperties
+          "--primary": "#1d4ed8",
+          "--ring": "#1d4ed8",
+        } as any
       }
     >
       <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
@@ -96,14 +97,14 @@ export default function DashboardLayout({
 }
 
 type DashboardLayoutContentProps = {
-  children: React.ReactNode;
+  children: any;
   setSidebarWidth: (width: number) => void;
 };
 
 function DashboardLayoutContent({
   children,
   setSidebarWidth,
-}: DashboardLayoutContentProps) {
+}: any) {
   const { user, logout } = useAuth();
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar } = useSidebar();
@@ -113,24 +114,29 @@ function DashboardLayoutContent({
   const sidebarRef = React.useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  const menuItems = [
+  const mainItems = [
     { icon: LayoutDashboard, label: t("common.analytics"), path: "/dashboard" },
     { icon: Link2, label: t("common.links"), path: "/links" },
     { icon: Globe, label: t("dashboard.customDomain"), path: "/domains" },
     { icon: Terminal, label: "OpenAPI", path: "/api-keys" },
+  ];
+
+  const manageItems = [
     { icon: Bot, label: "AI 设置", path: "/ai-settings" },
+    { icon: Key, label: t("license.title"), path: "/license" },
   ];
 
   // Add Admin menu if applicable
   if (user?.role === "admin") {
-    menuItems.push({ 
-      icon: ShieldCheck, 
-      label: t("admin.tenants"), 
-      path: "/admin" 
+    manageItems.push({
+      icon: ShieldCheck,
+      label: t("admin.dashboardTitle"),
+      path: "/admin"
     });
   }
 
-  const activeMenuItem = menuItems.find(item => item.path === location);
+  const allItems = [...mainItems, ...manageItems];
+  const activeMenuItem = allItems.find(item => item.path === location);
 
   React.useEffect(() => {
     if (isCollapsed) {
@@ -176,42 +182,89 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center">
-            <div className="flex items-center gap-3 px-2 transition-all w-full">
-              <button
-                onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
-                aria-label="Toggle navigation"
-              >
-                <PanelLeft className="h-4 w-4 text-muted-foreground" />
-              </button>
-              {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
-                  <Link2 className="h-5 w-5 text-accent-blue" />
-                  <span className="font-semibold tracking-tight truncate">
-                    {t("common.brandName")}
-                  </span>
+          <SidebarHeader className="h-16 justify-center overflow-hidden">
+            <div className="flex items-center justify-between px-2 transition-all w-full">
+              <div className="flex items-center gap-3 min-w-0">
+                <button
+                  onClick={toggleSidebar}
+                  className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+                  aria-label="Toggle navigation"
+                >
+                  <PanelLeft className="h-4 w-4 text-muted-foreground" />
+                </button>
+                {!isCollapsed ? (
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Link2 className="h-4 w-4 text-accent-blue shrink-0" />
+                    <span className="font-semibold tracking-tight truncate text-sm">
+                      {t("common.brandName")}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+              {!isCollapsed && (
+                <div className="shrink-0 scale-90 origin-right">
+                  <LanguageSwitcher />
                 </div>
-              ) : null}
+              )}
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="gap-0">
-            <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
+          <SidebarContent className="gap-2 pt-2">
+            <SidebarMenu className="px-2">
+              {mainItems.map(item => {
                 const isActive = location === item.path;
                 return (
-                  <SidebarMenuItem key={item.path}>
+                  <SidebarMenuItem key={item.path} className="mb-0.5">
                     <SidebarMenuButton
                       isActive={isActive}
                       onClick={() => setLocation(item.path)}
                       tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
+                      className={`h-11 transition-all rounded-xl px-3 group flex items-center justify-between`}
                     >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-accent-blue" : ""}`}
-                      />
-                      <span>{item.label}</span>
+                      <div className="flex items-center gap-3">
+                        <item.icon
+                          className={`h-[18px] w-[18px] ${isActive ? "text-accent-blue" : "text-muted-foreground/70"}`}
+                        />
+                        <span className={`font-medium ${isActive ? "text-accent-blue" : "text-foreground/80"}`}>{item.label}</span>
+                      </div>
+                      {!isCollapsed && (
+                        <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${isActive ? "text-accent-blue opacity-100" : "text-muted-foreground/30 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5"}`} />
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+
+            <div className="mt-4 mb-2 px-5 group-data-[collapsible=icon]:hidden">
+              <div className="h-px bg-border/50 w-full" />
+            </div>
+
+            <SidebarMenu className="px-2">
+              {!isCollapsed && (
+                <div className="px-3 mb-2 text-[11px] font-bold text-muted-foreground/50 tracking-wider uppercase group-data-[collapsible=icon]:hidden">
+                  {t("common.management")}
+                </div>
+              )}
+              {manageItems.map(item => {
+                const isActive = location === item.path;
+                return (
+                  <SidebarMenuItem key={item.path} className="mb-0.5">
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      onClick={() => setLocation(item.path)}
+                      tooltip={item.label}
+                      className={`h-11 transition-all rounded-xl px-3 group flex items-center justify-between`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <item.icon
+                          className={`h-[18px] w-[18px] ${isActive ? "text-accent-blue" : "text-muted-foreground/70"}`}
+                        />
+                        <span className={`font-medium ${isActive ? "text-accent-blue" : "text-foreground/80"}`}>{item.label}</span>
+                      </div>
+                      {!isCollapsed && (
+                        <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${isActive ? "text-accent-blue opacity-100" : "text-muted-foreground/30 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5"}`} />
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -221,11 +274,6 @@ function DashboardLayoutContent({
 
           <SidebarFooter className="p-3">
             <div className="flex flex-col gap-2">
-              {!isCollapsed && (
-                <div className="px-1 flex justify-center mb-2">
-                  <LanguageSwitcher />
-                </div>
-              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -239,7 +287,7 @@ function DashboardLayoutContent({
                         {user?.name || "-"}
                       </p>
                       <p className="text-xs text-muted-foreground truncate mt-1.5 opacity-70">
-                        {user?.role === "admin" ? t("auth.saasAdmin") : t("auth.tenantMember")}
+                        {user?.role === "admin" ? t("auth.saasAdmin") : t("auth.user")}
                       </p>
                     </div>
                   </button>

@@ -23,7 +23,7 @@ export const notificationQueue = new Queue("notifications", {
  * Process link validity check jobs
  */
 linkCheckQueue.process(async (job) => {
-  const { linkId, originalUrl, userId, tenantId } = job.data;
+  const { linkId, originalUrl, userId } = job.data;
 
   try {
     // Check link validity
@@ -43,7 +43,6 @@ linkCheckQueue.process(async (job) => {
     // If link became invalid, create notification
     if (!result.isValid) {
       await createNotification({
-        tenantId,
         userId,
         linkId,
         type: "link_invalid",

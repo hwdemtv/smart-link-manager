@@ -7,7 +7,6 @@ import * as db from "../db";
 
 // 开发模式下的默认用户
 const DEV_USER_OPEN_ID = "dev-user-temp";
-const DEV_TENANT_SLUG = "dev-tenant";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -15,18 +14,7 @@ export type TrpcContext = {
   user: User | null;
 };
 
-async function ensureDevUserAndTenant(): Promise<User> {
-  // 确保开发租户存在
-  let tenant = await db.getTenantBySlug(DEV_TENANT_SLUG);
-  if (!tenant) {
-    await db.createTenant({
-      name: "Development Tenant",
-      slug: DEV_TENANT_SLUG,
-      isActive: 1,
-    });
-    tenant = await db.getTenantBySlug(DEV_TENANT_SLUG);
-  }
-
+async function ensureDevUser(): Promise<User> {
   // 确保开发用户存在
   let user = await db.getUserByOpenId(DEV_USER_OPEN_ID);
   if (!user) {
@@ -36,7 +24,7 @@ async function ensureDevUserAndTenant(): Promise<User> {
       name: "Developer",
       email: "dev@localhost",
       role: "admin",
-      tenantId: tenant?.id,
+      subscriptionTier: "business", // 开发用户默认 business 权限
     });
     user = await db.getUserByOpenId(DEV_USER_OPEN_ID);
   }
@@ -78,7 +66,7 @@ export async function createContext(
 
   if (!user && !hasAnyCookie && process.env.NODE_ENV === "development") {
     try {
-      user = await ensureDevUserAndTenant();
+      user = await ensureDevUser();
       console.log("[Dev] Using temporary dev user for development (no cookies)");
     } catch (error) {
       console.error("[Dev] Failed to create dev user:", error);

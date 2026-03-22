@@ -35,7 +35,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import type { Link, Domain } from "../../../drizzle/schema";
 
 export default function Dashboard() {
@@ -57,7 +56,8 @@ export default function Dashboard() {
   
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set<number>());
+  const initialSelectedIds: Set<number> = new Set();
+  const [selectedIds, setSelectedIds] = React.useState(initialSelectedIds);
   
   const [formData, setFormData] = useState({
     originalUrl: "",
@@ -183,10 +183,9 @@ export default function Dashboard() {
       try {
         const seo = await generateSeoMutation.mutateAsync({ url: link.originalUrl });
         await updateLinkMutation.mutateAsync({
-          linkId: id,
-          seoTitle: seo.seoTitle,
-          seoDescription: seo.seoDescription,
-          seoImage: seo.seoImage
+          linkId: id as any,
+          seoTitle: (seo as any).seoTitle,
+          seoDescription: (seo as any).seoDescription,
         });
         successCount++;
       } catch (e) {
@@ -456,6 +455,9 @@ export default function Dashboard() {
       expiresAt: link.expiresAt ? new Date(link.expiresAt).toISOString().slice(0, 16) : "",
       password: "", // 密码不回显
       tagsString: link.tags ? link.tags.join(", ") : "",
+      seoTitle: link.seoTitle || "",
+      seoDescription: link.seoDescription || "",
+      seoImage: link.seoImage || "",
     });
     setIsEditOpen(true);
   };
@@ -982,7 +984,9 @@ export default function Dashboard() {
                       </td>
                       <td className="py-3 px-4">
                         {link.passwordHash && (
-                          <Lock className="w-3 h-3 text-amber-500" title={t("dashboard.passwordProtected")} />
+                          <span title={t("dashboard.passwordProtected")}>
+                            <Lock className="w-3 h-3 text-amber-500" />
+                          </span>
                         )}
                       </td>
                       <td className="py-3 px-4">

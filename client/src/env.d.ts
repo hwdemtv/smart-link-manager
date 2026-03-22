@@ -1,18 +1,10 @@
-declare module "react";
+/// <reference types="vite/client" />
+
 declare module "wouter";
 declare module "qrcode";
-declare module "lucide-react";
 declare module "sonner";
-declare module "react-dom";
-declare module "react-dom/client";
 declare module "drizzle-orm";
 declare module "drizzle-orm/mysql2";
-
-declare namespace JSX {
-  interface IntrinsicElements {
-    [elemName: string]: any;
-  }
-}
 
 // 覆盖 recharts 类型以绕过 React 19 的 JSX "props" 不兼容报错
 declare module "recharts" {

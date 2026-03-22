@@ -57,12 +57,7 @@ async function ensureDefaultAdmin() {
 
   logger.info(`[Init] Creating default admin account: ${username}`);
 
-  // 确保默认租户存在
-  let tenant = await db.getTenantBySlug("default");
-  if (!tenant) {
-    await db.createTenant({ name: "Default Tenant", slug: "default", isActive: 1 });
-    tenant = await db.getTenantBySlug("default");
-  }
+  // 确保默认管理员账户存在
 
   const passwordHash = await hashPassword(password);
   await db.upsertUser({
@@ -71,7 +66,7 @@ async function ensureDefaultAdmin() {
     passwordHash,
     name: "Administrator",
     role: "admin",
-    tenantId: tenant?.id,
+    subscriptionTier: "ENTERPRISE",
     lastSignedIn: new Date(),
   });
 

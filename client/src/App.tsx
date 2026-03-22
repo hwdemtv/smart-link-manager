@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import AdminDashboard from "@/pages/AdminDashboard";
-import TenantRegister from "@/pages/TenantRegister";
+import LicenseSettings from "@/pages/LicenseSettings";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -18,14 +18,15 @@ import VerifyPage from "./pages/VerifyPage";
 import LinkErrorPage from "./pages/LinkErrorPage";
 import LinkDetail from "./pages/LinkDetail";
 import DashboardLayout from "./components/DashboardLayout";
+import ComponentsShowcase from "./pages/ComponentShowcase";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
-      <Route path="/register/tenant" component={TenantRegister} />
-      
+      <Route path="/showcase" component={ComponentsShowcase} />
+
       {/* 应用内路由，统一使用 DashboardLayout */}
       <Route path="/dashboard">
         <DashboardLayout>
@@ -55,6 +56,11 @@ function Router() {
       <Route path="/ai-settings">
         <DashboardLayout>
           <AiSettings />
+        </DashboardLayout>
+      </Route>
+      <Route path="/license">
+        <DashboardLayout>
+          <LicenseSettings />
         </DashboardLayout>
       </Route>
       <Route path="/verify/:token" component={VerifyPage} />

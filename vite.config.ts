@@ -18,6 +18,37 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // React 核心
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react';
+          }
+          // Radix UI 组件
+          if (id.includes('@radix-ui/')) {
+            return 'vendor-ui';
+          }
+          // 数据可视化 - 单独拆分
+          if (id.includes('recharts')) {
+            return 'vendor-charts';
+          }
+          // TRPC 和数据获取
+          if (id.includes('@trpc/') || id.includes('@tanstack/')) {
+            return 'vendor-trpc';
+          }
+          // Lucide 图标
+          if (id.includes('lucide-react')) {
+            return 'vendor-icons';
+          }
+          // 其他 node_modules
+          if (id.includes('node_modules/')) {
+            return 'vendor-other';
+          }
+        },
+      },
+    },
   },
   server: {
     port: 3000,

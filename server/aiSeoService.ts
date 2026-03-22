@@ -4,24 +4,15 @@ import { z } from "zod/v4";
 import { ENV } from "./_core/env";
 import { createPatchedFetch } from "./_core/patchedFetch";
 import { logger } from "./_core/logger";
-import { getTenantConfig } from "./db";
 
-async function createLLMProvider(tenantId?: number) {
+async function createLLMProvider() {
   let baseURL = ENV.forgeApiUrl;
   let apiKey = ENV.forgeApiKey;
   let modelName = "gpt-4o";
   let temperature = 0.3;
 
-  if (tenantId) {
-    const config = await getTenantConfig(tenantId, "ai_model_config");
-    if (config?.configValue) {
-      const val = config.configValue as any;
-      if (val.baseUrl) baseURL = val.baseUrl;
-      if (val.apiKey) apiKey = val.apiKey;
-      if (val.model) modelName = val.model;
-      if (val.temperature !== undefined) temperature = val.temperature;
-    }
-  }
+  // 说明：此处之前的租户自定义配置已移除，目前统一使用环境变量配置
+  // 如果未来需要基于用户订阅等级设置不同模型，可在此处扩展
 
   const finalBaseURL = baseURL.endsWith("/v1") ? baseURL : `${baseURL}/v1`;
 
@@ -47,9 +38,9 @@ function extractTextFromHTML(html: string): string {
 /**
  * AI智能分析原网页提炼SEO内容
  * @param url 需要分析的原始链接
- * @param tenantId 租户ID，用于获取自定义配置
+ * @param url 需要分析的原始链接
  */
-export async function generateSeoFromUrl(url: string, tenantId?: number) {
+export async function generateSeoFromUrl(url: string) {
   try {
     logger.info(`[AI SEO] 根据 ${url} 提取网页内容...`);
     
@@ -84,7 +75,7 @@ export async function generateSeoFromUrl(url: string, tenantId?: number) {
     logger.info(`[AI SEO] 网页抓取成功，开始调用大模型分析内容 (截取前 ${textContent.length} 字符)...`);
 
     // 2. 初始化大模型提供者和参数
-    const { provider, modelName, temperature } = await createLLMProvider(tenantId);
+    const { provider, modelName, temperature } = await createLLMProvider();
 
     // 3. 调用大模型结构化输出
     const result = await generateObject({

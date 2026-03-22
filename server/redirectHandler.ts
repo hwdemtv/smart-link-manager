@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getLinkByShortCode, updateLinkClickCount, recordLinkStat } from "./db";
+import { getLinkByShortCode, updateLinkClickCount, recordLinkStat, recordUsage } from "./db";
 import { detectDevice } from "./deviceDetector";
 import { logger } from "./_core/logger";
 import { resolveGeoIp } from "./geoIpResolver";
@@ -107,6 +107,13 @@ export async function handleShortLinkRedirect(
       country: geoInfo.country,
       city: geoInfo.city,
       referer: req.headers.referer,
+    });
+
+    // 记录用户每日使用量（点击数）
+    await recordUsage({
+      userId: link.userId,
+      date: new Date().toISOString().split("T")[0],
+      totalClicks: 1,
     });
 
     // Handle redirect based on device type

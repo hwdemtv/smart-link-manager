@@ -7,7 +7,7 @@ export const apiKeyService = {
   /**
    * Generate a new API key for a user
    */
-  async generateKey(tenantId: number, userId: number, name: string) {
+  async generateKey(userId: number, name: string) {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
 
@@ -16,7 +16,6 @@ export const apiKeyService = {
     const keyHash = await crypto.hashPassword(rawKey);
 
     const [inserted] = await (db as any).insert(apiKeys).values({
-      tenantId,
       userId,
       name,
       prefix,
@@ -53,10 +52,9 @@ export const apiKeyService = {
         await db.update(apiKeys)
           .set({ lastUsedAt: new Date() })
           .where(eq(apiKeys.id, key.id));
-          
+
         return {
           userId: key.userId,
-          tenantId: key.tenantId,
         };
       }
     }

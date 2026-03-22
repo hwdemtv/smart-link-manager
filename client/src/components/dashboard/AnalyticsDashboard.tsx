@@ -19,7 +19,7 @@ import {
 } from "recharts";
 import { trpc } from "@/lib/trpc";
 import { useTranslation } from "react-i18next";
-import { Loader2, MapPin, Globe2 } from "lucide-react";
+import { Loader2, MapPin, Globe2, TrendingUp } from "lucide-react";
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316'];
 
@@ -85,7 +85,14 @@ export function AnalyticsDashboard() {
   }
 
   if (!stats || stats.totalClicks === 0) {
-    return null;
+    return (
+      <Card className="p-12 flex flex-col justify-center items-center min-h-[300px] border-dashed bg-muted/20">
+        <div className="p-4 bg-muted/50 rounded-full mb-4">
+          <TrendingUp className="w-8 h-8 text-muted-foreground/50" />
+        </div>
+        <p className="text-muted-foreground text-center max-w-xs">{t("analytics.noData")}</p>
+      </Card>
+    );
   }
 
   // 整理折线图数据

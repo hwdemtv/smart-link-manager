@@ -5,6 +5,7 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  licenseServerUrl: process.env.LICENSE_SERVER_URL ?? "",
   defaultAdminUsername: process.env.DEFAULT_ADMIN_USERNAME ?? "admin",
   defaultAdminPassword: process.env.DEFAULT_ADMIN_PASSWORD ?? "admin123",
 };

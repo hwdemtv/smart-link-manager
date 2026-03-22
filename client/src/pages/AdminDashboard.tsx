@@ -1,19 +1,21 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, Users, CreditCard, BarChart3 } from "lucide-react";
+import { Users, BarChart3, Link2, UserCircle, FileText } from "lucide-react";
 import { useState } from "react";
-import TenantManagement from "@/components/admin/TenantManagement";
-import SubscriptionManagement from "@/components/admin/SubscriptionManagement";
 import UsageAnalytics from "@/components/admin/UsageAnalytics";
+import UserManagement from "@/components/admin/UserManagement";
+import LinkManagement from "@/components/admin/LinkManagement";
+import AuditLogManagement from "@/components/admin/AuditLogManagement";
 import { useTranslation } from "react-i18next";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { trpc } from "@/lib/trpc";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const { t } = useTranslation();
+
+  const { data: stats, isLoading: statsLoading } = trpc.user.getAdminStats.useQuery();
 
   if (loading) {
     return (
@@ -55,59 +57,105 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.totalTenants")}</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <UserCircle className="w-4 h-4" />
+                {t("admin.totalUsers")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground mt-1">{t("admin.tenantMgmt.table.active")}</p>
+              <div className="text-3xl font-bold">
+                {statsLoading ? "--" : stats?.totalUsers || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {statsLoading ? "--" : stats?.activeUsers || 0} {t("admin.activeUsers")}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.activeSubscriptions")}</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Link2 className="w-4 h-4" />
+                {t("dashboard.totalLinks")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground mt-1">{t("admin.subMgmt.active")}</p>
+              <div className="text-3xl font-bold">
+                {statsLoading ? "--" : stats?.totalLinks || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("admin.usage.linksTrendDesc")}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t("admin.monthlyRevenue")}</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                {t("dashboard.totalClicks")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">$--</div>
-              <p className="text-xs text-muted-foreground mt-1">{t("admin.subMgmt.billingCycle")}</p>
+              <div className="text-3xl font-bold">
+                {statsLoading ? "--" : stats?.totalClicks || 0}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("admin.usage.clicks")}
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{t("dashboard.totalLinks")}</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                {t("license.tierDistribution")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">--</div>
-              <p className="text-xs text-muted-foreground mt-1">{t("admin.usage.linksTrendDesc")}</p>
+              <div className="text-sm space-y-1">
+                {statsLoading ? (
+                  <span className="text-muted-foreground">--</span>
+                ) : (
+                  <>
+                    <div className="flex justify-between">
+                      <span>Free:</span>
+                      <span className="font-medium">{stats?.tierDistribution?.free || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Pro:</span>
+                      <span className="font-medium">{stats?.tierDistribution?.pro || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Business:</span>
+                      <span className="font-medium">{stats?.tierDistribution?.business || 0}</span>
+                    </div>
+                  </>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               {t("admin.overview")}
             </TabsTrigger>
-            <TabsTrigger value="tenants" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              {t("admin.tenants")}
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <UserCircle className="w-4 h-4" />
+              {t("admin.users")}
             </TabsTrigger>
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4" />
-              {t("admin.subscriptions")}
+            <TabsTrigger value="links" className="flex items-center gap-2">
+              <Link2 className="w-4 h-4" />
+              {t("admin.links")}
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              {t("admin.auditLog.title")}
             </TabsTrigger>
           </TabsList>
 
@@ -115,12 +163,16 @@ export default function AdminDashboard() {
             <UsageAnalytics />
           </TabsContent>
 
-          <TabsContent value="tenants" className="mt-4 space-y-4">
-            <TenantManagement />
+          <TabsContent value="users" className="mt-4 space-y-4">
+            <UserManagement />
           </TabsContent>
 
-          <TabsContent value="subscriptions" className="mt-4 space-y-4">
-            <SubscriptionManagement />
+          <TabsContent value="links" className="mt-4 space-y-4">
+            <LinkManagement />
+          </TabsContent>
+
+          <TabsContent value="audit" className="mt-4 space-y-4">
+            <AuditLogManagement />
           </TabsContent>
         </Tabs>
       </div>

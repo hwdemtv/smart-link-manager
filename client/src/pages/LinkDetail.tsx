@@ -182,7 +182,7 @@ export default function LinkDetail() {
                       <div className="flex-1">
                         <div className="flex justify-between text-sm mb-1">
                           <span className="capitalize">{device}</span>
-                          <span>{count} ({percentage.toFixed(1)}%)</span>
+                          <span>{count as number} ({percentage.toFixed(1)}%)</span>
                         </div>
                         <div className="h-2 bg-secondary rounded-full overflow-hidden">
                           <div
