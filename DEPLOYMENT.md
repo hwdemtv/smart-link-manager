@@ -187,7 +187,202 @@ sudo docker compose logs -f app
 
 ---
 
-## 七、Nginx 反向代理配置
+## 七、部署方式对比
+
+| 方式 | 适用场景 | 内存占用 | 运维难度 | 启动速度 |
+|------|----------|----------|----------|----------|
+| Docker | 多项目、需要隔离 | 高 (~+200MB) | 低 | 慢 (构建5-10分钟) |
+| PM2 | 单项目、追求性能 | 低 | 中 | 快 (秒级) |
+| 宝塔Node | 已有宝塔面板 | 低 | 低 | 快 |
+
+---
+
+## 八、PM2 部署方式（推荐）
+
+PM2 是 Node.js 生产进程管理器，相比 Docker 具有更低的内存占用和更快的启动速度。
+
+### 8.1 安装 PM2
+
+```bash
+# 安装 PM2
+sudo npm install -g pm2
+
+# 验证安装
+pm2 --version
+```
+
+### 8.2 项目初始化
+
+```bash
+cd /www/wwwroot/smart-link-manager
+
+# 安装依赖
+pnpm install
+
+# 构建项目
+pnpm build
+
+# 创建环境配置（如果还没有）
+cat > .env << 'EOF'
+DATABASE_URL=mysql://smart_link:smartlink123@127.0.0.1:3306/smart_link
+JWT_SECRET=smart-link-jwt-secret-your-random-string-32-chars
+VITE_APP_ID=http://43.156.55.3
+NODE_ENV=production
+PORT=3000
+DEFAULT_ADMIN_USERNAME=admin
+DEFAULT_ADMIN_PASSWORD=admin123
+EOF
+```
+
+### 8.3 启动服务
+
+```bash
+# 启动应用
+pm2 start dist/index.js --name smart-link
+
+# 查看状态
+pm2 status
+
+# 查看日志
+pm2 logs smart-link
+
+# 设置开机自启
+pm2 startup
+pm2 save
+```
+
+### 8.4 PM2 常用命令
+
+```bash
+# 查看所有进程
+pm2 status
+
+# 查看详细信息
+pm2 show smart-link
+
+# 查看实时日志
+pm2 logs smart-link
+
+# 查看最近日志
+pm2 logs smart-link --lines 100
+
+# 重启应用
+pm2 restart smart-link
+
+# 停止应用
+pm2 stop smart-link
+
+# 删除应用
+pm2 delete smart-link
+
+# 监控面板
+pm2 monit
+
+# 保存当前进程列表
+pm2 save
+
+# 重置重启计数
+pm2 reset smart-link
+```
+
+### 8.5 PM2 配置文件（可选）
+
+创建 `ecosystem.config.js` 配置文件：
+
+```bash
+cat > ecosystem.config.js << 'EOF'
+module.exports = {
+  apps: [{
+    name: 'smart-link',
+    script: 'dist/index.js',
+    cwd: '/www/wwwroot/smart-link-manager',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '500M',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3000,
+      DATABASE_URL: 'mysql://smart_link:smartlink123@127.0.0.1:3306/smart_link',
+      JWT_SECRET: 'smart-link-jwt-secret-your-random-string-32-chars',
+      VITE_APP_ID: 'http://43.156.55.3'
+    },
+    error_file: '/www/wwwroot/smart-link-manager/logs/error.log',
+    out_file: '/www/wwwroot/smart-link-manager/logs/out.log',
+    log_file: '/www/wwwroot/smart-link-manager/logs/combined.log',
+    time: true
+  }]
+}
+EOF
+
+# 创建日志目录
+mkdir -p logs
+
+# 使用配置文件启动
+pm2 start ecosystem.config.js
+```
+
+### 8.6 PM2 更新部署
+
+```bash
+cd /www/wwwroot/smart-link-manager
+
+# 拉取最新代码
+git pull
+
+# 安装依赖（如果有变化）
+pnpm install
+
+# 重新构建
+pnpm build
+
+# 重启服务
+pm2 restart smart-link
+```
+
+### 8.7 从 Docker 切换到 PM2
+
+```bash
+# 停止并删除 Docker 容器
+sudo docker compose down
+
+# 确认已安装 Node.js 和 pnpm
+node --version
+pnpm --version
+
+# 如果未安装，执行安装
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm install -g pnpm pm2
+
+# 安装依赖并构建
+cd /www/wwwroot/smart-link-manager
+pnpm install
+pnpm build
+
+# 启动 PM2
+pm2 start dist/index.js --name smart-link
+pm2 save
+pm2 startup
+```
+
+### 8.8 PM2 集群模式（多进程）
+
+对于多核服务器，可以使用集群模式：
+
+```bash
+# 根据 CPU 核心数启动多个实例
+pm2 start dist/index.js --name smart-link -i max
+
+# 或者指定实例数量
+pm2 start dist/index.js --name smart-link -i 2
+```
+
+**注意**：集群模式需要确保应用是无状态的，Session 需要存储在 Redis 或数据库中。
+
+---
+
+## 九、Nginx 反向代理配置
 
 ### 7.1 创建 Nginx 配置
 
@@ -243,9 +438,9 @@ sudo nginx -s reload
 
 ---
 
-## 八、数据库迁移
+## 十、数据库迁移
 
-### 8.1 添加缺失字段（如果需要）
+### 10.1 添加缺失字段（如果需要）
 
 ```bash
 mysql -u smart_link -psmartlink123 smart_link << 'EOF'
@@ -259,9 +454,9 @@ EOF
 
 ---
 
-## 九、常用命令
+## 十一、常用命令
 
-### 9.1 服务管理
+### 11.1 Docker 服务管理
 
 ```bash
 # 查看容器状态
@@ -280,7 +475,26 @@ sudo docker compose down
 sudo docker compose up -d --build
 ```
 
-### 9.2 更新部署
+### 11.2 PM2 服务管理
+
+```bash
+# 查看进程状态
+pm2 status
+
+# 查看日志
+pm2 logs smart-link
+
+# 重启应用
+pm2 restart smart-link
+
+# 停止应用
+pm2 stop smart-link
+
+# 监控面板
+pm2 monit
+```
+
+### 11.3 更新部署
 
 ```bash
 cd /www/wwwroot/smart-link-manager
@@ -288,14 +502,17 @@ cd /www/wwwroot/smart-link-manager
 # 拉取最新代码
 git pull
 
-# 重新构建
+# Docker 方式
 sudo docker compose build app
-
-# 重启服务
 sudo docker compose up -d
+
+# PM2 方式
+pnpm install
+pnpm build
+pm2 restart smart-link
 ```
 
-### 9.3 Nginx 管理
+### 11.4 Nginx 管理
 
 ```bash
 # 测试配置
@@ -310,7 +527,7 @@ sudo systemctl status nginx
 
 ---
 
-## 十、访问信息
+## 十二、访问信息
 
 | 项目 | 值 |
 |------|-----|
@@ -321,9 +538,9 @@ sudo systemctl status nginx
 
 ---
 
-## 十一、故障排查
+## 十三、故障排查
 
-### 11.1 无法访问
+### 13.1 无法访问
 
 ```bash
 # 检查端口是否监听
@@ -336,7 +553,9 @@ sudo iptables -L INPUT -n
 # 检查腾讯云安全组是否正确配置
 ```
 
-### 11.2 应用错误
+### 13.2 应用错误
+
+**Docker 方式：**
 
 ```bash
 # 查看应用日志
@@ -346,7 +565,20 @@ sudo docker logs smart-link-app --tail 50
 sudo docker exec -it smart-link-app sh
 ```
 
-### 11.3 数据库连接失败
+**PM2 方式：**
+
+```bash
+# 查看应用日志
+pm2 logs smart-link --lines 50
+
+# 查看错误日志
+cat /www/wwwroot/smart-link-manager/logs/error.log
+
+# 进入监控面板
+pm2 monit
+```
+
+### 13.3 数据库连接失败
 
 ```bash
 # 测试数据库连接
@@ -356,9 +588,25 @@ mysql -u smart_link -psmartlink123 smart_link -e "SELECT 1"
 sudo systemctl status mysql
 ```
 
+### 13.4 PM2 进程异常退出
+
+```bash
+# 查看进程状态
+pm2 status
+
+# 查看详细错误信息
+pm2 show smart-link
+
+# 查看日志
+pm2 logs smart-link --err
+
+# 检查内存使用
+pm2 monit
+```
+
 ---
 
-## 十二、目录结构
+## 十四、目录结构
 
 ```
 /www/wwwroot/smart-link-manager/
@@ -375,7 +623,7 @@ sudo systemctl status mysql
 
 ---
 
-## 十三、部署过程中遇到的问题及解决方案
+## 十五、部署过程中遇到的问题及解决方案
 
 ### 问题 1：Docker 端口 3306 被占用
 
@@ -409,9 +657,11 @@ sudo systemctl status mysql
 
 ---
 
-## 十四、快速部署脚本
+## 十六、快速部署脚本
 
-一键部署脚本（保存为 `deploy.sh`）：
+### Docker 部署脚本
+
+一键部署脚本（保存为 `deploy-docker.sh`）：
 
 ```bash
 #!/bin/bash
@@ -437,3 +687,91 @@ sudo docker ps | grep smart-link-app
 echo ">>> 部署完成！"
 echo "访问地址: http://43.156.55.3"
 ```
+
+### PM2 部署脚本
+
+一键部署脚本（保存为 `deploy-pm2.sh`）：
+
+```bash
+#!/bin/bash
+set -e
+
+cd /www/wwwroot/smart-link-manager
+
+echo ">>> 拉取最新代码..."
+git pull
+
+echo ">>> 安装依赖..."
+pnpm install
+
+echo ">>> 构建项目..."
+pnpm build
+
+echo ">>> 重启服务..."
+pm2 restart smart-link
+
+echo ">>> 检查服务状态..."
+pm2 status
+
+echo ">>> 部署完成！"
+echo "访问地址: http://43.156.55.3"
+```
+
+---
+
+## 十七、宝塔面板 Node 项目部署
+
+宝塔面板提供了图形化的 Node 项目管理功能。
+
+### 17.1 安装 Node.js 版本管理器
+
+1. 宝塔面板 → 软件商店
+2. 搜索 `Node版本管理器`
+3. 点击安装
+
+### 17.2 创建 Node 项目
+
+1. 宝塔面板 → 网站 → Node项目
+2. 点击 **添加Node项目**
+3. 配置：
+   - 项目名称：`smart-link-manager`
+   - 项目目录：`/www/wwwroot/smart-link-manager`
+   - 启动文件：`dist/index.js`
+   - 项目端口：`3000`
+   - Node版本：选择已安装的版本（推荐 22.x）
+   - 启动模式：`production`
+
+### 17.3 配置环境变量
+
+在项目设置中添加环境变量：
+
+```
+DATABASE_URL=mysql://smart_link:smartlink123@127.0.0.1:3306/smart_link
+JWT_SECRET=smart-link-jwt-secret-your-random-string-32-chars
+VITE_APP_ID=http://43.156.55.3
+NODE_ENV=production
+PORT=3000
+```
+
+### 17.4 构建和启动
+
+```bash
+# SSH 进入项目目录
+cd /www/wwwroot/smart-link-manager
+
+# 安装依赖
+pnpm install
+
+# 构建
+pnpm build
+```
+
+然后在宝塔面板中点击 **启动** 按钮。
+
+### 17.5 宝塔 Node 项目的优势
+
+- 图形化管理界面
+- 自动配置反向代理
+- 内置进程守护
+- 日志查看方便
+- 支持多版本 Node.js 切换
