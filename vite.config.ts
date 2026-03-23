@@ -21,7 +21,48 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks(id) {
+          // 按依赖大小分组，避免循环依赖
+          if (id.includes('node_modules/')) {
+            // React 生态
+            if (id.includes('/react/') || id.includes('/react-dom/') ||
+                id.includes('@radix-ui/') || id.includes('lucide-react') ||
+                id.includes('framer-motion')) {
+              return 'vendor-react';
+            }
+            // 数据/状态管理
+            if (id.includes('@tanstack/') || id.includes('@trpc/')) {
+              return 'vendor-data';
+            }
+            // 图表
+            if (id.includes('recharts') || id.includes('d3-')) {
+              return 'vendor-charts';
+            }
+            // AI/ML
+            if (id.includes('@ai-sdk/') || id.includes('ai/') ||
+                id.includes('streamdown') || id.includes('@streamdown/')) {
+              return 'vendor-ai';
+            }
+            // UI 工具
+            if (id.includes('@radix-ui/') || id.includes('class-variance-authority') ||
+                id.includes('clsx') || id.includes('tailwind-merge')) {
+              return 'vendor-ui-utils';
+            }
+            // 其他大型依赖单独拆分
+            const match = id.match(/node_modules\/([^/]+)/);
+            if (match) {
+              const pkg = match[1];
+              // 跳过已处理的
+              if (['react', 'react-dom', 'framer-motion', 'lucide-react'].includes(pkg)) return;
+              // 大型包单独拆分
+              const largePkgs = ['recharts', 'mermaid', 'katex', 'highlight.js', 'franc'];
+              if (largePkgs.some(p => pkg.includes(p))) {
+                return `vendor-${pkg.replace(/[^a-z0-9]/gi, '-')}`;
+              }
+            }
+            return 'vendor-other';
+          }
+        },
       },
     },
   },
