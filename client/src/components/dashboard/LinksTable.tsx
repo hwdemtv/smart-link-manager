@@ -142,7 +142,7 @@ export function LinksTable({
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-2 py-4 border-t border-border">
           <div className="text-sm text-muted-foreground">
-            {t("common.showing", { start: startIndex + 1, end: endIndex, total: totalItems })}
+            {t("common.pagination.showing", { start: startIndex + 1, end: endIndex, total: totalItems })}
           </div>
           <div className="flex gap-2">
             <Button
@@ -151,7 +151,7 @@ export function LinksTable({
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
-              {t("common.prev")}
+              {t("common.pagination.prev")}
             </Button>
             <div className="flex items-center justify-center text-sm font-medium px-2">
               {currentPage} / {totalPages}
@@ -162,7 +162,7 @@ export function LinksTable({
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
-              {t("common.next")}
+              {t("common.pagination.next")}
             </Button>
           </div>
         </div>
