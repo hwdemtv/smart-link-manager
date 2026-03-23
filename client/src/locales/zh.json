@@ -28,7 +28,13 @@
     "other": "其他",
     "browser": "浏览器",
     "os": "操作系统",
-    "country": "国家/地区"
+    "country": "国家/地区",
+    "pagination": {
+      "showing": "显示",
+      "prev": "上一页",
+      "next": "下一页"
+    },
+    "confirm": "确认"
   },
   "domains": {
     "title": "自定义域名",
@@ -138,7 +144,6 @@
     "expiresAt": "过期时间",
     "created": "创建时间",
     "actions": "操作",
-    "confirm": "确认",
     "links": "链接数",
     "domains": "域名数",
     "createdAt": "创建于",
@@ -186,7 +191,6 @@
     "tagsPlaceholder": "例如：推广, 推特, 2024",
     "passwordEditPlaceholder": "留空保持原密码或清除密码",
     "filterByTag": "按标签筛选...",
-    "tagsLabel": "标签",
     "sourceOverlap": "来源重合",
     "duplicateEntry": "内部项重复",
     "sameTargetBatch": "同批次第 {{rows}} 行目标相同",
@@ -202,6 +206,7 @@
     "urlRequiredForSeo": "请先填写包含 http 的原始目标链接",
     "seoGenerated": "✨ 智能生成的 SEO 标题已填入表单",
     "seoGenerateFailed": "智能提炼失败",
+    "customSeo": "自定义 SEO",
     "aiGenerateSeo": "智能生成",
     "selected": "已选中",
     "confirmBatchDelete": "确定要删除选中的 {{count}} 个链接吗？",
@@ -422,10 +427,7 @@
       "statusUpdated": "用户状态已更新",
       "updating": "更新中...",
       "deleting": "删除中...",
-      "resetting": "重置中...",
-      "deleteConfirm": "确定要删除用户 {{name}} 吗？此操作将永久删除该用户的所有数据（链接、统计等）且无法撤销。",
-      "deleteSuccess": "用户已成功删除",
-      "noUsers": "暂无匹配的用户"
+      "resetting": "重置中..."
     },
     "linkMgmt": {
       "title": "链接管理",
@@ -688,7 +690,7 @@
     "UNKNOWN_ERROR": "发生未知错误"
   },
   "notifications": {
-    "title": "通知",
+    "title": "通知中心",
     "empty": "暂无通知",
     "markAllRead": "全部已读",
     "markAllSuccess": "已全部标记为已读",
