@@ -210,3 +210,15 @@ export const auditLogs = mysqlTable("audit_logs", {
 
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
+
+/**
+ * System Configs table: stores key-value pairs for global settings
+ */
+export const configs = mysqlTable("configs", {
+  key: varchar("key", { length: 128 }).primaryKey(),
+  value: json("value").notNull(),
+  updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
+});
+
+export type Config = typeof configs.$inferSelect;
+export type InsertConfig = typeof configs.$inferInsert;

@@ -46,7 +46,9 @@ export default function UserManagement() {
   // 对话框状态
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [newUser, setNewUser] = useState({ username: "", password: "", name: "", role: "user" });
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState<string>("");
 
@@ -83,6 +85,18 @@ export default function UserManagement() {
   const deleteMutation = trpc.user.delete.useMutation({
     onSuccess: () => {
       toast.success(t("admin.userMgmt.deleteSuccess") || "User deleted");
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const addUserMutation = trpc.user.create.useMutation({
+    onSuccess: () => {
+      toast.success(t("admin.userMgmt.addSuccess") || "User added");
+      setIsAddUserDialogOpen(false);
+      setNewUser({ username: "", password: "", name: "", role: "user" });
       refetch();
     },
     onError: (error: any) => {
@@ -165,35 +179,18 @@ export default function UserManagement() {
   return (
     <>
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
+        <div>
           <CardTitle>{t("admin.userMgmt.title")}</CardTitle>
           <CardDescription>{t("admin.userMgmt.subtitle")}</CardDescription>
-
-          {/* 搜索框 */}
-          {total > 0 && (
-            <div className="relative mt-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder={t("admin.userMgmt.searchPlaceholder")}
-                value={searchQuery}
-                onChange={(e: ChangeEventT<HTMLInputElement>) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10"
-              />
-              {searchQuery && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
-                  onClick={() => setSearchQuery("")}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          )}
-        </CardHeader>
-
-        <CardContent>
+        </div>
+        <Button onClick={() => setIsAddUserDialogOpen(true)}>
+          <User className="mr-2 h-4 w-4" />
+          {t("admin.userMgmt.addUser")}
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {/* 搜索框 */}
           {isLoading ? (
             <div className="text-center py-8">{t("common.loading")}</div>
           ) : users.length === 0 ? (
@@ -387,6 +384,67 @@ export default function UserManagement() {
             </Button>
             <Button onClick={handleRoleChange} disabled={roleMutation.isPending}>
               {roleMutation.isPending ? t("admin.userMgmt.updating") : t("common.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Manual Add User Dialog */}
+      <Dialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("admin.userMgmt.addUser")}</DialogTitle>
+            <DialogDescription>{t("admin.userMgmt.addUserDesc")}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="add-username">{t("common.username")}</Label>
+              <Input
+                id="add-username"
+                value={newUser.username}
+                onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="add-password">{t("common.password")}</Label>
+              <Input
+                id="add-password"
+                type="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="add-name">{t("login.displayName")}</Label>
+              <Input
+                id="add-name"
+                value={newUser.name}
+                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t("admin.userMgmt.role")}</Label>
+              <Select
+                value={newUser.role}
+                onValueChange={(val) => setNewUser({ ...newUser, role: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">{t("admin.userMgmt.roleUser")}</SelectItem>
+                  <SelectItem value="admin">{t("admin.userMgmt.roleAdmin")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddUserDialogOpen(false)}>{t("common.cancel")}</Button>
+            <Button
+              onClick={() => addUserMutation.mutate(newUser as any)}
+              disabled={addUserMutation.isPending || !newUser.username || !newUser.password}
+            >
+              {addUserMutation.isPending ? t("common.processing") : t("common.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,13 +1,14 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, BarChart3, Link2, UserCircle, FileText, Bell } from "lucide-react";
+import { Users, BarChart3, Link2, UserCircle, FileText, Bell, Shield } from "lucide-react";
 import { useState } from "react";
 import UsageAnalytics from "@/components/admin/UsageAnalytics";
 import UserManagement from "@/components/admin/UserManagement";
 import LinkManagement from "@/components/admin/LinkManagement";
 import AuditLogManagement from "@/components/admin/AuditLogManagement";
 import NotificationManagement from "@/components/admin/NotificationManagement";
+import PlatformSettings from "@/components/admin/PlatformSettings";
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
 
@@ -102,7 +103,7 @@ export default function AdminDashboard() {
                 {statsLoading ? "--" : stats?.totalClicks || 0}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {t("admin.usage.clicks")}
+                {t("admin.usage.clicksTrendDesc")}
               </p>
             </CardContent>
           </Card>
@@ -111,56 +112,54 @@ export default function AdminDashboard() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                {t("license.tierDistribution")}
+                {t("admin.userDistribution")}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-sm space-y-1">
-                {statsLoading ? (
-                  <span className="text-muted-foreground">--</span>
-                ) : (
-                  <>
-                    <div className="flex justify-between">
-                      <span>Free:</span>
-                      <span className="font-medium">{stats?.tierDistribution?.free || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Pro:</span>
-                      <span className="font-medium">{stats?.tierDistribution?.pro || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Business:</span>
-                      <span className="font-medium">{stats?.tierDistribution?.business || 0}</span>
-                    </div>
-                  </>
-                )}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span>Free:</span>
+                  <span className="font-mono">{stats?.tierDistribution?.free || 0}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Pro:</span>
+                  <span className="font-mono">{stats?.tierDistribution?.pro || 0}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Business:</span>
+                  <span className="font-mono">{stats?.tierDistribution?.business || 0}</span>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Tabs */}
+        {/* Dynamic Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              {t("admin.overview")}
+              {t("admin.tabs.overview")}
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
-              <UserCircle className="w-4 h-4" />
-              {t("admin.users")}
+              <Users className="w-4 h-4" />
+              {t("admin.tabs.users")}
             </TabsTrigger>
             <TabsTrigger value="links" className="flex items-center gap-2">
               <Link2 className="w-4 h-4" />
-              {t("admin.links")}
+              {t("admin.tabs.links")}
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-2">
               <Bell className="w-4 h-4" />
-              {t("admin.notify.title")}
+              {t("admin.tabs.notifications")}
             </TabsTrigger>
             <TabsTrigger value="audit" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              {t("admin.auditLog.title")}
+              {t("admin.tabs.audit")}
+            </TabsTrigger>
+            <TabsTrigger value="system" className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              {t("admin.tabs.system")}
             </TabsTrigger>
           </TabsList>
 
@@ -182,6 +181,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="audit" className="mt-4 space-y-4">
             <AuditLogManagement />
+          </TabsContent>
+
+          <TabsContent value="system" className="mt-4 space-y-4">
+            <PlatformSettings />
           </TabsContent>
         </Tabs>
       </div>

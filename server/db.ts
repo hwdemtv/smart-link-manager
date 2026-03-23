@@ -9,6 +9,7 @@ import {
   InsertDomain, domains,
   InsertUsageLog, usageLogs,
   InsertAuditLog, auditLogs,
+  configs, InsertConfig,
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -1075,9 +1076,29 @@ export async function getPlatformUsageStats(days: number = 30) {
     .groupBy(usageLogs.userId)
     .orderBy(desc(sql`SUM(${usageLogs.totalClicks})`));
 
+
   return {
     daily: dailyUsage,
     totals,
     userStats,
   };
+}
+
+// === System Config Management ===
+export async function getSystemConfig(key: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(configs).where(eq(configs.key, key)).limit(1);
+  return result[0]?.value;
+}
+
+export async function updateSystemConfig(key: string, value: any) {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await getSystemConfig(key);
+  if (existing !== undefined) {
+    await db.update(configs).set({ value }).where(eq(configs.key, key));
+  } else {
+    await db.insert(configs).values({ key, value });
+  }
 }

@@ -27,10 +27,59 @@ import {
   markAllNotificationsRead,
   sendBroadcastNotification,
   deleteNotification,
+  upsertUser,
 } from "./db";
+import { hashPassword } from "./_core/auth";
 import { licenseService } from "./licenseService";
 
 export const userRouter = router({
+  // === Admin Operations ===
+
+  /**
+   * Create a new user (Admin only)
+   */
+  create: adminProcedure
+    .input(z.object({
+      username: z.string().min(3),
+      password: z.string().min(6),
+      name: z.string().optional(),
+      role: z.enum(["user", "admin"]).default("user"),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const existingUser = await getUserByUsername(input.username);
+      if (existingUser) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "AUTH_USERNAME_EXISTS",
+        });
+      }
+
+      const passwordHash = await hashPassword(input.password);
+      const openId = `manual_${Math.random().toString(36).slice(2, 10)}`;
+
+      await upsertUser({
+        openId,
+        username: input.username,
+        passwordHash,
+        name: input.name,
+        role: input.role,
+        subscriptionTier: 'free',
+      });
+
+      // Log the action
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "user_created_manually",
+        targetType: "user",
+        details: {
+          createdUsername: input.username,
+          role: input.role,
+        },
+      });
+
+      return { success: true };
+    }),
+
   // === License Management ===
 
   /**

@@ -1,7 +1,8 @@
 import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
+import { getSystemConfig, updateSystemConfig } from "./db";
 import { userRouter } from "./userRouter";
 import { authService } from "./_core/sdk";
 import { ENV } from "./_core/env";
@@ -49,21 +50,7 @@ import {
 import { apiKeyService } from "./apiKeyService";
 import { licenseService } from "./licenseService";
 
-const scryptAsync = promisify(scrypt);
-
-// 密码哈希工具
-async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${salt}:${buf.toString("hex")}`;
-}
-
-async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  const [salt, key] = hash.split(":");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  const keyBuf = Buffer.from(key, "hex");
-  return timingSafeEqual(buf, keyBuf);
-}
+import { hashPassword, verifyPassword } from "./_core/auth";
 
 export const appRouter = router({
   system: systemRouter,
@@ -951,11 +938,30 @@ export const appRouter = router({
 
   configs: router({
     getConfig: publicProcedure
-      .query(() => {
+      .query(async () => {
+        // First try to get from database
+        const dbValue = await getSystemConfig("registrationDisabled");
+        if (dbValue !== undefined) {
+          return {
+            registrationDisabled: Boolean(dbValue),
+          };
+        }
+        
+        // Fallback to environment variable
         return {
           registrationDisabled: ENV.registrationDisabled,
         };
       }),
+    
+    updateRegistrationConfig: adminProcedure
+      .input(z.object({
+        disabled: z.boolean(),
+      }))
+      .mutation(async ({ input }) => {
+        await updateSystemConfig("registrationDisabled", input.disabled);
+        return { success: true };
+      }),
+
     getAiConfig: protectedProcedure.query(async () => {
       // Return global AI config from environment variables
       return {
