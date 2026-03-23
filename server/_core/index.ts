@@ -144,15 +144,11 @@ async function startServer() {
     })
   );
   // development mode uses Vite
-  // FORCE ONLY Vite during debug to avoid stale file serving
-  await setupVite(app, server);
-  /*
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
-  */
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
@@ -169,3 +165,5 @@ async function startServer() {
 startServer().catch((err) => {
   logger.error("系统启动崩溃", err);
 });
+
+// Trigger server reload to load new .env variables
