@@ -21,27 +21,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // React 核心 + Radix UI + Lucide (它们都依赖 React)
-          if (id.includes('node_modules/react/') ||
-              id.includes('node_modules/react-dom/') ||
-              id.includes('@radix-ui/') ||
-              id.includes('lucide-react')) {
-            return 'vendor-react';
-          }
-          // 数据可视化 - 单独拆分
-          if (id.includes('recharts')) {
-            return 'vendor-charts';
-          }
-          // TRPC 和数据获取
-          if (id.includes('@trpc/') || id.includes('@tanstack/')) {
-            return 'vendor-trpc';
-          }
-          // 其他 node_modules
-          if (id.includes('node_modules/')) {
-            return 'vendor-other';
-          }
-        },
+        manualChunks: undefined,
       },
     },
   },
