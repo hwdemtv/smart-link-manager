@@ -1,4 +1,4 @@
-import { eq, and, or, sql, desc, asc, inArray, like } from "drizzle-orm";
+import { eq, and, or, sql, desc, asc, inArray, like, isNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser, users,
@@ -13,6 +13,14 @@ import {
 
 let _db: ReturnType<typeof drizzle> | null = null;
 export let db: ReturnType<typeof drizzle>;
+
+/**
+ * Escape special characters for LIKE queries to prevent SQL injection
+ * Characters: % (match any), _ (match single), \ (escape char)
+ */
+function escapeLikePattern(str: string): string {
+  return str.replace(/[%_\\]/g, '\\$&');
+}
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
@@ -97,11 +105,12 @@ export async function getAllUsers(limit: number = 20, offset: number = 0, search
 
   const conditions: any[] = [];
   if (search) {
+    const escapedSearch = escapeLikePattern(search);
     conditions.push(
       or(
-        like(users.username, `%${search}%`),
-        like(users.name, `%${search}%`),
-        like(users.email, `%${search}%`)
+        like(users.username, `%${escapedSearch}%`),
+        like(users.name, `%${escapedSearch}%`),
+        like(users.email, `%${escapedSearch}%`)
       )
     );
   }
@@ -125,6 +134,8 @@ export async function getAllUsers(limit: number = 20, offset: number = 0, search
       licenseExpiresAt: users.licenseExpiresAt,
       lastSignedIn: users.lastSignedIn,
       createdAt: users.createdAt,
+      linkCount: sql<number>`(SELECT COUNT(*) FROM links WHERE links.userId = ${users.id})`,
+      domainCount: sql<number>`(SELECT COUNT(*) FROM domains WHERE domains.userId = ${users.id})`,
     })
     .from(users)
     .where(whereClause)
@@ -219,10 +230,11 @@ export async function searchAllLinks(query: {
   const conditions: any[] = [];
 
   if (query.search) {
+    const escapedSearch = escapeLikePattern(query.search);
     conditions.push(
       or(
-        like(links.shortCode, `%${query.search}%`),
-        like(links.originalUrl, `%${query.search}%`)
+        like(links.shortCode, `%${escapedSearch}%`),
+        like(links.originalUrl, `%${escapedSearch}%`)
       )
     );
   }
@@ -290,35 +302,41 @@ export async function deleteLink(id: number) {
 export async function batchDeleteLinks(userId: number, ids: number[]) {
   const db = await getDb();
   if (!db || ids.length === 0) return;
-  await db.delete(links).where(and(eq(links.userId, userId), inArray(links.id, ids)));
+  await db.transaction(async (tx: any) => {
+    await tx.delete(links).where(and(eq(links.userId, userId), inArray(links.id, ids)));
+  });
 }
 
 export async function batchUpdateLinks(userId: number, ids: number[], data: Partial<InsertLink>) {
   const db = await getDb();
   if (!db || ids.length === 0) return;
-  await db.update(links).set(data).where(and(eq(links.userId, userId), inArray(links.id, ids)));
+  await db.transaction(async (tx: any) => {
+    await tx.update(links).set(data).where(and(eq(links.userId, userId), inArray(links.id, ids)));
+  });
 }
 
 export async function batchUpdateLinksTags(userId: number, ids: number[], tags: string[], mode: 'add' | 'remove' | 'set') {
   const db = await getDb();
   if (!db || ids.length === 0) return;
 
-  if (mode === 'set') {
-    await db.update(links).set({ tags }).where(and(eq(links.userId, userId), inArray(links.id, ids)));
-    return;
-  }
-
-  const targetLinks = await db.select({ id: links.id, tags: links.tags }).from(links).where(and(eq(links.userId, userId), inArray(links.id, ids)));
-
-  for (const link of targetLinks) {
-    let newTags = [...(link.tags || [])];
-    if (mode === 'add') {
-      newTags = Array.from(new Set([...newTags, ...tags]));
-    } else if (mode === 'remove') {
-      newTags = newTags.filter(t => !tags.includes(t));
+  await db.transaction(async (tx: any) => {
+    if (mode === 'set') {
+      await tx.update(links).set({ tags }).where(and(eq(links.userId, userId), inArray(links.id, ids)));
+      return;
     }
-    await db.update(links).set({ tags: newTags }).where(eq(links.id, link.id));
-  }
+
+    const targetLinks = await tx.select({ id: links.id, tags: links.tags }).from(links).where(and(eq(links.userId, userId), inArray(links.id, ids)));
+
+    for (const link of targetLinks) {
+      let newTags = [...(link.tags || [])];
+      if (mode === 'add') {
+        newTags = Array.from(new Set([...newTags, ...tags]));
+      } else if (mode === 'remove') {
+        newTags = newTags.filter(t => !tags.includes(t));
+      }
+      await tx.update(links).set({ tags: newTags }).where(eq(links.id, link.id));
+    }
+  });
 }
 
 export async function searchLinks(userId: number, query: {
@@ -327,18 +345,21 @@ export async function searchLinks(userId: number, query: {
   status?: 'all' | 'active' | 'invalid';
   orderBy?: 'createdAt' | 'clickCount' | 'updatedAt';
   order?: 'asc' | 'desc';
+  limit?: number;
+  offset?: number;
 }) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { links: [], total: 0 };
 
   const conditions: any[] = [eq(links.userId, userId)];
 
   if (query.search) {
+    const escapedSearch = escapeLikePattern(query.search);
     conditions.push(
       or(
-        like(links.shortCode, `%${query.search}%`),
-        like(links.originalUrl, `%${query.search}%`),
-        like(links.description, `%${query.search}%`)
+        like(links.shortCode, `%${escapedSearch}%`),
+        like(links.originalUrl, `%${escapedSearch}%`),
+        like(links.description, `%${escapedSearch}%`)
       )
     );
   }
@@ -354,21 +375,29 @@ export async function searchLinks(userId: number, query: {
     conditions.push(eq(links.isValid, 0));
   }
 
-  const result = await db.select().from(links).where(and(...conditions));
+  const whereClause = and(...conditions);
 
-  if (query.orderBy) {
-    result.sort((a: any, b: any) => {
-      const aVal = a[query.orderBy!] ?? 0;
-      const bVal = b[query.orderBy!] ?? 0;
-      const order = query.order === 'desc' ? -1 : 1;
-      if (aVal instanceof Date && bVal instanceof Date) {
-        return (aVal.getTime() - bVal.getTime()) * order;
-      }
-      return ((aVal as number) - (bVal as number)) * order;
-    });
-  }
+  // Get total count
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(links).where(whereClause);
+  const total = countResult[0]?.count || 0;
 
-  return result;
+  // Determine order
+  const orderColumn = query.orderBy ? links[query.orderBy] : links.createdAt;
+  const orderFn = query.order === 'asc' ? asc : desc;
+
+  // Build query with pagination
+  const limit = query.limit ?? 50;
+  const offset = query.offset ?? 0;
+
+  const result = await db
+    .select()
+    .from(links)
+    .where(whereClause)
+    .orderBy(orderFn(orderColumn))
+    .limit(limit)
+    .offset(offset);
+
+  return { links: result, total };
 }
 
 export async function checkShortCodes(shortCodes: string[]) {
@@ -399,16 +428,104 @@ export async function getLinkStats(linkId: number) {
 
 export async function getLinkStatsSummary(linkId: number) {
   const db = await getDb();
-  if (!db) return { totalClicks: 0, deviceStats: {}, last7Days: {}, recentClicks: [] };
+  const emptyResult = {
+    totalClicks: 0,
+    deviceStats: {},
+    browserStats: {},
+    osStats: {},
+    countryStats: {},
+    cityStats: {},
+    last7Days: {},
+    recentClicks: [],
+  };
 
-  const stats = await db.select().from(linkStats).where(eq(linkStats.linkId, linkId));
+  if (!db) return emptyResult;
 
-  const deviceStats = stats.reduce((acc: Record<string, number>, stat: any) => {
-    const device = stat.deviceType || 'unknown';
-    acc[device] = (acc[device] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  // 1. Get total clicks count (single scalar query)
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(linkStats)
+    .where(eq(linkStats.linkId, linkId));
+  const totalClicks = countResult[0]?.count || 0;
 
+  // Early return if no clicks
+  if (totalClicks === 0) return emptyResult;
+
+  // 2. Get device distribution (SQL GROUP BY)
+  const deviceResult = await db
+    .select({
+      deviceType: sql<string>`COALESCE(${linkStats.deviceType}, 'unknown')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(eq(linkStats.linkId, linkId))
+    .groupBy(sql`COALESCE(${linkStats.deviceType}, 'unknown')`);
+  const deviceStats = Object.fromEntries(deviceResult.map((r: { deviceType: string; count: number }) => [r.deviceType, r.count]));
+
+  // 3. Get browser distribution (SQL GROUP BY)
+  const browserResult = await db
+    .select({
+      browserName: sql<string>`COALESCE(${linkStats.browserName}, 'Unknown')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(eq(linkStats.linkId, linkId))
+    .groupBy(sql`COALESCE(${linkStats.browserName}, 'Unknown')`);
+  const browserStats = Object.fromEntries(browserResult.map((r: { browserName: string; count: number }) => [r.browserName, r.count]));
+
+  // 4. Get OS distribution (SQL GROUP BY)
+  const osResult = await db
+    .select({
+      osName: sql<string>`COALESCE(${linkStats.osName}, 'Unknown')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(eq(linkStats.linkId, linkId))
+    .groupBy(sql`COALESCE(${linkStats.osName}, 'Unknown')`);
+  const osStats = Object.fromEntries(osResult.map((r: { osName: string; count: number }) => [r.osName, r.count]));
+
+  // 5. Get country distribution (SQL GROUP BY)
+  const countryResult = await db
+    .select({
+      country: sql<string>`COALESCE(${linkStats.country}, 'Unknown')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(eq(linkStats.linkId, linkId))
+    .groupBy(sql`COALESCE(${linkStats.country}, 'Unknown')`);
+  const countryStats = Object.fromEntries(countryResult.map((r: { country: string; count: number }) => [r.country, r.count]));
+
+  // 6. Get city distribution (SQL GROUP BY)
+  const cityResult = await db
+    .select({
+      city: sql<string>`COALESCE(${linkStats.city}, 'Unknown')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(eq(linkStats.linkId, linkId))
+    .groupBy(sql`COALESCE(${linkStats.city}, 'Unknown')`);
+  const cityStats = Object.fromEntries(cityResult.map((r: { city: string; count: number }) => [r.city, r.count]));
+
+  // 7. Get last 7 days click distribution (SQL GROUP BY DATE)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const last7DaysResult = await db
+    .select({
+      date: sql<string>`DATE(${linkStats.clickedAt})`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(
+      and(
+        eq(linkStats.linkId, linkId),
+        sql`${linkStats.clickedAt} >= ${sevenDaysAgo}`
+      )
+    )
+    .groupBy(sql`DATE(${linkStats.clickedAt})`);
+
+  // Initialize last 7 days with zeros
   const last7Days: Record<string, number> = {};
   const now = new Date();
   for (let i = 6; i >= 0; i--) {
@@ -417,19 +534,28 @@ export async function getLinkStatsSummary(linkId: number) {
     const dateStr = date.toISOString().split('T')[0];
     last7Days[dateStr] = 0;
   }
-
-  stats.forEach((stat: any) => {
-    const dateStr = new Date(stat.clickedAt).toISOString().split('T')[0];
-    if (last7Days.hasOwnProperty(dateStr)) {
-      last7Days[dateStr]++;
+  // Fill in actual counts
+  last7DaysResult.forEach((r: { date: string; count: number }) => {
+    if (last7Days.hasOwnProperty(r.date)) {
+      last7Days[r.date] = r.count;
     }
   });
 
-  const recentClicks = stats.slice(-10).reverse();
+  // 8. Get recent 10 clicks only (limited query)
+  const recentClicks = await db
+    .select()
+    .from(linkStats)
+    .where(eq(linkStats.linkId, linkId))
+    .orderBy(desc(linkStats.clickedAt))
+    .limit(10);
 
   return {
-    totalClicks: stats.length,
+    totalClicks,
     deviceStats,
+    browserStats,
+    osStats,
+    countryStats,
+    cityStats,
     last7Days,
     recentClicks,
   };
@@ -437,22 +563,24 @@ export async function getLinkStatsSummary(linkId: number) {
 
 export async function getGlobalStatsSummary(userId: number, days: number = 7) {
   const db = await getDb();
-  if (!db) return { totalLinks: 0, totalClicks: 0, timeSeries: {}, deviceStats: {}, countryStats: {}, cityStats: {}, browserStats: {} };
+  const emptyResult = { totalLinks: 0, totalClicks: 0, timeSeries: {}, deviceStats: {}, countryStats: {}, cityStats: {}, browserStats: {} };
 
-  const linksQuery = await db.select({
-    id: links.id,
-    clickCount: links.clickCount
-  }).from(links).where(eq(links.userId, userId));
+  if (!db) return emptyResult;
+
+  // 1. Get user's links with click counts (SQL aggregation)
+  const linksQuery = await db
+    .select({
+      id: links.id,
+      clickCount: links.clickCount,
+    })
+    .from(links)
+    .where(eq(links.userId, userId));
 
   const totalLinks = linksQuery.length;
   const totalClicks = linksQuery.reduce((sum: number, link: any) => sum + (link.clickCount || 0), 0);
 
+  // Initialize time series with zeros
   const timeSeries: Record<string, number> = {};
-  const deviceStats: Record<string, number> = {};
-  const countryStats: Record<string, number> = {};
-  const cityStats: Record<string, number> = {};
-  const browserStats: Record<string, number> = {};
-
   const now = new Date();
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(now);
@@ -462,39 +590,97 @@ export async function getGlobalStatsSummary(userId: number, days: number = 7) {
   }
 
   if (linksQuery.length === 0) {
-    return { totalLinks, totalClicks, timeSeries, deviceStats, countryStats, cityStats, browserStats };
+    return { totalLinks, totalClicks, timeSeries, deviceStats: {}, countryStats: {}, cityStats: {}, browserStats: {} };
   }
 
   const linkIds = linksQuery.map((l: any) => l.id);
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
-  const stats = await db.select().from(linkStats)
+  // 2. Get time series (SQL GROUP BY DATE)
+  const timeSeriesResult = await db
+    .select({
+      date: sql<string>`DATE(${linkStats.clickedAt})`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
     .where(
       and(
         inArray(linkStats.linkId, linkIds),
         sql`${linkStats.clickedAt} >= ${startDate}`
       )
-    );
+    )
+    .groupBy(sql`DATE(${linkStats.clickedAt})`);
 
-  for (const stat of stats) {
-    const dateStr = new Date(stat.clickedAt).toISOString().split('T')[0];
-    if (timeSeries[dateStr] !== undefined) {
-      timeSeries[dateStr]++;
+  timeSeriesResult.forEach((r: { date: string; count: number }) => {
+    if (timeSeries.hasOwnProperty(r.date)) {
+      timeSeries[r.date] = r.count;
     }
+  });
 
-    const device = stat.deviceType || 'unknown';
-    deviceStats[device] = (deviceStats[device] || 0) + 1;
+  // 3. Get device distribution (SQL GROUP BY)
+  const deviceResult = await db
+    .select({
+      deviceType: sql<string>`COALESCE(${linkStats.deviceType}, 'unknown')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(
+      and(
+        inArray(linkStats.linkId, linkIds),
+        sql`${linkStats.clickedAt} >= ${startDate}`
+      )
+    )
+    .groupBy(sql`COALESCE(${linkStats.deviceType}, 'unknown')`);
+  const deviceStats = Object.fromEntries(deviceResult.map((r: { deviceType: string; count: number }) => [r.deviceType, r.count]));
 
-    const country = stat.country || 'Unknown';
-    countryStats[country] = (countryStats[country] || 0) + 1;
+  // 4. Get country distribution (SQL GROUP BY)
+  const countryResult = await db
+    .select({
+      country: sql<string>`COALESCE(${linkStats.country}, 'Unknown')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(
+      and(
+        inArray(linkStats.linkId, linkIds),
+        sql`${linkStats.clickedAt} >= ${startDate}`
+      )
+    )
+    .groupBy(sql`COALESCE(${linkStats.country}, 'Unknown')`);
+  const countryStats = Object.fromEntries(countryResult.map((r: { country: string; count: number }) => [r.country, r.count]));
 
-    const city = stat.city || 'Unknown';
-    cityStats[city] = (cityStats[city] || 0) + 1;
+  // 5. Get city distribution (SQL GROUP BY)
+  const cityResult = await db
+    .select({
+      city: sql<string>`COALESCE(${linkStats.city}, 'Unknown')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(
+      and(
+        inArray(linkStats.linkId, linkIds),
+        sql`${linkStats.clickedAt} >= ${startDate}`
+      )
+    )
+    .groupBy(sql`COALESCE(${linkStats.city}, 'Unknown')`);
+  const cityStats = Object.fromEntries(cityResult.map((r: { city: string; count: number }) => [r.city, r.count]));
 
-    const browser = stat.browserName || 'Unknown';
-    browserStats[browser] = (browserStats[browser] || 0) + 1;
-  }
+  // 6. Get browser distribution (SQL GROUP BY)
+  const browserResult = await db
+    .select({
+      browserName: sql<string>`COALESCE(${linkStats.browserName}, 'Unknown')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(
+      and(
+        inArray(linkStats.linkId, linkIds),
+        sql`${linkStats.clickedAt} >= ${startDate}`
+      )
+    )
+    .groupBy(sql`COALESCE(${linkStats.browserName}, 'Unknown')`);
+  const browserStats = Object.fromEntries(browserResult.map((r: { browserName: string; count: number }) => [r.browserName, r.count]));
 
   return { totalLinks, totalClicks, timeSeries, deviceStats, countryStats, cityStats, browserStats };
 }
@@ -528,6 +714,145 @@ export async function getUnreadNotifications(userId: number) {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(notifications).where(and(eq(notifications.userId, userId), eq(notifications.isRead, 0)));
+}
+
+export async function getNotificationsForUser(userId: number, limit = 50, offset = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  // Get user-specific notifications + broadcast notifications (userId = null)
+  return db.select().from(notifications)
+    .where(or(eq(notifications.userId, userId), isNull(notifications.userId)))
+    .orderBy(desc(notifications.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getNotificationCount(userId: number) {
+  const db = await getDb();
+  if (!db) return { total: 0, unread: 0 };
+
+  const [totalResult] = await db.select({ count: sql<number>`count(*)` })
+    .from(notifications)
+    .where(or(eq(notifications.userId, userId), isNull(notifications.userId)));
+
+  const [unreadResult] = await db.select({ count: sql<number>`count(*)` })
+    .from(notifications)
+    .where(and(
+      or(eq(notifications.userId, userId), isNull(notifications.userId)),
+      eq(notifications.isRead, 0)
+    ));
+
+  return {
+    total: totalResult?.count || 0,
+    unread: unreadResult?.count || 0,
+  };
+}
+
+export async function getAllNotifications(limit = 50, offset = 0, type?: string, userId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions = [];
+  if (type) conditions.push(eq(notifications.type, type));
+  if (userId !== undefined) conditions.push(eq(notifications.userId, userId));
+
+  return db.select().from(notifications)
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(notifications.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getNotificationStats() {
+  const db = await getDb();
+  if (!db) return { total: 0, unread: 0, byType: {} };
+
+  const [totalResult] = await db.select({ count: sql<number>`count(*)` }).from(notifications);
+  const [unreadResult] = await db.select({ count: sql<number>`count(*)` })
+    .from(notifications)
+    .where(eq(notifications.isRead, 0));
+
+  const typeStats = await db.select({
+    type: notifications.type,
+    count: sql<number>`count(*)`,
+  }).from(notifications).groupBy(notifications.type);
+
+  return {
+    total: totalResult?.count || 0,
+    unread: unreadResult?.count || 0,
+    byType: Object.fromEntries(typeStats.map((s: { type: string; count: number }) => [s.type, s.count])),
+  };
+}
+
+export async function markNotificationRead(notificationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  const result = await db.update(notifications)
+    .set({ isRead: 1 })
+    .where(and(eq(notifications.id, notificationId), or(eq(notifications.userId, userId), isNull(notifications.userId))));
+
+  return true;
+}
+
+export async function markAllNotificationsRead(userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  await db.update(notifications)
+    .set({ isRead: 1 })
+    .where(and(
+      or(eq(notifications.userId, userId), isNull(notifications.userId)),
+      eq(notifications.isRead, 0)
+    ));
+
+  return true;
+}
+
+export async function sendBroadcastNotification(data: {
+  title: string;
+  message: string;
+  type: string;
+  priority?: 'low' | 'normal' | 'high';
+  senderId: number;
+  targetUserIds?: number[];
+}) {
+  const db = await getDb();
+  if (!db) return { count: 0 };
+
+  const notificationData = {
+    title: data.title,
+    message: data.message,
+    type: data.type,
+    priority: data.priority || 'normal',
+    senderId: data.senderId,
+    isRead: 0,
+  };
+
+  if (data.targetUserIds && data.targetUserIds.length > 0) {
+    // Send to specific users
+    const values = data.targetUserIds.map(userId => ({
+      ...notificationData,
+      userId,
+    }));
+    await db.insert(notifications).values(values);
+    return { count: data.targetUserIds.length };
+  } else {
+    // Broadcast to all (userId = null)
+    await db.insert(notifications).values({
+      ...notificationData,
+      userId: null,
+    });
+    return { count: -1 }; // -1 indicates broadcast
+  }
+}
+
+export async function deleteNotification(notificationId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  await db.delete(notifications).where(eq(notifications.id, notificationId));
+  return true;
 }
 
 // === Domain Management ===

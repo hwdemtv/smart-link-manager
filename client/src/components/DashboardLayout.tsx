@@ -21,13 +21,14 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Globe, ShieldCheck, Link2, Terminal, Bot, Settings, Key, ChevronRight } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Globe, ShieldCheck, Link2, Terminal, Bot, Settings, Key, ChevronRight, User } from "lucide-react";
 import * as React from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { NotificationBell } from "./NotificationBell";
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -274,6 +275,10 @@ function DashboardLayoutContent({
 
           <SidebarFooter className="p-3">
             <div className="flex flex-col gap-2">
+              {/* 通知铃铛 */}
+              <div className="flex items-center justify-end group-data-[collapsible=icon]:hidden">
+                <NotificationBell />
+              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -293,6 +298,13 @@ function DashboardLayoutContent({
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => setLocation("/profile")}
+                    className="cursor-pointer"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    <span>{t("profile.title")}</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={logout}
                     className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
@@ -328,7 +340,10 @@ function DashboardLayoutContent({
                 </div>
               </div>
             </div>
-            <LanguageSwitcher />
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <LanguageSwitcher />
+            </div>
           </div>
         )}
         <main className="flex-1 overflow-y-auto">

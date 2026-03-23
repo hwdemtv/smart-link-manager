@@ -18,6 +18,14 @@ export default function Login() {
 
   const utils = trpc.useUtils();
 
+  const configQuery = trpc.configs.getConfig.useQuery();
+  const registrationDisabled = configQuery.data?.registrationDisabled;
+
+  // 如果注册被禁用且当前在注册模式，强制切回登录模式
+  if (registrationDisabled && isRegister) {
+    setIsRegister(false);
+  }
+
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: () => {
       utils.auth.me.invalidate();
@@ -165,16 +173,18 @@ export default function Login() {
                   </button>
                 </>
               ) : (
-                <>
-                  {t("login.noAccount")}{" "}
-                  <button
-                    type="button"
-                    onClick={() => { setIsRegister(true); setError(""); }}
-                    className="text-accent-blue hover:underline font-medium"
-                  >
-                    {t("login.registerNow")}
-                  </button>
-                </>
+                !registrationDisabled && (
+                  <>
+                    {t("login.noAccount")}{" "}
+                    <button
+                      type="button"
+                      onClick={() => { setIsRegister(true); setError(""); }}
+                      className="text-accent-blue hover:underline font-medium"
+                    >
+                      {t("login.registerNow")}
+                    </button>
+                  </>
+                )
               )}
             </div>
           </div>

@@ -5,8 +5,12 @@ import { trpc } from "@/lib/trpc";
 import { useParams, useLocation } from "wouter";
 import { ArrowLeft, ExternalLink, Copy, QrCode, TrendingUp, Monitor, Smartphone, Tablet, Globe, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from "recharts";
+
+import { Skeleton } from "@/components/ui/skeleton";
+
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
 
 export default function LinkDetail() {
   const { id } = useParams();
@@ -32,6 +36,70 @@ export default function LinkDetail() {
     mobile: Smartphone,
     tablet: Tablet,
     unknown: Globe,
+  };
+
+  const formatDataForPie = (dataRecord: Record<string, number> | undefined, limit = 5) => {
+    if (!dataRecord) return [];
+    const entries = Object.entries(dataRecord).sort((a, b) => b[1] - a[1]);
+    if (entries.length <= limit) {
+      return entries.map(([name, value]) => ({ name, value }));
+    }
+    const top = entries.slice(0, limit).map(([name, value]) => ({ name, value }));
+    const others = entries.slice(limit).reduce((sum, [, value]) => sum + value, 0);
+    top.push({ name: t("common.other", "Other"), value: others });
+    return top;
+  };
+
+  const StatPieChart = ({ title, data, isLoading }: { title: string, data?: any[], isLoading?: boolean }) => {
+    if (isLoading) {
+      return (
+        <Card className="p-6 flex flex-col h-[320px]">
+          <Skeleton className="h-6 w-3/4 mb-4" />
+          <div className="flex-1 flex items-center justify-center">
+            <Skeleton className="h-40 w-40 rounded-full" />
+          </div>
+          <div className="mt-4 flex justify-center gap-2">
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-4 w-12" />
+          </div>
+        </Card>
+      );
+    }
+
+    if (!data || data.length === 0) {
+      return (
+        <Card className="p-6 flex flex-col h-[320px]">
+          <h2 className="text-xl font-semibold mb-4">{title}</h2>
+          <div className="flex-1 flex items-center justify-center text-muted-foreground">{t("linkDetail.noData")}</div>
+        </Card>
+      );
+    }
+    return (
+      <Card className="p-6 flex flex-col h-[320px]">
+        <h2 className="text-xl font-semibold mb-4">{title}</h2>
+        <div className="flex-1 min-h-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={80}
+                paddingAngle={5}
+                dataKey="value"
+              >
+                {data.map((_entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <RechartsTooltip formatter={(value: any) => [value, t("linkDetail.clicks", "Clicks")]} />
+              <Legend verticalAlign="bottom" height={36} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+    );
   };
 
   if (linkQuery.isLoading) {
@@ -141,64 +209,42 @@ export default function LinkDetail() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Click Trend */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">{t("linkDetail.last7Days")}</h2>
-            {stats?.last7Days ? (
-              <div className="flex items-end gap-2 h-40">
-                {Object.entries(stats.last7Days).map(([date, count]) => {
-                  const maxCount = Math.max(...Object.values(stats.last7Days));
-                  const height = maxCount > 0 ? ((count as number) / maxCount) * 100 : 0;
-                  return (
-                    <div key={date} className="flex-1 flex flex-col items-center gap-1">
-                      <div
-                        className="w-full bg-accent rounded-t"
-                        style={{ height: `${Math.max(height, 4)}%`, minHeight: count ? "4px" : "0" }}
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(date).toLocaleDateString("en-US", { weekday: "short" })}
-                      </span>
-                      <span className="text-xs font-medium">{count as number}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-8">{t("linkDetail.noData")}</div>
-            )}
-          </Card>
+        {/* Click Trend */}
+        <Card className="p-6 lg:col-span-2">
+          <h2 className="text-xl font-semibold mb-4">{t("linkDetail.last7Days")}</h2>
+          {statsQuery.isLoading ? (
+            <Skeleton className="h-40 w-full" />
+          ) : stats?.last7Days ? (
+            <div className="flex items-end gap-2 h-40">
+              {Object.entries(stats.last7Days).map(([date, count]) => {
+                const maxCount = Math.max(...Object.values(stats.last7Days));
+                const height = maxCount > 0 ? ((count as number) / maxCount) * 100 : 0;
+                return (
+                  <div key={date} className="flex-1 flex flex-col items-center gap-1">
+                    <div
+                      className="w-full bg-accent rounded-t"
+                      style={{ height: `${Math.max(height, 4)}%`, minHeight: count ? "4px" : "0" }}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(date).toLocaleDateString("en-US", { weekday: "short" })}
+                    </span>
+                    <span className="text-xs font-medium">{count as number}</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground py-8">{t("linkDetail.noData")}</div>
+          )}
+        </Card>
+        </div>
 
-          {/* Device Distribution */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">{t("linkDetail.deviceDistribution")}</h2>
-            {stats?.deviceStats && Object.keys(stats.deviceStats).length > 0 ? (
-              <div className="space-y-4">
-                {Object.entries(stats.deviceStats).map(([device, count]) => {
-                  const Icon = deviceIcons[device] || Globe;
-                  const percentage = stats.totalClicks > 0 ? ((count as number) / stats.totalClicks) * 100 : 0;
-                  return (
-                    <div key={device} className="flex items-center gap-3">
-                      <Icon className="w-5 h-5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="capitalize">{device}</span>
-                          <span>{count as number} ({percentage.toFixed(1)}%)</span>
-                        </div>
-                        <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-accent rounded-full"
-                            style={{ width: `${percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center text-muted-foreground py-8">{t("linkDetail.noData")}</div>
-            )}
-          </Card>
+        {/* Detailed Stats Grid (Doughnut Charts) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
+          <StatPieChart title={t("linkDetail.deviceDistribution")} data={formatDataForPie(stats?.deviceStats)} />
+          <StatPieChart title={t("common.browser", "Browser")} data={formatDataForPie(stats?.browserStats)} />
+          <StatPieChart title={t("common.os", "Operating System")} data={formatDataForPie(stats?.osStats)} />
+          <StatPieChart title={t("common.country", "Country / Region")} data={formatDataForPie(stats?.countryStats)} />
         </div>
 
         {/* Original URL */}

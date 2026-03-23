@@ -182,7 +182,7 @@ export default function AuditLogManagement() {
               {auditLogs.totalPages > 1 && (
                 <div className="flex items-center justify-between px-2 py-4 border-t border-border">
                   <div className="text-sm text-muted-foreground">
-                    {t("admin.tenantMgmt.pagination.showing", {
+                    {t("admin.pagination.showing", {
                       from: (currentPage - 1) * itemsPerPage + 1,
                       to: Math.min(currentPage * itemsPerPage, auditLogs.total),
                       total: auditLogs.total
@@ -195,7 +195,7 @@ export default function AuditLogManagement() {
                       onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
                     >
-                      ← {t("admin.tenantMgmt.pagination.prev")}
+                      ← {t("admin.pagination.prev")}
                     </Button>
                     <div className="flex items-center justify-center text-sm font-medium px-2">
                       {currentPage} / {auditLogs.totalPages}
@@ -206,7 +206,7 @@ export default function AuditLogManagement() {
                       onClick={() => setCurrentPage((p: number) => Math.min(auditLogs.totalPages, p + 1))}
                       disabled={currentPage === auditLogs.totalPages}
                     >
-                      {t("admin.tenantMgmt.pagination.next")} →
+                      {t("admin.pagination.next")} →
                     </Button>
                   </div>
                 </div>

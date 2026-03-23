@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { index, int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -56,7 +56,12 @@ export const links = mysqlTable("links", {
   seoImage: text("seoImage"),
   createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
-});
+}, (table) => ({
+  shortCodeIdx: index("shortCodeIdx").on(table.shortCode),
+  userIdIdx: index("userIdIdx").on(table.userId),
+  domainIdx: index("domainIdx").on(table.customDomain),
+  shortCodeDomainIdx: index("shortCodeDomainIdx").on(table.shortCode, table.customDomain),
+}));
 
 export type Link = typeof links.$inferSelect;
 export type InsertLink = typeof links.$inferInsert;
@@ -74,7 +79,10 @@ export const domains = mysqlTable("domains", {
   verifiedAt: timestamp("verifiedAt"),
   createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
-});
+}, (table) => ({
+  domainIdx: index("domainIdx").on(table.domain),
+  userIdIdx: index("userIdIdx").on(table.userId),
+}));
 
 export type Domain = typeof domains.$inferSelect;
 export type InsertDomain = typeof domains.$inferInsert;
@@ -94,7 +102,10 @@ export const linkStats = mysqlTable("link_stats", {
   city: varchar("city", { length: 100 }),
   referer: text("referer"),
   clickedAt: timestamp("clickedAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
-});
+}, (table) => ({
+  linkIdIdx: index("linkIdIdx").on(table.linkId),
+  clickedAtIdx: index("clickedAtIdx").on(table.clickedAt),
+}));
 
 export type LinkStat = typeof linkStats.$inferSelect;
 export type InsertLinkStat = typeof linkStats.$inferInsert;
@@ -109,24 +120,31 @@ export const linkChecks = mysqlTable("link_checks", {
   statusCode: int("statusCode"),
   errorMessage: text("errorMessage"),
   checkedAt: timestamp("checkedAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
-});
+}, (table) => ({
+  linkIdIdx: index("linkIdIdx").on(table.linkId),
+}));
 
 export type LinkCheck = typeof linkChecks.$inferSelect;
 export type InsertLinkCheck = typeof linkChecks.$inferInsert;
 
 /**
- * Notifications table: tracks validity alerts
+ * Notifications table: tracks validity alerts and admin announcements
  */
 export const notifications = mysqlTable("notifications", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().references(() => users.id),
-  linkId: int("linkId").notNull().references(() => links.id, { onDelete: "cascade" }),
-  type: varchar("type", { length: 50 }).notNull(), // 'link_invalid', 'link_expired'
+  userId: int("userId").references(() => users.id), // null = broadcast to all users
+  senderId: int("senderId").references(() => users.id), // who sent the notification (admin)
+  linkId: int("linkId").references(() => links.id, { onDelete: "cascade" }), // optional link reference
+  type: varchar("type", { length: 50 }).notNull(), // 'link_invalid', 'link_expired', 'announcement', 'warning', 'info'
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message"),
+  priority: mysqlEnum("priority", ["low", "normal", "high"]).default("normal").notNull(),
   isRead: int("isRead").default(0).notNull(),
   createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("userIdIdx").on(table.userId),
+  isReadIdx: index("isReadIdx").on(table.isRead),
+}));
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
@@ -142,7 +160,10 @@ export const usageLogs = mysqlTable("usage_logs", {
   apiCalls: int("apiCalls").default(0).notNull(),
   totalClicks: int("totalClicks").default(0).notNull(),
   createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("userIdIdx").on(table.userId),
+  dateIdx: index("dateIdx").on(table.date),
+}));
 
 export type UsageLog = typeof usageLogs.$inferSelect;
 export type InsertUsageLog = typeof usageLogs.$inferInsert;
@@ -161,7 +182,10 @@ export const apiKeys = mysqlTable("api_keys", {
   isActive: int("isActive").default(1).notNull(),
   createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("userIdIdx").on(table.userId),
+  keyHashIdx: index("keyHashIdx").on(table.keyHash),
+}));
 
 export type ApiKey = typeof apiKeys.$inferSelect;
 export type InsertApiKey = typeof apiKeys.$inferInsert;
@@ -179,7 +203,10 @@ export const auditLogs = mysqlTable("audit_logs", {
   ipAddress: varchar("ipAddress", { length: 45 }),
   userAgent: text("userAgent"),
   createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("userIdIdx").on(table.userId),
+  actionIdx: index("actionIdx").on(table.action),
+}));
 
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;

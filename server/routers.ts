@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { userRouter } from "./userRouter";
 import { authService } from "./_core/sdk";
+import { ENV } from "./_core/env";
 import { generateSeoFromUrl } from "./aiSeoService";
 import { z } from "zod";
 import { resolveGeoIp } from "./geoIpResolver";
@@ -129,6 +130,7 @@ export const appRouter = router({
             role: user.role,
             subscriptionTier: user.subscriptionTier,
           },
+          registrationDisabled: process.env.REGISTRATION_DISABLED === 'true',
         };
       }),
 
@@ -140,6 +142,14 @@ export const appRouter = router({
         name: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
+        // 检查是否禁用注册
+        if (ENV.registrationDisabled) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Registration is currently disabled",
+          });
+        }
+
         // 检查用户名是否已存在
         const existing = await getUserByUsername(input.username);
         if (existing) {
@@ -300,21 +310,28 @@ export const appRouter = router({
         status: z.enum(['all', 'active', 'invalid']).optional(),
         orderBy: z.enum(['createdAt', 'clickCount', 'updatedAt']).optional(),
         order: z.enum(['asc', 'desc']).optional(),
+        limit: z.number().min(1).max(100).optional(),
+        offset: z.number().min(0).optional(),
       }))
       .query(async ({ ctx, input }) => {
-        const links = await searchLinks(ctx.user.id, {
+        const result = await searchLinks(ctx.user.id, {
           search: input.query,
           tag: input.tag,
           status: input.status,
           orderBy: input.orderBy,
           order: input.order,
+          limit: input.limit,
+          offset: input.offset,
         });
-        return links.map((link: any) => ({
-          ...link,
-          fullUrl: link.customDomain
-            ? `https://${link.customDomain}/${link.shortCode}`
-            : `${process.env.VITE_APP_ID || "localhost"}/s/${link.shortCode}`,
-        }));
+        return {
+          links: result.links.map((link: any) => ({
+            ...link,
+            fullUrl: link.customDomain
+              ? `https://${link.customDomain}/${link.shortCode}`
+              : `${process.env.VITE_APP_ID || "localhost"}/s/${link.shortCode}`,
+          })),
+          total: result.total,
+        };
       }),
 
     // Get link by ID
@@ -491,7 +508,7 @@ export const appRouter = router({
 
     // Batch delete links
     batchDelete: protectedProcedure
-      .input(z.object({ linkIds: z.array(z.number()) }))
+      .input(z.object({ linkIds: z.array(z.number()).min(1).max(100) }))
       .mutation(async ({ ctx, input }) => {
         await batchDeleteLinks(ctx.user.id, input.linkIds);
         return { success: true };
@@ -500,7 +517,7 @@ export const appRouter = router({
     // Batch update links (status, expiry, domain)
     batchUpdate: protectedProcedure
       .input(z.object({
-        linkIds: z.array(z.number()),
+        linkIds: z.array(z.number()).min(1).max(100),
         data: z.object({
           isActive: z.number().int().min(0).max(1).optional(),
           expiresAt: z.string().optional().nullable(),
@@ -519,7 +536,7 @@ export const appRouter = router({
     // Batch update links tags
     batchUpdateTags: protectedProcedure
       .input(z.object({
-        linkIds: z.array(z.number()),
+        linkIds: z.array(z.number()).min(1).max(100),
         tags: z.array(z.string()),
         mode: z.enum(['add', 'remove', 'set'])
       }))
@@ -535,6 +552,8 @@ export const appRouter = router({
           originalUrl: z.string().url(),
           shortCode: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_-]+$/).optional(),
           description: z.string().optional(),
+          tags: z.array(z.string()).optional(),
+          expiresAt: z.string().optional().nullable(),
         })),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -576,6 +595,8 @@ export const appRouter = router({
               originalUrl: linkData.originalUrl,
               shortCode,
               description: linkData.description,
+              tags: linkData.tags,
+              expiresAt: linkData.expiresAt ? new Date(linkData.expiresAt) : undefined,
             });
 
             results.success.push({ shortCode, originalUrl: linkData.originalUrl });
@@ -929,6 +950,12 @@ export const appRouter = router({
   }),
 
   configs: router({
+    getConfig: publicProcedure
+      .query(() => {
+        return {
+          registrationDisabled: ENV.registrationDisabled,
+        };
+      }),
     getAiConfig: protectedProcedure.query(async () => {
       // Return global AI config from environment variables
       return {

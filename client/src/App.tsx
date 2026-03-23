@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import AdminDashboard from "@/pages/AdminDashboard";
 import LicenseSettings from "@/pages/LicenseSettings";
+import ProfileSettings from "@/pages/ProfileSettings";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -73,6 +74,11 @@ function Router() {
       <Route path="/admin">
         <DashboardLayout>
           <AdminDashboard />
+        </DashboardLayout>
+      </Route>
+      <Route path="/profile">
+        <DashboardLayout>
+          <ProfileSettings />
         </DashboardLayout>
       </Route>
 

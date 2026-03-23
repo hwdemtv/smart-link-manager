@@ -1,12 +1,13 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, BarChart3, Link2, UserCircle, FileText } from "lucide-react";
+import { Users, BarChart3, Link2, UserCircle, FileText, Bell } from "lucide-react";
 import { useState } from "react";
 import UsageAnalytics from "@/components/admin/UsageAnalytics";
 import UserManagement from "@/components/admin/UserManagement";
 import LinkManagement from "@/components/admin/LinkManagement";
 import AuditLogManagement from "@/components/admin/AuditLogManagement";
+import NotificationManagement from "@/components/admin/NotificationManagement";
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
 
@@ -140,7 +141,7 @@ export default function AdminDashboard() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               {t("admin.overview")}
@@ -152,6 +153,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="links" className="flex items-center gap-2">
               <Link2 className="w-4 h-4" />
               {t("admin.links")}
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="flex items-center gap-2">
+              <Bell className="w-4 h-4" />
+              {t("admin.notify.title")}
             </TabsTrigger>
             <TabsTrigger value="audit" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
@@ -169,6 +174,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="links" className="mt-4 space-y-4">
             <LinkManagement />
+          </TabsContent>
+
+          <TabsContent value="notifications" className="mt-4 space-y-4">
+            <NotificationManagement />
           </TabsContent>
 
           <TabsContent value="audit" className="mt-4 space-y-4">

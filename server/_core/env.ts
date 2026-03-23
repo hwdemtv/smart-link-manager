@@ -8,4 +8,5 @@ export const ENV = {
   licenseServerUrl: process.env.LICENSE_SERVER_URL ?? "",
   defaultAdminUsername: process.env.DEFAULT_ADMIN_USERNAME ?? "admin",
   defaultAdminPassword: process.env.DEFAULT_ADMIN_PASSWORD ?? "admin123",
+  registrationDisabled: process.env.REGISTRATION_DISABLED === 'true',
 };

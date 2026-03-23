@@ -1,9 +1,8 @@
-// @ts-nocheck
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - recharts types are incompatible with strict mode
-import {
+// @ts-ignore
+import * as Recharts from "recharts";
+const {
   LineChart,
   Line,
   BarChart,
@@ -13,11 +12,29 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-} from "recharts";
+  ResponsiveContainer
+} = Recharts as any;
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
 import { Link2, MousePointer, Activity } from "lucide-react";
+
+// Chart data type
+interface ChartDataItem {
+  date: string;
+  links: number;
+  clicks: number;
+  apiCalls: number;
+}
+
+// User stat type
+interface UserStatItem {
+  userId: number;
+  userName?: string;
+  userUsername?: string;
+  linksCreated?: number;
+  totalClicks?: number;
+  apiCalls?: number;
+}
 
 export default function UsageAnalytics() {
   const { t } = useTranslation();
@@ -28,14 +45,14 @@ export default function UsageAnalytics() {
   const userStats = platformUsage?.userStats || [];
 
   // Format chart data
-  const sortedChartData = dailyData
-    .map((d: any) => ({
+  const sortedChartData: ChartDataItem[] = dailyData
+    .map((d: { date: string; linksCreated?: number; totalClicks?: number; apiCalls?: number }) => ({
       date: d.date,
       links: d.linksCreated || 0,
       clicks: d.totalClicks || 0,
       apiCalls: d.apiCalls || 0,
     }))
-    .sort((a: any, b: any) => a.date.localeCompare(b.date))
+    .sort((a: ChartDataItem, b: ChartDataItem) => a.date.localeCompare(b.date))
     .slice(-7);
 
   return (
@@ -141,8 +158,8 @@ export default function UsageAnalytics() {
       {/* Top Users */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("admin.usage.topTenants")}</CardTitle>
-          <CardDescription>{t("admin.usage.topTenantsDesc")}</CardDescription>
+          <CardTitle>{t("admin.usage.topUsers")}</CardTitle>
+          <CardDescription>{t("admin.usage.topUsersDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -158,7 +175,7 @@ export default function UsageAnalytics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {userStats.slice(0, 10).map((stat: any) => (
+                {(userStats as UserStatItem[]).slice(0, 10).map((stat) => (
                   <TableRow key={stat.userId}>
                     <TableCell className="font-medium">
                       {stat.userName || stat.userUsername || `User ${stat.userId}`}
@@ -172,7 +189,7 @@ export default function UsageAnalytics() {
             </Table>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              {t("admin.usage.noTenants")}
+              {t("admin.usage.noUsers")}
             </div>
           )}
         </CardContent>

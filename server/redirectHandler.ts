@@ -3,6 +3,25 @@ import { getLinkByShortCode, updateLinkClickCount, recordLinkStat, recordUsage }
 import { detectDevice } from "./deviceDetector";
 import { logger } from "./_core/logger";
 import { resolveGeoIp } from "./geoIpResolver";
+import { Link } from "../drizzle/schema";
+
+// --- Simple In-Memory Cache for Short Links ---
+const linkCache = new Map<string, { link: Link | null, expiresAt: number }>();
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds cache TTL for high concurrency
+
+async function getCachedLink(shortCode: string): Promise<Link | null> {
+  const now = Date.now();
+  const cached = linkCache.get(shortCode);
+  if (cached && cached.expiresAt > now) {
+    return cached.link;
+  }
+  
+  const link = (await getLinkByShortCode(shortCode)) as Link | null;
+  // Cache both hit and miss (to prevent cache penetration) for 60s
+  linkCache.set(shortCode, { link, expiresAt: now + CACHE_TTL_MS });
+  return link;
+}
+// ----------------------------------------------
 
 /**
  * Handle short link redirect with device detection
@@ -15,8 +34,8 @@ export async function handleShortLinkRedirect(
   shortCode: string
 ) {
   try {
-    // Get link from database
-    const link = await getLinkByShortCode(shortCode);
+    // Get link from memory cache (or database if miss/expired)
+    const link = await getCachedLink(shortCode);
 
     if (!link || !link.isActive || !link.isValid) {
       return res.redirect(302, "/error?type=NOT_FOUND");
@@ -138,7 +157,7 @@ export async function handleShortLinkRedirect(
  */
 export async function getRedirectTarget(shortCode: string): Promise<string | null> {
   try {
-    const link = await getLinkByShortCode(shortCode);
+    const link = await getCachedLink(shortCode);
 
     if (!link || !link.isActive || !link.isValid) {
       return null;

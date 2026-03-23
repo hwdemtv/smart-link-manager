@@ -1,7 +1,10 @@
-// @ts-nocheck - Recharts is not fully compatible with React 19 types yet
 import React from "react";
 import { Card } from "@/components/ui/card";
-import {
+// Recharts types are properly defined but TypeScript's moduleResolution: bundler has issues
+// with packages that don't have an "exports" field.
+// @ts-ignore
+import * as Recharts from "recharts";
+const {
   Area,
   AreaChart,
   CartesianGrid,
@@ -16,7 +19,7 @@ import {
   Treemap,
   BarChart,
   Bar,
-} from "recharts";
+} = Recharts as any;
 import { trpc } from "@/lib/trpc";
 import { useTranslation } from "react-i18next";
 import { Loader2, MapPin, Globe2, TrendingUp } from "lucide-react";
@@ -36,7 +39,28 @@ const COUNTRY_FLAGS: Record<string, string> = {
 // Treemap 自定义内容渲染
 const TREEMAP_COLORS = ['#3b82f6', '#2563eb', '#1d4ed8', '#60a5fa', '#93c5fd', '#06b6d4', '#0891b2', '#0e7490'];
 
-const CustomTreemapContent = (props: any) => {
+// Chart data types
+interface TimeSeriesItem {
+  date: string;
+  clicks: number;
+}
+
+interface NameValueItem {
+  name: string;
+  value: number;
+}
+
+interface TreemapContentProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  name: string;
+  value: number;
+  index: number;
+}
+
+const CustomTreemapContent = (props: TreemapContentProps) => {
   const { x, y, width, height, name, value, index } = props;
   if (width < 30 || height < 30) return null;
   return (
@@ -96,31 +120,31 @@ export function AnalyticsDashboard() {
   }
 
   // 整理折线图数据
-  const timeSeriesData = Object.entries(stats.timeSeries).map(([date, count]) => ({
+  const timeSeriesData: TimeSeriesItem[] = Object.entries(stats.timeSeries).map(([date, count]) => ({
     date: date.substring(5),
     clicks: count as number,
   })).sort((a, b) => a.date.localeCompare(b.date));
 
   // 整理饼图数据
-  const deviceData = Object.entries(stats.deviceStats || {}).map(([name, value]) => ({
+  const deviceData: NameValueItem[] = Object.entries(stats.deviceStats || {}).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
     value: value as number,
   })).sort((a, b) => b.value - a.value);
 
   // 整理国家 Treemap 数据
-  const countryData = Object.entries(stats.countryStats || {}).map(([name, value]) => ({
+  const countryData: NameValueItem[] = Object.entries(stats.countryStats || {}).map(([name, value]) => ({
     name,
     value: value as number,
   })).sort((a, b) => b.value - a.value);
 
   // 整理城市 Top 排行数据
-  const cityData = Object.entries((stats as any).cityStats || {}).map(([name, value]) => ({
+  const cityData: NameValueItem[] = Object.entries((stats as { cityStats?: Record<string, number> }).cityStats || {}).map(([name, value]) => ({
     name,
     value: value as number,
   })).sort((a, b) => b.value - a.value).slice(0, 8);
 
   // 整理浏览器数据
-  const browserData = Object.entries((stats as any).browserStats || {}).map(([name, value]) => ({
+  const browserData: NameValueItem[] = Object.entries((stats as { browserStats?: Record<string, number> }).browserStats || {}).map(([name, value]) => ({
     name,
     value: value as number,
   })).sort((a, b) => b.value - a.value).slice(0, 5);
@@ -176,7 +200,7 @@ export function AnalyticsDashboard() {
                 nameKey="name"
                 aspectRatio={4 / 3}
                 stroke="#fff"
-                content={<CustomTreemapContent /> as any}
+                content={<CustomTreemapContent {...({} as TreemapContentProps)} />}
               />
             </ResponsiveContainer>
           </div>

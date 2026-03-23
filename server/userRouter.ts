@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
 import { protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import {
   getUserById,
@@ -17,6 +19,14 @@ import {
   searchAllLinks,
   adminDeleteLink,
   updateLink,
+  getNotificationsForUser,
+  getNotificationCount,
+  getAllNotifications,
+  getNotificationStats,
+  markNotificationRead,
+  markAllNotificationsRead,
+  sendBroadcastNotification,
+  deleteNotification,
 } from "./db";
 import { licenseService } from "./licenseService";
 
@@ -144,6 +154,75 @@ export const userRouter = router({
     return { success: true };
   }),
 
+  /**
+   * Update current user's profile
+   */
+  updateProfile: protectedProcedure
+    .input(z.object({
+      name: z.string().min(1).optional(),
+      email: z.string().email().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await updateUser(ctx.user.id, input);
+
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "user.update_profile",
+        targetType: "user",
+        targetId: ctx.user.id,
+        details: input,
+      });
+
+      return { success: true };
+    }),
+
+  /**
+   * Change current user's password
+   */
+  changePassword: protectedProcedure
+    .input(z.object({
+      oldPassword: z.string(),
+      newPassword: z.string().min(6),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const user = await getUserById(ctx.user.id);
+      if (!user || user.openId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User not found or social login user cannot change password here",
+        });
+      }
+
+      // Verify old password
+      const scryptAsync = promisify(scrypt);
+      const [salt, storedHash] = (user as any).passwordHash.split(":");
+      const buf = (await scryptAsync(input.oldPassword, salt, 64)) as Buffer;
+      
+      if (buf.toString("hex") !== storedHash) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Incorrect current password",
+        });
+      }
+
+      // Hash new password
+      const newSalt = randomBytes(16).toString("hex");
+      const newBuf = (await scryptAsync(input.newPassword, newSalt, 64)) as Buffer;
+      const newPasswordHash = `${newSalt}:${newBuf.toString("hex")}`;
+
+      const { resetUserPassword } = await import("./db");
+      await resetUserPassword(ctx.user.id, newPasswordHash);
+
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "user.change_password",
+        targetType: "user",
+        targetId: ctx.user.id,
+      });
+
+      return { success: true };
+    }),
+
   // === User Management (Admin) ===
 
   /**
@@ -245,16 +324,43 @@ export const userRouter = router({
       }
 
       await deleteUser(input.userId);
-
-      await createAuditLog({
-        userId: ctx.user.id,
-        action: "user_deleted",
-        targetType: "user",
-        targetId: input.userId,
-      });
-
-      return { success: true };
-    }),
+ 
+       await createAuditLog({
+         userId: ctx.user.id,
+         action: "user_deleted",
+         targetType: "user",
+         targetId: input.userId,
+       });
+ 
+       return { success: true };
+     }),
+ 
+   /**
+    * Reset user password (admin only)
+    */
+   resetPassword: adminProcedure
+     .input(z.object({
+       userId: z.number(),
+       password: z.string().min(6),
+     }))
+     .mutation(async ({ ctx, input }) => {
+       const scryptAsync = promisify(scrypt);
+       const salt = randomBytes(16).toString("hex");
+       const buf = (await scryptAsync(input.password, salt, 64)) as Buffer;
+       const passwordHash = `${salt}:${buf.toString("hex")}`;
+ 
+       const { resetUserPassword } = await import("./db");
+       await resetUserPassword(input.userId, passwordHash);
+ 
+       await createAuditLog({
+         userId: ctx.user.id,
+         action: "user_password_reset",
+         targetType: "user",
+         targetId: input.userId,
+       });
+ 
+       return { success: true };
+     }),
 
   // === Statistics ===
 
@@ -380,6 +486,123 @@ export const userRouter = router({
         targetId: input.linkId,
         details: { isActive: input.isActive },
       });
+      return { success: true };
+    }),
+
+  // === Notification Management ===
+
+  /**
+   * Get notification statistics (admin)
+   */
+  getNotificationStats: adminProcedure
+    .query(async () => {
+      return await getNotificationStats();
+    }),
+
+  /**
+   * List all notifications (admin)
+   */
+  listNotifications: adminProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(20),
+      offset: z.number().min(0).default(0),
+      type: z.string().optional(),
+      userId: z.number().optional(),
+    }))
+    .query(async ({ input }) => {
+      const notifications = await getAllNotifications(input.limit, input.offset, input.type, input.userId);
+      return notifications;
+    }),
+
+  /**
+   * Send notification to users (admin)
+   */
+  sendNotification: adminProcedure
+    .input(z.object({
+      title: z.string().min(1).max(255),
+      message: z.string().min(1),
+      type: z.enum(['announcement', 'warning', 'info', 'system']),
+      priority: z.enum(['low', 'normal', 'high']).default('normal'),
+      targetUserIds: z.array(z.number()).optional(), // undefined = broadcast to all
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const result = await sendBroadcastNotification({
+        title: input.title,
+        message: input.message,
+        type: input.type,
+        priority: input.priority,
+        senderId: ctx.user.id,
+        targetUserIds: input.targetUserIds,
+      });
+
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "notification.send",
+        targetType: "notification",
+        targetId: 0,
+        details: {
+          type: input.type,
+          title: input.title,
+          targetCount: result.count,
+          isBroadcast: !input.targetUserIds,
+        },
+      });
+
+      return result;
+    }),
+
+  /**
+   * Delete notification (admin)
+   */
+  deleteNotification: adminProcedure
+    .input(z.object({
+      notificationId: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await deleteNotification(input.notificationId);
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "notification.delete",
+        targetType: "notification",
+        targetId: input.notificationId,
+      });
+      return { success: true };
+    }),
+
+  // === User Notifications (for regular users) ===
+
+  /**
+   * Get current user's notifications
+   */
+  getMyNotifications: protectedProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(20),
+      offset: z.number().min(0).default(0),
+    }))
+    .query(async ({ ctx, input }) => {
+      const notifications = await getNotificationsForUser(ctx.user.id, input.limit, input.offset);
+      const counts = await getNotificationCount(ctx.user.id);
+      return { notifications, ...counts };
+    }),
+
+  /**
+   * Mark notification as read
+   */
+  markNotificationRead: protectedProcedure
+    .input(z.object({
+      notificationId: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await markNotificationRead(input.notificationId, ctx.user.id);
+      return { success: true };
+    }),
+
+  /**
+   * Mark all notifications as read
+   */
+  markAllNotificationsRead: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      await markAllNotificationsRead(ctx.user.id);
       return { success: true };
     }),
 });
