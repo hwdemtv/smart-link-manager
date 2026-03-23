@@ -19,6 +19,15 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-ui": ["lucide-react", "framer-motion", "clsx", "tailwind-merge"],
+          "vendor-charts": ["recharts"],
+          "vendor-core": ["react", "react-dom", "wouter", "i18next", "react-i18next"],
+        },
+      },
+    },
   },
   server: {
     port: 3000,
