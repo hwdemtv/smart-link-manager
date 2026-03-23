@@ -31,15 +31,16 @@ export function getSessionCookieOptions(
 ): Pick<CookieOptions, "domain" | "httpOnly" | "path" | "sameSite" | "secure"> {
   const isLocal = isLocalhost(req);
   const isSecure = isSecureRequest(req);
+  const isIp = isIpAddress(req.hostname || req.get("host") || "");
 
-  // For localhost: use 'lax' for better compatibility
+  // For localhost or IP address over HTTP: use 'lax' for better compatibility
   // For production with HTTPS: use 'none' for cross-site requests
-  const sameSite = isLocal ? "lax" : "none";
+  const sameSite = (isLocal || (isIp && !isSecure)) ? "lax" : "none";
 
   return {
     httpOnly: true,
     path: "/",
     sameSite,
-    secure: isSecure || isLocal, // localhost can use secure=false, but we set it for consistency
+    secure: isSecure, // only set secure=true when actually using HTTPS
   };
 }
