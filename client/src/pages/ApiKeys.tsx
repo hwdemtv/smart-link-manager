@@ -31,23 +31,23 @@ export default function ApiKeys() {
       setIsCreateOpen(false);
       (utils.apiKeys.list as any).invalidate();
     } catch (error: any) {
-      toast.error(error.message || "Failed to create API key");
+      toast.error(error.message || t("apiKeys.createFailed"));
     }
   };
 
   const handleRevokeKey = async (id: number) => {
     try {
       await revokeKeyMutation.mutateAsync({ id });
-      toast.success("API key revoked");
+      toast.success(t("apiKeys.revokeSuccess"));
       (utils.apiKeys.list as any).invalidate();
     } catch (error: any) {
-      toast.error(error.message || "Failed to revoke API key");
+      toast.error(error.message || t("apiKeys.revokeFailed"));
     }
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
+    toast.success(t("apiKeys.copySuccess"));
   };
 
   return (
@@ -56,33 +56,33 @@ export default function ApiKeys() {
         <div className="container py-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">OpenAPI 开放能力</h1>
-              <p className="mt-1 text-muted-foreground">管理您的 API 访问密钥，通过程序化方式管理短链</p>
+              <h1 className="text-3xl font-bold text-foreground">{t("apiKeys.title")}</h1>
+              <p className="mt-1 text-muted-foreground">{t("apiKeys.subtitle")}</p>
             </div>
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
                 <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-white shadow-sm">
                   <Plus className="w-4 h-4" />
-                  创建新密钥
+                  {t("apiKeys.createKey")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>创建 API 密钥</DialogTitle>
+                  <DialogTitle>{t("apiKeys.createTitle")}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleCreateKey} className="space-y-4">
                   <div>
-                    <Label htmlFor="keyName">密钥名称</Label>
+                    <Label htmlFor="keyName">{t("apiKeys.keyName")}</Label>
                     <Input
                       id="keyName"
-                      placeholder="例如：生产服务器、个人脚本"
+                      placeholder={t("apiKeys.keyNamePlaceholder")}
                       value={keyName}
                       onChange={(e) => setKeyName(e.target.value)}
                       required
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={createKeyMutation.isPending}>
-                    {createKeyMutation.isPending ? "创建中..." : "立即创建"}
+                    {createKeyMutation.isPending ? t("apiKeys.creating") : t("apiKeys.createNow")}
                   </Button>
                 </form>
               </DialogContent>
@@ -96,7 +96,7 @@ export default function ApiKeys() {
           <Card className="p-6 border-accent-blue bg-accent-blue/5 animate-in fade-in slide-in-from-top-4">
             <div className="flex items-center gap-3 mb-4 text-accent-blue">
               <Shield className="w-6 h-6" />
-              <h3 className="text-lg font-bold">成功创建密钥：{newKey.name}</h3>
+              <h3 className="text-lg font-bold">{t("apiKeys.successTitle", { name: newKey.name })}</h3>
             </div>
             <div className="bg-background border border-border rounded-md p-4 flex items-center justify-between mb-4">
               <code className="text-sm font-mono break-all">{newKey.rawKey}</code>
@@ -105,10 +105,10 @@ export default function ApiKeys() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded border border-yellow-200 dark:border-yellow-900/50">
-              请务必立即复制并妥善保存此密钥！出于安全考虑，系统将<strong>不会再次显示</strong>完整密钥。如果您遗失了它，需要创建一个新密钥。
+              {t("apiKeys.copyNotice")}
             </p>
             <Button variant="outline" className="mt-4 w-full" onClick={() => setNewKey(null)}>
-              我已保存，关闭提示
+              {t("apiKeys.closeNotice")}
             </Button>
           </Card>
         )}
@@ -116,15 +116,15 @@ export default function ApiKeys() {
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-6">
             <Key className="w-5 h-5 text-muted-foreground" />
-            <h2 className="text-xl font-semibold">现有密钥</h2>
+            <h2 className="text-xl font-semibold">{t("apiKeys.existingKeys")}</h2>
           </div>
 
           {keysQuery.isLoading ? (
-            <div className="text-center py-12 text-muted-foreground">正在加载密钥列表...</div>
+            <div className="text-center py-12 text-muted-foreground">{t("apiKeys.loading")}</div>
           ) : (keysQuery.data as any)?.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground border-2 border-dashed border-border rounded-xl">
               <Key className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <p>您还没有任何 API 密钥</p>
+              <p>{t("apiKeys.noKeys")}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -135,14 +135,14 @@ export default function ApiKeys() {
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-lg">{key.name}</span>
                         {!key.isActive && (
-                          <span className="text-[10px] bg-muted px-2 py-0.5 rounded text-muted-foreground">已失效</span>
+                          <span className="text-[10px] bg-muted px-2 py-0.5 rounded text-muted-foreground">{t("apiKeys.revoked")}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="font-mono bg-secondary px-2 py-0.5 rounded text-xs">{key.prefix}...</span>
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          <span>最后使用: {key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleString() : '从未'}</span>
+                          <span>{t("apiKeys.lastUsed", { time: key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleString() : t("apiKeys.neverUsed") })}</span>
                         </div>
                       </div>
                     </div>
@@ -154,7 +154,7 @@ export default function ApiKeys() {
                       onClick={() => handleRevokeKey(key.id)}
                     >
                       <Trash2 className="w-4 h-4" />
-                      撤销
+                      {t("apiKeys.revoke")}
                     </Button>
                   </div>
                 </div>
@@ -170,13 +170,13 @@ export default function ApiKeys() {
            </div>
            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
              <div className="w-1 h-6 bg-accent-blue rounded-full" />
-             使用指南
+             {t("apiKeys.guideTitle")}
            </h2>
            <div className="space-y-6">
              <div className="space-y-3">
-               <h3 className="font-medium text-foreground">认证方式</h3>
+               <h3 className="font-medium text-foreground">{t("apiKeys.authTitle")}</h3>
                <p className="text-sm text-muted-foreground">
-                 所有 API 请求均需在 Header 中包含密钥：
+                 {t("apiKeys.authDesc")}
                </p>
                <div className="bg-zinc-950 text-zinc-100 p-4 rounded-lg font-mono text-xs">
                  Authorization: Bearer slm_your_api_key_here
@@ -185,7 +185,7 @@ export default function ApiKeys() {
 
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  <h3 className="font-medium text-foreground">创建短链</h3>
+                  <h3 className="font-medium text-foreground">{t("apiKeys.createLink")}</h3>
                   <p className="text-xs text-muted-foreground mb-2">POST /api/v1/links</p>
                   <div className="bg-zinc-950 text-zinc-100 p-4 rounded-lg font-mono text-[10px] overflow-x-auto">
                     {`curl -X POST ${window.location.origin}/api/v1/links \\
@@ -195,7 +195,7 @@ export default function ApiKeys() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h3 className="font-medium text-foreground">查询短链</h3>
+                  <h3 className="font-medium text-foreground">{t("apiKeys.queryLink")}</h3>
                   <p className="text-xs text-muted-foreground mb-2">GET /api/v1/links</p>
                   <div className="bg-zinc-950 text-zinc-100 p-4 rounded-lg font-mono text-[10px] overflow-x-auto">
                     {`curl ${window.location.origin}/api/v1/links \\
