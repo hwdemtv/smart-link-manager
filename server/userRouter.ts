@@ -28,6 +28,11 @@ import {
   sendBroadcastNotification,
   deleteNotification,
   upsertUser,
+  batchUpdateUsers,
+  batchDeleteUsers,
+  adminBatchUpdateLinks,
+  adminBatchDeleteLinks,
+  getAdminQuickStats,
 } from "./db";
 import { hashPassword } from "./_core/auth";
 import { licenseService } from "./licenseService";
@@ -79,6 +84,99 @@ export const userRouter = router({
 
       return { success: true };
     }),
+
+  /**
+   * Batch update users (Admin only)
+   */
+  batchUpdate: adminProcedure
+    .input(z.object({
+      userIds: z.array(z.number()).min(1),
+      data: z.object({
+        role: z.enum(["user", "admin"]).optional(),
+        isActive: z.number().optional(),
+        subscriptionTier: z.string().optional(),
+        licenseExpiresAt: z.date().nullable().optional(),
+      }).refine(data => Object.keys(data).length > 0, "No data provided for update"),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await batchUpdateUsers(input.userIds, input.data as any);
+      
+      // Log the action
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "users_batch_updated",
+        targetType: "users",
+        details: {
+          count: input.userIds.length,
+          updatedData: input.data,
+        },
+      });
+      
+      return { success: true };
+    }),
+
+  /**
+   * Batch delete users (Admin only)
+   */
+  batchDelete: adminProcedure
+    .input(z.object({
+      userIds: z.array(z.number()).min(1),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // Prevent deleting self
+      if (input.userIds.includes(ctx.user.id)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot delete your own account in a batch operation",
+        });
+      }
+      
+      await batchDeleteUsers(input.userIds);
+      
+      // Log the action
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "users_batch_deleted",
+        targetType: "users",
+        details: {
+          count: input.userIds.length,
+        },
+      });
+      
+      return { success: true };
+    }),
+
+  /**
+   * Get quick stats for User Management (Admin only)
+   */
+  getQuickStats: adminProcedure.query(async () => {
+    return await getAdminQuickStats();
+  }),
+
+  /**
+   * Export all users as CSV (Admin only)
+   */
+  exportUsersCSV: adminProcedure.mutation(async ({ ctx }) => {
+    await createAuditLog({
+      userId: ctx.user.id,
+      action: "users_exported_csv",
+      targetType: "users",
+      details: { exportTime: new Date().toISOString() },
+    });
+
+    const { users } = await getAllUsers(100000, 0); // Safe high limit for export
+    let csv = "ID,Username,Name,Role,Tier,Status,Created At,Last Signed In,Last IP Address\n";
+    
+    const escapeCsv = (str: string | null | undefined) => {
+      if (!str) return '""';
+      return `"${String(str).replace(/"/g, '""')}"`;
+    };
+
+    for (const u of users) {
+      csv += `${u.id},${escapeCsv(u.username)},${escapeCsv(u.name)},${u.role},${u.subscriptionTier || 'free'},${u.isActive ? 'Active' : 'Banned'},"${u.createdAt.toISOString()}","${u.lastSignedIn ? u.lastSignedIn.toISOString() : ''}",${escapeCsv(u.lastIpAddress)}\n`;
+    }
+    return csv;
+  }),
 
   // === License Management ===
 
@@ -487,6 +585,9 @@ export const userRouter = router({
       search: z.string().optional(),
       isActive: z.number().optional(),
       isValid: z.number().optional(),
+      userId: z.number().optional(),
+      domain: z.string().optional(),
+      expiresSoon: z.boolean().optional(),
       limit: z.number().min(1).max(100).default(20),
       offset: z.number().min(0).default(0),
     }))
@@ -495,6 +596,9 @@ export const userRouter = router({
         search: input.search,
         isActive: input.isActive,
         isValid: input.isValid,
+        userId: input.userId,
+        domain: input.domain,
+        expiresSoon: input.expiresSoon,
         limit: input.limit,
         offset: input.offset,
       });
@@ -534,6 +638,48 @@ export const userRouter = router({
         targetType: "link",
         targetId: input.linkId,
         details: { isActive: input.isActive },
+      });
+      return { success: true };
+    }),
+
+  /**
+   * Batch update link status (admin)
+   */
+  adminBatchToggleLinkStatus: adminProcedure
+    .input(z.object({
+      linkIds: z.array(z.number()).min(1),
+      isActive: z.number().min(0).max(1),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await adminBatchUpdateLinks(input.linkIds, { isActive: input.isActive });
+      
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "links_batch_updated",
+        targetType: "links",
+        details: {
+          count: input.linkIds.length,
+          isActive: input.isActive,
+        },
+      });
+      return { success: true };
+    }),
+
+  /**
+   * Batch delete links (admin)
+   */
+  adminBatchDeleteLinks: adminProcedure
+    .input(z.object({
+      linkIds: z.array(z.number()).min(1),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await adminBatchDeleteLinks(input.linkIds);
+      
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "links_batch_deleted",
+        targetType: "links",
+        details: { count: input.linkIds.length },
       });
       return { success: true };
     }),

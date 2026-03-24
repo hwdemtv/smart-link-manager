@@ -131,6 +131,8 @@ export async function getAllUsers(limit: number = 20, offset: number = 0, search
       name: users.name,
       email: users.email,
       role: users.role,
+      isActive: users.isActive,
+      lastIpAddress: users.lastIpAddress,
       subscriptionTier: users.subscriptionTier,
       licenseExpiresAt: users.licenseExpiresAt,
       lastSignedIn: users.lastSignedIn,
@@ -145,6 +147,31 @@ export async function getAllUsers(limit: number = 20, offset: number = 0, search
     .offset(offset);
 
   return { users: userList, total };
+}
+
+export async function batchDeleteUsers(userIds: number[]) {
+  const db = await getDb();
+  if (!db || userIds.length === 0) return;
+
+  const userLinks = await db.select({ id: links.id }).from(links).where(inArray(links.userId, userIds));
+  const linkIds = userLinks.map((l: any) => l.id);
+
+  if (linkIds.length > 0) {
+    await db.delete(linkStats).where(inArray(linkStats.linkId, linkIds));
+    await db.delete(linkChecks).where(inArray(linkChecks.linkId, linkIds));
+    await db.delete(notifications).where(inArray(notifications.linkId, linkIds));
+  }
+
+  await db.delete(links).where(inArray(links.userId, userIds));
+  await db.delete(domains).where(inArray(domains.userId, userIds));
+  await db.delete(usageLogs).where(inArray(usageLogs.userId, userIds));
+  await db.delete(users).where(inArray(users.id, userIds));
+}
+
+export async function batchUpdateUsers(userIds: number[], data: Partial<InsertUser>) {
+  const db = await getDb();
+  if (!db || userIds.length === 0) return;
+  await db.update(users).set(data).where(inArray(users.id, userIds));
 }
 
 export async function updateUserRole(userId: number, role: 'user' | 'admin') {
@@ -222,6 +249,9 @@ export async function searchAllLinks(query: {
   search?: string;
   isActive?: number;
   isValid?: number;
+  userId?: number;
+  domain?: string;
+  expiresSoon?: boolean;
   limit?: number;
   offset?: number;
 }) {
@@ -230,12 +260,17 @@ export async function searchAllLinks(query: {
 
   const conditions: any[] = [];
 
+  if (query.userId !== undefined) {
+    conditions.push(eq(links.userId, query.userId));
+  }
+
   if (query.search) {
     const escapedSearch = escapeLikePattern(query.search);
     conditions.push(
       or(
         like(links.shortCode, `%${escapedSearch}%`),
-        like(links.originalUrl, `%${escapedSearch}%`)
+        like(links.originalUrl, `%${escapedSearch}%`),
+        like(links.description, `%${escapedSearch}%`)
       )
     );
   }
@@ -246,6 +281,14 @@ export async function searchAllLinks(query: {
 
   if (query.isValid !== undefined) {
     conditions.push(eq(links.isValid, query.isValid));
+  }
+
+  if (query.domain) {
+    conditions.push(eq(links.customDomain, query.domain));
+  }
+
+  if (query.expiresSoon) {
+    conditions.push(sql`${links.expiresAt} BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)`);
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -286,6 +329,27 @@ export async function adminDeleteLink(linkId: number) {
   await db.delete(linkChecks).where(eq(linkChecks.linkId, linkId));
   await db.delete(notifications).where(eq(notifications.linkId, linkId));
   await db.delete(links).where(eq(links.id, linkId));
+}
+
+export async function adminBatchDeleteLinks(ids: number[]) {
+  const db = await getDb();
+  if (!db || ids.length === 0) return;
+  
+  await db.transaction(async (tx: any) => {
+    await tx.delete(linkStats).where(inArray(linkStats.linkId, ids));
+    await tx.delete(linkChecks).where(inArray(linkChecks.linkId, ids));
+    await tx.delete(notifications).where(inArray(notifications.linkId, ids));
+    await tx.delete(links).where(inArray(links.id, ids));
+  });
+}
+
+export async function adminBatchUpdateLinks(ids: number[], data: Partial<InsertLink>) {
+  const db = await getDb();
+  if (!db || ids.length === 0) return;
+  
+  await db.transaction(async (tx: any) => {
+    await tx.update(links).set(data).where(inArray(links.id, ids));
+  });
 }
 
 export async function updateLink(id: number, data: Partial<InsertLink>) {
@@ -940,6 +1004,33 @@ export async function getUserDomainCount(userId: number) {
   if (!db) return 0;
   const result = await db.select({ count: sql<number>`count(*)` }).from(domains).where(eq(domains.userId, userId));
   return result[0]?.count || 0;
+}
+
+// === Admin Quick Stats ===
+export async function getAdminQuickStats() {
+  const db = await getDb();
+  if (!db) return { todayRegistrations: 0, activeProUsers: 0, expiringSoonUsers: 0 };
+
+  const todayReg = await db.select({ count: sql<number>`count(*)` })
+    .from(users)
+    .where(sql`DATE(${users.createdAt}) = CURDATE()`);
+
+  const activePro = await db.select({ count: sql<number>`count(*)` })
+    .from(users)
+    .where(and(
+      inArray(users.subscriptionTier, ['pro', 'business']),
+      eq(users.isActive, 1)
+    ));
+
+  const expiring = await db.select({ count: sql<number>`count(*)` })
+    .from(users)
+    .where(sql`${users.licenseExpiresAt} BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 30 DAY)`);
+
+  return {
+    todayRegistrations: Number(todayReg[0]?.count) || 0,
+    activeProUsers: Number(activePro[0]?.count) || 0,
+    expiringSoonUsers: Number(expiring[0]?.count) || 0,
+  };
 }
 
 // === Admin Dashboard Stats ===

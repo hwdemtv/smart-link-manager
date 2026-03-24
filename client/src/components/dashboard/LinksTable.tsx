@@ -14,7 +14,7 @@ interface LinksTableProps {
   onTogglePage: (checked: boolean) => void;
   onEdit: (link: Link) => void;
   onDelete: (link: Link) => void;
-  onCopy: (shortCode: string) => void;
+  onCopy: (link: Link) => void;
   onTagClick: (tag: string) => void;
   onQrCode: (shortCode: string) => void;
   onCreateClick: () => void;
@@ -128,7 +128,7 @@ export function LinksTable({
                   onSelect={(checked) => onTogglePage(checked)}
                   onEdit={() => onEdit(link)}
                   onDelete={() => onDelete(link)}
-                  onCopy={() => onCopy(link.shortCode)}
+                  onCopy={() => onCopy(link)}
                   onTagClick={onTagClick}
                   onQrCode={() => onQrCode(link.shortCode)}
                 />

@@ -7,7 +7,15 @@ import App from "./App";
 import "./index.css";
 import "@/lib/i18n";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // 防止切出浏览器再切回时疯狂重刷
+      staleTime: 1000 * 60 * 5, // 将默认过期时间设为 5 分钟，降低无意义的接口消耗
+      retry: 1, // 失败默认重试 1 次
+    },
+  },
+});
 
 // 未认证时重定向到登录页（非 OAuth）
 const redirectToLoginIfUnauthorized = (error: unknown) => {

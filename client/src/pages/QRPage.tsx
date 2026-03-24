@@ -24,10 +24,18 @@ export default function QRPage() {
     { enabled: !!shortCode }
   );
 
+  const configQuery = trpc.configs.getConfig.useQuery();
+  const defaultDomain = configQuery.data?.defaultDomain;
+
   const originalUrl = link?.originalUrl || "";
   const description = link?.description || "";
 
-  const fullUrl = `${window.location.origin}/s/${shortCode}`;
+  let baseDomain = link?.customDomain || defaultDomain || window.location.origin;
+  if (!baseDomain.startsWith("http")) {
+    baseDomain = `${window.location.protocol}//${baseDomain}`;
+  }
+  const cleanBaseDomain = baseDomain.replace(/\/+$/, "");
+  const fullUrl = shortCode ? `${cleanBaseDomain}/s/${shortCode}` : "";
 
   useEffect(() => {
     if (shortCode) {

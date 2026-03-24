@@ -83,6 +83,14 @@ export const appRouter = router({
           });
         }
 
+        if (user.isActive === 0) {
+          console.error(`[LOGIN] User account is suspended: ${input.username}`);
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Account suspended. Please contact administrator.",
+          });
+        }
+
         const valid = await verifyPassword(input.password, user.passwordHash);
         console.log(`[LOGIN] Password valid: ${valid}`);
         if (!valid) {
@@ -102,10 +110,15 @@ export const appRouter = router({
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-        // 更新最后登录时间
+        const ip = ctx.req.headers['x-forwarded-for'] || ctx.req.socket.remoteAddress || '';
+        const ipStr = typeof ip === 'string' ? ip.split(',')[0].trim() : Array.isArray(ip) ? ip[0] : '';
+        const lastIpAddress = ipStr ? ipStr.substring(0, 45) : undefined;
+
+        // 更新最后登录时间与 IP
         await upsertUser({
           openId: user.openId,
           lastSignedIn: new Date(),
+          ...(lastIpAddress ? { lastIpAddress } : {}),
         });
 
         return {
@@ -149,6 +162,10 @@ export const appRouter = router({
         const passwordHash = await hashPassword(input.password);
         const openId = `user-${randomBytes(12).toString("hex")}`;
 
+        const ip = ctx.req.headers['x-forwarded-for'] || ctx.req.socket.remoteAddress || '';
+        const ipStr = typeof ip === 'string' ? ip.split(',')[0].trim() : Array.isArray(ip) ? ip[0] : '';
+        const lastIpAddress = ipStr ? ipStr.substring(0, 45) : undefined;
+
         await upsertUser({
           openId,
           username: input.username,
@@ -156,7 +173,9 @@ export const appRouter = router({
           name: input.name || input.username,
           role: "user",
           subscriptionTier: "free",
+          isActive: 1,
           lastSignedIn: new Date(),
+          ...(lastIpAddress ? { lastIpAddress } : {}),
         });
 
         // 签发 JWT Session Token 自动登录
@@ -941,15 +960,11 @@ export const appRouter = router({
       .query(async () => {
         // First try to get from database
         const dbValue = await getSystemConfig("registrationDisabled");
-        if (dbValue !== undefined) {
-          return {
-            registrationDisabled: Boolean(dbValue),
-          };
-        }
-        
-        // Fallback to environment variable
+        const defaultDomain = await getSystemConfig("defaultDomain") || "";
+
         return {
-          registrationDisabled: ENV.registrationDisabled,
+          registrationDisabled: dbValue !== undefined ? Boolean(dbValue) : ENV.registrationDisabled,
+          defaultDomain: String(defaultDomain),
         };
       }),
     
@@ -960,6 +975,16 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         await updateSystemConfig("registrationDisabled", input.disabled);
         return { success: true };
+      }),
+
+    updateDefaultDomainConfig: adminProcedure
+      .input(z.object({
+        domain: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const domainToSave = input.domain?.trim() || "";
+        await updateSystemConfig("defaultDomain", domainToSave);
+        return { success: true, domain: domainToSave };
       }),
 
     getAiConfig: protectedProcedure.query(async () => {

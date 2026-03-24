@@ -33,6 +33,7 @@ export default function Dashboard() {
   // Data queries
   const linksQuery = trpc.links.list.useQuery();
   const domainsQuery = trpc.domains.list.useQuery();
+  const systemConfigQuery = trpc.configs.getConfig.useQuery();
   const utils = (trpc as any).useUtils();
 
   // Custom hooks
@@ -348,7 +349,7 @@ export default function Dashboard() {
           onTogglePage={(checked) => togglePage(linkIds, checked)}
           onEdit={openEditDialog}
           onDelete={openDeleteDialog}
-          onCopy={mutations.copyToClipboard}
+          onCopy={(link: Link) => mutations.copyToClipboard(link, systemConfigQuery.data?.defaultDomain)}
           onTagClick={setTagFilter}
           onQrCode={(shortCode) => setLocation(`/qr/${shortCode}`)}
           onCreateClick={() => setIsCreateOpen(true)}

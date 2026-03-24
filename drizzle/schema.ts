@@ -21,6 +21,8 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  isActive: int("isActive").default(1).notNull(), // 1 = active, 0 = banned
+  lastIpAddress: varchar("lastIpAddress", { length: 45 }),
   // License-based subscription fields
   subscriptionTier: varchar("subscriptionTier", { length: 50 }).default("free").notNull(), // free, pro, business
   licenseKey: varchar("licenseKey", { length: 255 }),

@@ -7,16 +7,15 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>Smart Link Manager</title>    
-    <!-- THIS IS THE START OF A COMMENT BLOCK, BLOCK TO BE DELETED: Google Fonts here, example:
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    THIS IS THE END OF A COMMENT BLOCK, BLOCK TO BE DELETED -->
   </head>
 
   <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
     <script>
-      // 全局错误诊断 - 捕获所有 JS 错误并在页面上显示
+      // 全局错误诊断 - 捕获所有 JS 错误并在页面上显示 (移至底部以防阻塞渲染)
       window.onerror = function(msg, url, line, col, err) {
         var d = document.createElement('pre');
         d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:red;color:white;padding:20px;font-size:14px;white-space:pre-wrap;max-height:50vh;overflow:auto;';
@@ -29,10 +28,8 @@
         d.textContent = '[PROMISE ERROR] ' + (e.reason && e.reason.stack || e.reason || 'Unknown');
         document.body.appendChild(d);
       });
-      console.log('[DIAG] Error handler installed, page loading...');
+      console.log('[DIAG] Error handler installed at bottom.');
     </script>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
     <!-- Analytics disabled - configure VITE_ANALYTICS_ENDPOINT and VITE_ANALYTICS_WEBSITE_ID to enable -->
   </body>
 

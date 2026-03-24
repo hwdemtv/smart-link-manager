@@ -303,6 +303,8 @@
       "filterValid": "有效性筛选",
       "allStatus": "所有状态",
       "allValid": "所有有效性",
+      "filterOwner": "所有者筛选",
+      "allOwners": "所有所有者",
       "statusActive": "活跃",
       "statusInactive": "已禁用",
       "validValid": "有效",

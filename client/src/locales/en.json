@@ -303,6 +303,8 @@
       "filterValid": "Filter Validity",
       "allStatus": "All Status",
       "allValid": "All Validity",
+      "filterOwner": "Filter Owner",
+      "allOwners": "All Owners",
       "statusActive": "Active",
       "statusInactive": "Inactive",
       "validValid": "Valid",

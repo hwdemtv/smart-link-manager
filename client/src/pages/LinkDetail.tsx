@@ -20,13 +20,18 @@ export default function LinkDetail() {
 
   const linkQuery = trpc.links.getById.useQuery({ linkId });
   const statsQuery = trpc.links.getStatsSummary.useQuery({ linkId });
+  const configQuery = trpc.configs.getConfig.useQuery();
 
   const link = linkQuery.data;
   const stats = statsQuery.data;
+  const defaultDomain = configQuery.data?.defaultDomain;
 
   const copyToClipboard = () => {
     if (!link) return;
-    const fullUrl = `${window.location.origin}/s/${link.shortCode}`;
+    let baseDomain = link.customDomain || defaultDomain || window.location.origin;
+    if (!baseDomain.startsWith("http")) baseDomain = `${window.location.protocol}//${baseDomain}`;
+    const cleanBaseDomain = baseDomain.replace(/\/+$/, "");
+    const fullUrl = `${cleanBaseDomain}/s/${link.shortCode}`;
     navigator.clipboard.writeText(fullUrl);
     toast.success(t("linkDetail.copySuccess"));
   };

@@ -230,8 +230,14 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
     }
   };
 
-  const copyToClipboard = (shortCode: string) => {
-    const fullUrl = `${window.location.origin}/s/${shortCode}`;
+  const copyToClipboard = (link: Pick<Link, 'shortCode' | 'customDomain'>, defaultDomain?: string) => {
+    let baseDomain = link.customDomain || defaultDomain || window.location.origin;
+    if (!baseDomain.startsWith("http")) {
+      baseDomain = `${window.location.protocol}//${baseDomain}`;
+    }
+    // 防止出现 //s/xx 或者带多余斜杠
+    const cleanBaseDomain = baseDomain.replace(/\/+$/, "");
+    const fullUrl = `${cleanBaseDomain}/s/${link.shortCode}`;
     navigator.clipboard.writeText(fullUrl);
     toast.success(t("dashboard.copySuccess"));
   };

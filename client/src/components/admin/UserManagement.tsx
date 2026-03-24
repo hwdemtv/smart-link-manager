@@ -7,10 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, X, Shield, User, Key, Edit2, MoreHorizontal, Mail, Globe, Link2, Trash2 } from "lucide-react";
+import { Search, X, Shield, User, Key, Edit2, MoreHorizontal, Mail, Globe, Link2, Trash2, CheckCircle, Ban, Download, Clock } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +36,8 @@ type UserType = {
   createdAt: Date;
   linkCount: number;
   domainCount: number;
+  isActive: number;
+  lastIpAddress: string | null;
 };
 
 export default function UserManagement() {
@@ -42,6 +45,7 @@ export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
 
   // 对话框状态
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
@@ -56,6 +60,47 @@ export default function UserManagement() {
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
     search: searchQuery || undefined,
+  });
+
+  const { data: quickStats, isLoading: isStatsLoading } = trpc.user.getQuickStats.useQuery();
+
+  const exportCsvMutation = trpc.user.exportUsersCSV.useMutation({
+    onSuccess: (csvInput) => {
+      const blob = new Blob([csvInput], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.setAttribute('download', `users-export-${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast.success(t("admin.userMgmt.exportSuccess", "导出成功"));
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    }
+  });
+
+  const batchUpdateMutation = trpc.user.batchUpdate.useMutation({
+    onSuccess: () => {
+      toast.success(t("admin.userMgmt.batchUpdateSuccess", "批量更新成功"));
+      setSelectedUsers([]);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const batchDeleteMutation = trpc.user.batchDelete.useMutation({
+    onSuccess: () => {
+      toast.success(t("admin.userMgmt.batchDeleteSuccess", "批量删除成功"));
+      setSelectedUsers([]);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
   });
 
   const roleMutation = trpc.user.update.useMutation({
@@ -111,7 +156,26 @@ export default function UserManagement() {
   // 搜索变化时重置页码
   useEffect(() => {
     setCurrentPage(1);
+    setSelectedUsers([]);
   }, [searchQuery]);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedUsers(users.map((u: UserType) => u.id));
+    } else {
+      setSelectedUsers([]);
+    }
+  };
+
+  const handleSelectOne = (userId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedUsers([...selectedUsers, userId]);
+    } else {
+      setSelectedUsers(selectedUsers.filter(id => id !== userId));
+    }
+  };
+
+  const isAllSelected = users.length > 0 && selectedUsers.length === users.length;
 
   const getRoleBadge = (role: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
@@ -178,16 +242,65 @@ export default function UserManagement() {
 
   return (
     <>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <User className="w-4 h-4" />
+              今日新注册
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {isStatsLoading ? "--" : quickStats?.todayRegistrations || 0}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Shield className="w-4 h-4 text-blue-500" />
+              活跃 Pro / Business
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+              {isStatsLoading ? "--" : quickStats?.activeProUsers || 0}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Clock className="w-4 h-4 text-orange-500" />
+              30天内即将到期
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+              {isStatsLoading ? "--" : quickStats?.expiringSoonUsers || 0}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>{t("admin.userMgmt.title")}</CardTitle>
           <CardDescription>{t("admin.userMgmt.subtitle")}</CardDescription>
         </div>
-        <Button onClick={() => setIsAddUserDialogOpen(true)}>
-          <User className="mr-2 h-4 w-4" />
-          {t("admin.userMgmt.addUser")}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => exportCsvMutation.mutate()} disabled={exportCsvMutation.isPending}>
+            <Download className="mr-2 h-4 w-4" />
+            {exportCsvMutation.isPending ? t("common.loading", "处理中...") : "导出 CSV"}
+          </Button>
+          <Button onClick={() => setIsAddUserDialogOpen(true)}>
+            <User className="mr-2 h-4 w-4" />
+            {t("admin.userMgmt.addUser")}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {/* 搜索框 */}
@@ -200,6 +313,13 @@ export default function UserManagement() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[50px]">
+                      <Checkbox 
+                        checked={isAllSelected}
+                        onCheckedChange={handleSelectAll}
+                        aria-label="Select all"
+                      />
+                    </TableHead>
                     <TableHead>{t("admin.userMgmt.username")}</TableHead>
                     <TableHead>{t("admin.userMgmt.displayName")}</TableHead>
                     <TableHead>{t("admin.userMgmt.role")}</TableHead>
@@ -214,10 +334,22 @@ export default function UserManagement() {
                   {users.map((item: UserType) => (
                     <TableRow key={item.id}>
                       <TableCell>
+                        <Checkbox 
+                          checked={selectedUsers.includes(item.id)}
+                          onCheckedChange={(checked) => handleSelectOne(item.id, checked as boolean)}
+                          aria-label={`Select user ${item.username}`}
+                        />
+                      </TableCell>
+                      <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-medium text-blue-600 dark:text-blue-400">
-                            {item.username || "-"}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-blue-600 dark:text-blue-400">
+                              {item.username || "-"}
+                            </span>
+                            {item.isActive === 0 && (
+                              <Badge variant="destructive" className="px-1 py-0 h-4 text-[10px]">已封禁</Badge>
+                            )}
+                          </div>
                           <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Mail className="w-3 h-3" />
                             {item.email || "-"}
@@ -238,7 +370,15 @@ export default function UserManagement() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {formatDate(item.lastSignedIn)}
+                        <div className="flex flex-col">
+                          <span>{formatDate(item.lastSignedIn)}</span>
+                          {item.lastIpAddress && (
+                            <span className="text-[10px] opacity-70 flex items-center gap-1 mt-0.5" title="最近登录 IP">
+                              <Globe className="w-3 h-3" />
+                              {item.lastIpAddress}
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -323,6 +463,112 @@ export default function UserManagement() {
           )}
         </CardContent>
       </Card>
+
+      {/* Floating Batch Action Bar */}
+      {selectedUsers.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-popover border border-border shadow-2xl rounded-full px-6 py-3 flex items-center gap-4 z-50 animate-in slide-in-from-bottom-5">
+          <span className="text-sm font-medium whitespace-nowrap">已选择 {selectedUsers.length} 项</span>
+          <div className="h-4 w-px bg-border"></div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="rounded-full">
+                {t("admin.userMgmt.changeRole", "修改角色")}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => batchUpdateMutation.mutate({ userIds: selectedUsers, data: { role: 'user' } })}>
+                {t("admin.userMgmt.roleUser", "User")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => batchUpdateMutation.mutate({ userIds: selectedUsers, data: { role: 'admin' } })}>
+                {t("admin.userMgmt.roleAdmin", "Admin")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="rounded-full">
+                套餐设置
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => batchUpdateMutation.mutate({ userIds: selectedUsers, data: { subscriptionTier: 'free' } })}>
+                Free
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => batchUpdateMutation.mutate({ userIds: selectedUsers, data: { subscriptionTier: 'pro' } })}>
+                Pro
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => batchUpdateMutation.mutate({ userIds: selectedUsers, data: { subscriptionTier: 'business' } })}>
+                Business
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="rounded-full">
+                {t("admin.userMgmt.setExpiry", "过期时间")}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => {
+                const date = new Date();
+                date.setDate(date.getDate() + 30);
+                batchUpdateMutation.mutate({ userIds: selectedUsers, data: { licenseExpiresAt: date } });
+              }}>
+                <Clock className="mr-2 h-4 w-4" /> +30天
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                const date = new Date();
+                date.setFullYear(date.getFullYear() + 1);
+                batchUpdateMutation.mutate({ userIds: selectedUsers, data: { licenseExpiresAt: date } });
+              }}>
+                <Clock className="mr-2 h-4 w-4" /> +1年
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => {
+                batchUpdateMutation.mutate({ userIds: selectedUsers, data: { licenseExpiresAt: null } });
+              }}>
+                <Shield className="mr-2 h-4 w-4" /> 永久 (不过期)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="rounded-full">
+                状态设置
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => batchUpdateMutation.mutate({ userIds: selectedUsers, data: { isActive: 1 } })}>
+                <CheckCircle className="mr-2 h-4 w-4" /> 激活
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => batchUpdateMutation.mutate({ userIds: selectedUsers, data: { isActive: 0 } })} className="text-destructive focus:text-destructive">
+                <Ban className="mr-2 h-4 w-4" /> 封禁
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            className="rounded-full whitespace-nowrap"
+            onClick={() => {
+              if (window.confirm("确定批量删除选中的用户吗？此操作不可逆，将删除其名下所有链接和数据！")) {
+                batchDeleteMutation.mutate({ userIds: selectedUsers });
+              }
+            }}
+          >
+            <Trash2 className="mr-2 h-4 w-4" /> {t("common.delete")}
+          </Button>
+          
+          <Button variant="ghost" size="icon" className="rounded-full" onClick={() => setSelectedUsers([])}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       {/* Password Reset Dialog */}
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
