@@ -1048,14 +1048,12 @@ export const appRouter = router({
           baseUrl: input.baseUrl || currentConfig.baseUrl || "",
           model: input.model,
           temperature: input.temperature,
-          // 如果输入中包含有效的 API Key（非混淆后的），则更新之；
-          // 如果输入为空或混淆格式（包含...），则保留原值
           apiKey: (input.apiKey && !input.apiKey.includes("...")) 
             ? input.apiKey 
             : (currentConfig.apiKey || "")
         };
 
-        await updateSystemConfig("aiConfig", JSON.stringify(newConfig));
+        await updateSystemConfig("aiConfig", newConfig);
         return { success: true };
       }),
   }),
