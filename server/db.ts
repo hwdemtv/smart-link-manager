@@ -606,7 +606,18 @@ export async function getLinkStatsSummary(linkId: number) {
     }
   });
 
-  // 8. Get recent 10 clicks only (limited query)
+  // 8. Get variant distribution (A/B testing)
+  const variantResult = await db
+    .select({
+      variant: sql<string>`COALESCE(${linkStats.variant}, 'A')`,
+      count: sql<number>`count(*)`,
+    })
+    .from(linkStats)
+    .where(eq(linkStats.linkId, linkId))
+    .groupBy(sql`COALESCE(${linkStats.variant}, 'A')`);
+  const variantStats = Object.fromEntries(variantResult.map((r: { variant: string; count: number }) => [r.variant, r.count]));
+
+  // 9. Get recent 10 clicks only (limited query)
   const recentClicks = await db
     .select()
     .from(linkStats)
@@ -621,6 +632,7 @@ export async function getLinkStatsSummary(linkId: number) {
     osStats,
     countryStats,
     cityStats,
+    variantStats,
     last7Days,
     recentClicks,
   };

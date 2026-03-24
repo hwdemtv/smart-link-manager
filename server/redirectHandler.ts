@@ -114,6 +114,20 @@ export async function handleShortLinkRedirect(
     const ipAddress = req.ip || req.connection.remoteAddress;
     const geoInfo = await resolveGeoIp(ipAddress);
 
+    // A/B 测试计算逻辑
+    let targetUrl = link.originalUrl;
+    let variantHit = 'A'; // 默认走 A 路径
+
+    if (link.abTestEnabled === 1 && link.abTestUrl) {
+      // 随机分配概率 (0 - 99)
+      const roll = Math.random() * 100;
+      // 若 abTestRatio 为 50, 当 roll < 50 时走 A 路径，否则走 B 路径
+      if (roll >= link.abTestRatio) {
+        targetUrl = link.abTestUrl;
+        variantHit = 'B';
+      }
+    }
+
     // Record click statistics
     await updateLinkClickCount(link.id);
     await recordLinkStat({
@@ -126,6 +140,7 @@ export async function handleShortLinkRedirect(
       country: geoInfo.country,
       city: geoInfo.city,
       referer: req.headers.referer,
+      variant: variantHit,
     });
 
     // 记录用户每日使用量（点击数）
@@ -138,7 +153,7 @@ export async function handleShortLinkRedirect(
     // Handle redirect based on device type
     if ((deviceInfo.type === "mobile" || deviceInfo.type === "tablet") && !link.passwordHash) {
       // Mobile/tablet and NO password: Direct redirect
-      return res.redirect(302, link.originalUrl);
+      return res.redirect(302, targetUrl);
     } else {
       // Desktop OR any device with password: Show Secure Verification Center with a visitor token
       const { authService } = await import("./_core/sdk");

@@ -126,6 +126,9 @@ export default function Dashboard() {
       seoTitle: formData.seoTitle || undefined,
       seoDescription: formData.seoDescription || undefined,
       seoImage: formData.seoImage || undefined,
+      abTestEnabled: formData.abTestEnabled,
+      abTestUrl: formData.abTestUrl || undefined,
+      abTestRatio: formData.abTestRatio,
     };
     await mutations.createLink(input);
     setIsCreateOpen(false);
@@ -144,6 +147,9 @@ export default function Dashboard() {
       seoTitle: formData.seoTitle || null,
       seoDescription: formData.seoDescription || null,
       seoImage: formData.seoImage || null,
+      abTestEnabled: formData.abTestEnabled,
+      abTestUrl: formData.abTestUrl || null,
+      abTestRatio: formData.abTestRatio,
     };
     await mutations.updateLink(input);
     setIsEditOpen(false);

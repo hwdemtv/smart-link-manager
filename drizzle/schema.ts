@@ -56,6 +56,10 @@ export const links = mysqlTable("links", {
   seoTitle: varchar("seoTitle", { length: 255 }),
   seoDescription: text("seoDescription"),
   seoImage: text("seoImage"),
+  // A/B Testing Fields
+  abTestEnabled: int("abTestEnabled").default(0).notNull(), // 1 = enabled, 0 = disabled
+  abTestUrl: text("abTestUrl"), // Target URL for variant B
+  abTestRatio: int("abTestRatio").default(50).notNull(), // Percentage of traffic to variant A (e.g., 50 means 50/50 split)
   createdAt: timestamp("createdAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp("updatedAt").default(sql`CURRENT_TIMESTAMP`).onUpdateNow().notNull(),
 }, (table) => ({
@@ -103,6 +107,7 @@ export const linkStats = mysqlTable("link_stats", {
   country: varchar("country", { length: 100 }),
   city: varchar("city", { length: 100 }),
   referer: text("referer"),
+  variant: varchar("variant", { length: 10 }), // Indicates which A/B testing variant was served exactly ('A' or 'B')
   clickedAt: timestamp("clickedAt").default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => ({
   linkIdIdx: index("linkIdIdx").on(table.linkId),

@@ -212,6 +212,9 @@ export const appRouter = router({
           seoTitle: z.string().optional(),
           seoDescription: z.string().optional(),
           seoImage: z.string().optional(),
+          abTestEnabled: z.number().min(0).max(1).optional(),
+          abTestUrl: z.string().url().optional(),
+          abTestRatio: z.number().min(1).max(99).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -277,6 +280,9 @@ export const appRouter = router({
           seoTitle: input.seoTitle,
           seoDescription: input.seoDescription,
           seoImage: input.seoImage,
+          abTestEnabled: input.abTestEnabled,
+          abTestUrl: input.abTestUrl,
+          abTestRatio: input.abTestRatio,
         });
 
         // 记录使用情况
@@ -383,6 +389,9 @@ export const appRouter = router({
         seoTitle: z.string().nullable().optional(),
         seoDescription: z.string().nullable().optional(),
         seoImage: z.string().nullable().optional(),
+        abTestEnabled: z.number().min(0).max(1).optional(),
+        abTestUrl: z.string().url().nullable().optional(),
+        abTestRatio: z.number().min(1).max(99).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const link = await getLinkById(input.linkId);
@@ -431,6 +440,9 @@ export const appRouter = router({
           seoTitle: input.seoTitle,
           seoDescription: input.seoDescription,
           seoImage: input.seoImage,
+          abTestEnabled: input.abTestEnabled,
+          abTestUrl: input.abTestUrl,
+          abTestRatio: input.abTestRatio,
         });
 
         return {

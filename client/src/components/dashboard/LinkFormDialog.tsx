@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Sparkles } from "lucide-react";
+import { Sparkles, GitCompare } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { LinkFormData, LinkFormDialogProps, Link, Domain } from "@/types/dashboard";
 
@@ -21,6 +23,9 @@ const getEmptyFormData = (): LinkFormData => ({
   seoTitle: "",
   seoDescription: "",
   seoImage: "",
+  abTestEnabled: 0,
+  abTestUrl: "",
+  abTestRatio: 50,
 });
 
 /**
@@ -37,6 +42,9 @@ const getFormDataFromLink = (link: Link): LinkFormData => ({
   seoTitle: link.seoTitle || "",
   seoDescription: link.seoDescription || "",
   seoImage: link.seoImage || "",
+  abTestEnabled: link.abTestEnabled || 0,
+  abTestUrl: link.abTestUrl || "",
+  abTestRatio: link.abTestRatio || 50,
 });
 
 /**
@@ -88,8 +96,8 @@ export function LinkFormDialog({
     }
   };
 
-  const handleInputChange = (field: keyof LinkFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: keyof LinkFormData, value: string | number) => {
+    setFormData((prev) => ({ ...prev, [field]: value as any }));
   };
 
   const isCreate = mode === "create";
@@ -202,6 +210,55 @@ export function LinkFormDialog({
               value={formData.tagsString}
               onChange={(e) => handleInputChange("tagsString", e.target.value)}
             />
+          </div>
+
+          {/* A/B Testing Section */}
+          <div className="pt-2 border-t border-border mt-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <GitCompare className="w-4 h-4 text-primary" />
+                <h4 className="text-sm font-medium">{t("dashboard.abTestSection", "A/B 智能测试 (A/B Testing)")}</h4>
+              </div>
+              <Switch
+                checked={formData.abTestEnabled === 1}
+                onCheckedChange={(checked) => handleInputChange("abTestEnabled", checked ? 1 : 0)}
+              />
+            </div>
+            
+            {formData.abTestEnabled === 1 && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                <div>
+                  <Label htmlFor="abTestUrl" className="text-xs">
+                    {t("dashboard.variantBUrl", "变种 B 目标链接 (Variant B URL)")} *
+                  </Label>
+                  <Input
+                    id="abTestUrl"
+                    type="url"
+                    placeholder={t("dashboard.urlPlaceholder")}
+                    value={formData.abTestUrl}
+                    onChange={(e) => handleInputChange("abTestUrl", e.target.value)}
+                    required={formData.abTestEnabled === 1}
+                    className="h-8 text-xs mt-1"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-xs">{t("dashboard.trafficSplit", "流量拆分比例 (Traffic Split)")}</Label>
+                    <span className="text-xs font-mono text-muted-foreground">
+                      A: {formData.abTestRatio}% / B: {100 - formData.abTestRatio}%
+                    </span>
+                  </div>
+                  <Slider
+                    value={[formData.abTestRatio]}
+                    min={10}
+                    max={90}
+                    step={1}
+                    onValueChange={(vals) => handleInputChange("abTestRatio", vals[0])}
+                    className="py-2"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* SEO Section */}

@@ -14,6 +14,9 @@ export interface LinkFormData {
   seoTitle: string;
   seoDescription: string;
   seoImage: string;
+  abTestEnabled: number;
+  abTestUrl: string;
+  abTestRatio: number;
 }
 
 /**
@@ -30,6 +33,9 @@ export interface CreateLinkInput {
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: string;
+  abTestEnabled?: number;
+  abTestUrl?: string;
+  abTestRatio?: number;
 }
 
 /**
@@ -46,6 +52,9 @@ export interface UpdateLinkInput {
   seoTitle?: string | null;
   seoDescription?: string | null;
   seoImage?: string | null;
+  abTestEnabled?: number;
+  abTestUrl?: string | null;
+  abTestRatio?: number;
 }
 
 /**

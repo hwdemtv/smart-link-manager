@@ -33,9 +33,10 @@ export function getSessionCookieOptions(
   const isSecure = isSecureRequest(req);
   const isIp = isIpAddress(req.hostname || req.get("host") || "");
 
-  // For localhost or IP address over HTTP: use 'lax' for better compatibility
-  // For production with HTTPS: use 'none' for cross-site requests
-  const sameSite = (isLocal || (isIp && !isSecure)) ? "lax" : "none";
+  // If the connection is not secure (HTTP), browsers will reject SameSite=None.
+  // We MUST use 'lax' for HTTP connections to ensure the cookie is saved.
+  // For secure requests (HTTPS), 'none' allows for cross-origin API usage if needed.
+  const sameSite = isSecure ? "none" : "lax";
 
   return {
     httpOnly: true,

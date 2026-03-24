@@ -250,6 +250,10 @@ export default function LinkDetail() {
           <StatPieChart title={t("common.browser", "Browser")} data={formatDataForPie(stats?.browserStats)} />
           <StatPieChart title={t("common.os", "Operating System")} data={formatDataForPie(stats?.osStats)} />
           <StatPieChart title={t("common.country", "Country / Region")} data={formatDataForPie(stats?.countryStats)} />
+          
+          {link?.abTestEnabled === 1 && (
+            <StatPieChart title={t("linkDetail.variantDistribution", "A/B 变体流向 (Variant Traffic)")} data={formatDataForPie((stats as any)?.variantStats)} />
+          )}
         </div>
 
         {/* Original URL */}
@@ -264,6 +268,21 @@ export default function LinkDetail() {
             {link.originalUrl}
           </a>
         </Card>
+
+        {/* Variant B URL (A/B Test) */}
+        {link?.abTestEnabled === 1 && link?.abTestUrl && (
+          <Card className="p-6 mt-4">
+            <h2 className="text-xl font-semibold mb-4">{t("linkDetail.variantBUrl", "变体 B 目标链接 (Variant B URL)")}</h2>
+            <a
+              href={link.abTestUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-500 hover:underline break-all"
+            >
+              {link.abTestUrl}
+            </a>
+          </Card>
+        )}
 
         {/* Recent Clicks */}
         {stats?.recentClicks && stats.recentClicks.length > 0 && (
