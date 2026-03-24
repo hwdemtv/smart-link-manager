@@ -776,3 +776,32 @@ pnpm build
 - 日志查看方便
 - 支持多版本 Node.js 切换
 
+---
+
+## 十八、自定义域名 DNS 配置 (Cloudflare)
+
+如果你需要为短链接平台配置自定义域名（例如 `s.hwdemtv.com`），建议在 Cloudflare 中使用 CNAME 记录指向你的主服务器域名。
+
+### 18.1 配置步骤
+
+1.  **登录 Cloudflare**：进入你的域名控制面板（例如 `hwdemtv.com`）。
+2.  **添加 DNS 记录**：
+    *   **类型 (Type)**: `CNAME`
+    *   **名称 (Name)**: `s` (这将生成 `s.hwdemtv.com`)
+    *   **目标 (Target)**: `hubingwei.top` (指向你已解析到服务器 IP 的主域名)
+    *   **代理状态 (Proxy status)**: ☁️ **橙色云朵 (Proxied)**
+3.  **SSL/TLS 设置**：在 Cloudflare 的 SSL 设置中，确保模式为 **Full** 或 **Full (strict)**，以支持端到端加密。
+
+### 18.2 架构优势
+
+*   **解耦 IP 地址**：若服务器 IP (`43.156.55.3`) 发生变更，你只需修改 `hubingwei.top` 的 A 记录。所有的 CNAME 记录会自动同步生效，无需逐个修改。
+*   **安全防护**：配合 Cloudflare 代理，可以有效隐藏后端真实服务器 IP，降低被攻击风险。
+
+### 18.3 系统关键步骤
+
+完成解析后，你**必须**在 Smart Link Manager 管理后台执行以下操作：
+1.  进入 **「域名管理」**。
+2.  点击 **「添加域名」**。
+3.  输入你的自定义域名 `s.hwdemtv.com` 并保存。
+4.  （可选）在 **「平台设置」** 中将其设为默认域名。
+
