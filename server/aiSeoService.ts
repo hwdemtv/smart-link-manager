@@ -5,14 +5,26 @@ import { ENV } from "./_core/env";
 import { createPatchedFetch } from "./_core/patchedFetch";
 import { logger } from "./_core/logger";
 
+import { getSystemConfig } from "./db";
+
 async function createLLMProvider() {
+  const dbConfigValue = await getSystemConfig("aiConfig");
   let baseURL = ENV.forgeApiUrl;
   let apiKey = ENV.forgeApiKey;
   let modelName = "gpt-4o";
   let temperature = 0.3;
 
-  // 说明：此处之前的租户自定义配置已移除，目前统一使用环境变量配置
-  // 如果未来需要基于用户订阅等级设置不同模型，可在此处扩展
+  if (dbConfigValue) {
+    try {
+      const dbConfig = typeof dbConfigValue === 'string' ? JSON.parse(dbConfigValue) : dbConfigValue;
+      if (dbConfig.baseUrl) baseURL = dbConfig.baseUrl;
+      if (dbConfig.apiKey) apiKey = dbConfig.apiKey;
+      if (dbConfig.model) modelName = dbConfig.model;
+      if (dbConfig.temperature !== undefined) temperature = dbConfig.temperature;
+    } catch (e) {
+      console.error("Failed to parse AI config from DB in aiSeoService", e);
+    }
+  }
 
   const finalBaseURL = baseURL.endsWith("/v1") ? baseURL : `${baseURL}/v1`;
 

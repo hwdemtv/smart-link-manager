@@ -1000,14 +1000,30 @@ export const appRouter = router({
       }),
 
     getAiConfig: protectedProcedure.query(async () => {
-      // Return global AI config from environment variables
-      return {
+      const dbConfigValue = await getSystemConfig("aiConfig");
+      let config = {
         provider: "openai",
         baseUrl: process.env.FORGE_API_URL || "",
-        apiKey: "", // Never expose API key
+        apiKey: "",
         model: "gpt-4o",
         temperature: 0.3,
       };
+
+      if (dbConfigValue) {
+        try {
+          const dbConfig = typeof dbConfigValue === 'string' ? JSON.parse(dbConfigValue) : dbConfigValue;
+          config = { ...config, ...dbConfig };
+        } catch (e) {
+          console.error("Failed to parse AI config from DB", e);
+        }
+      }
+
+      // 模糊处理 API Key，保护安全但也让前端知道是否有值
+      if (config.apiKey && config.apiKey.length > 8) {
+        config.apiKey = `${config.apiKey.substring(0, 3)}...${config.apiKey.substring(config.apiKey.length - 4)}`;
+      }
+
+      return config;
     }),
     updateAiConfig: protectedProcedure
       .input(z.object({
@@ -1017,11 +1033,30 @@ export const appRouter = router({
         model: z.string().default("gpt-4o"),
         temperature: z.number().min(0).max(2).default(0.3),
       }))
-      .mutation(async ({ ctx, input }) => {
-        // In the new architecture, AI config is managed via environment variables
-        // This endpoint is kept for UI compatibility but changes are not persisted
-        // To change AI config, update the .env file
-        return { success: true, message: "AI config is managed via environment variables" };
+      .mutation(async ({ input }) => {
+        // 读取现有配置，保留未修改的字段（如未提交的 API Key）
+        const dbConfigStr = await getSystemConfig("aiConfig");
+        let currentConfig: any = {};
+        if (dbConfigStr) {
+          try {
+            currentConfig = JSON.parse(dbConfigStr);
+          } catch (e) {}
+        }
+
+        const newConfig = {
+          provider: input.provider,
+          baseUrl: input.baseUrl || currentConfig.baseUrl || "",
+          model: input.model,
+          temperature: input.temperature,
+          // 如果输入中包含有效的 API Key（非混淆后的），则更新之；
+          // 如果输入为空或混淆格式（包含...），则保留原值
+          apiKey: (input.apiKey && !input.apiKey.includes("...")) 
+            ? input.apiKey 
+            : (currentConfig.apiKey || "")
+        };
+
+        await updateSystemConfig("aiConfig", JSON.stringify(newConfig));
+        return { success: true };
       }),
   }),
 
