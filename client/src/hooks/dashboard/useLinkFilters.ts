@@ -8,6 +8,7 @@ import type { Link, StatusFilter } from "@/types/dashboard";
 
 interface UseLinkFiltersOptions {
   links: Link[] | undefined;
+  selectedGroupId?: number | null | undefined;
 }
 
 interface UseLinkFiltersReturn {
@@ -27,8 +28,10 @@ interface UseLinkFiltersReturn {
   resetFilters: () => void;
 }
 
-export function useLinkFilters(options: UseLinkFiltersOptions): UseLinkFiltersReturn {
-  const { links = [] } = options;
+export function useLinkFilters(
+  options: UseLinkFiltersOptions
+): UseLinkFiltersReturn {
+  const { links = [], selectedGroupId } = options;
 
   // State
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,7 +40,7 @@ export function useLinkFilters(options: UseLinkFiltersOptions): UseLinkFiltersRe
 
   // Computed: filtered links
   const filteredLinks = useMemo(() => {
-    return links.filter((link) => {
+    return links.filter(link => {
       // Search filter
       const matchesSearch =
         !searchQuery ||
@@ -51,17 +54,29 @@ export function useLinkFilters(options: UseLinkFiltersOptions): UseLinkFiltersRe
         (statusFilter === "invalid" && !link.isValid);
 
       // Tag filter
-      const matchesTag = !tagFilter || (link.tags && link.tags.includes(tagFilter.trim()));
+      const matchesTag =
+        !tagFilter || (link.tags && link.tags.includes(tagFilter.trim()));
 
-      return matchesSearch && matchesStatus && matchesTag;
+      // Group filter
+      let matchesGroup = true;
+      if (selectedGroupId === null) {
+        // 未分组
+        matchesGroup = !link.groupId;
+      } else if (typeof selectedGroupId === "number") {
+        // 特定分组
+        matchesGroup = link.groupId === selectedGroupId;
+      }
+      // selectedGroupId === undefined 表示“全部链接”，不进行过滤
+
+      return matchesSearch && matchesStatus && matchesTag && matchesGroup;
     });
-  }, [links, searchQuery, statusFilter, tagFilter]);
+  }, [links, searchQuery, statusFilter, tagFilter, selectedGroupId]);
 
   // Computed: unique tags
   const uniqueTags = useMemo(() => {
     const tagSet = new Set<string>();
-    links.forEach((link) => {
-      link.tags?.forEach((tag) => tagSet.add(tag));
+    links.forEach(link => {
+      link.tags?.forEach(tag => tagSet.add(tag));
     });
     return Array.from(tagSet);
   }, [links]);

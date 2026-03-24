@@ -12,7 +12,8 @@ export interface LinkCheckResult {
  */
 function detectProvider(url: string): string {
   if (url.includes("pan.baidu.com")) return "baidu";
-  if (url.includes("aliyundrive.com") || url.includes("www.aliyundrive.com")) return "aliyun";
+  if (url.includes("aliyundrive.com") || url.includes("www.aliyundrive.com"))
+    return "aliyun";
   if (url.includes("quark.cn")) return "quark";
   return "unknown";
 }

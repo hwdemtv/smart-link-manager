@@ -64,10 +64,19 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Button size="lg" className="w-full sm:w-auto" onClick={handleSignIn}>
+            <Button
+              size="lg"
+              className="w-full sm:w-auto"
+              onClick={handleSignIn}
+            >
               {t("home.getStarted")}
             </Button>
-            <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={() => setLocation("/dashboard")}>
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => setLocation("/dashboard")}
+            >
               {t("common.dashboard")}
             </Button>
           </div>
@@ -87,7 +96,9 @@ export default function Home() {
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-powder-blue to-accent-blue flex items-center justify-center mb-4">
               <Link2 className="w-6 h-6 text-foreground" />
             </div>
-            <h3 className="font-semibold mb-2">{t("home.features.tracking")}</h3>
+            <h3 className="font-semibold mb-2">
+              {t("home.features.tracking")}
+            </h3>
             <p className="text-sm text-muted-foreground">
               {t("home.features.trackingDesc")}
             </p>
@@ -98,7 +109,9 @@ export default function Home() {
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blush-pink to-accent-pink flex items-center justify-center mb-4">
               <Shield className="w-6 h-6 text-foreground" />
             </div>
-            <h3 className="font-semibold mb-2">{t("home.features.security")}</h3>
+            <h3 className="font-semibold mb-2">
+              {t("home.features.security")}
+            </h3>
             <p className="text-sm text-muted-foreground">
               {t("home.features.securityDesc")}
             </p>
@@ -122,7 +135,9 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border bg-card/50 mt-20">
         <div className="container py-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2026 {t("common.brandName")}. {t("home.footer.rights")}</p>
+          <p>
+            &copy; 2026 {t("common.brandName")}. {t("home.footer.rights")}
+          </p>
         </div>
       </footer>
     </div>

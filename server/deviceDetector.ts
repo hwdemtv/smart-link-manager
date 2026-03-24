@@ -18,16 +18,8 @@ export function detectDevice(userAgent: string): DeviceInfo {
   const ua = userAgent.toLowerCase();
 
   // Mobile detection patterns
-  const mobilePatterns = [
-    /android/,
-    /webos/,
-    /iphone/,
-    /ipod/,
-    /blackberry/,
-    /windows phone/,
-    /opera mini/,
-    /iemobile/,
-  ];
+  const mobilePattern =
+    /android|webos|iphone|ipod|blackberry|windows phone|opera mini|iemobile/i;
 
   // Tablet detection patterns
   const tabletPatterns = [
@@ -74,7 +66,7 @@ export function detectDevice(userAgent: string): DeviceInfo {
   // Detect device type
   if (tabletPatterns.some(pattern => pattern.test(ua))) {
     type = "tablet";
-  } else if (mobilePatterns.some(pattern => pattern.test(ua))) {
+  } else if (mobilePattern.test(ua)) {
     type = "mobile";
   }
 

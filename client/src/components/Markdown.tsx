@@ -68,6 +68,79 @@ import { mermaid } from "@streamdown/mermaid";
 import { cn } from "@/lib/utils";
 
 // ============================================================================
+// XSS 防护工具
+// ============================================================================
+
+/**
+ * 检查 URL 是否安全
+ * 阻止 javascript:, data:, vbscript: 等危险协议
+ */
+function isSafeUrl(href: string | undefined): boolean {
+  if (!href) return false;
+
+  // 允许的协议白名单
+  const safeProtocols = ["http:", "https:", "mailto:", "tel:", "ftp:"];
+  const normalizedHref = href.trim().toLowerCase();
+
+  // 检查是否以安全协议开头
+  for (const protocol of safeProtocols) {
+    if (normalizedHref.startsWith(protocol)) return true;
+  }
+
+  // 允许相对路径（以 / 或 # 开头）
+  if (normalizedHref.startsWith("/") || normalizedHref.startsWith("#")) {
+    return true;
+  }
+
+  // 允许锚点和相对路径（无协议）
+  if (!normalizedHref.includes(":")) return true;
+
+  return false;
+}
+
+/**
+ * 安全的 href 处理
+ * 如果 URL 不安全，返回 "#"
+ */
+function sanitizeHref(href: string | undefined): string {
+  if (!href) return "#";
+  if (isSafeUrl(href)) return href;
+  return "#";
+}
+
+/**
+ * 安全的图片 src 处理
+ * 允许 http/https/data:image 协议
+ */
+function sanitizeImgSrc(src: string | undefined): string | undefined {
+  if (!src) return undefined;
+
+  const normalizedSrc = src.trim().toLowerCase();
+
+  // 允许 http/https
+  if (normalizedSrc.startsWith("http:") || normalizedSrc.startsWith("https:")) {
+    return src;
+  }
+
+  // 允许 data:image (安全的图片 data URL)
+  if (normalizedSrc.startsWith("data:image/")) {
+    return src;
+  }
+
+  // 允许相对路径
+  if (normalizedSrc.startsWith("/") || normalizedSrc.startsWith("./") || normalizedSrc.startsWith("../")) {
+    return src;
+  }
+
+  // 无协议的相对路径
+  if (!normalizedSrc.includes(":")) {
+    return src;
+  }
+
+  return undefined;
+}
+
+// ============================================================================
 // DEFAULT COMPONENT OVERRIDES
 // Customize individual markdown elements here.
 // Note: We don't override `pre` or `code` - let Streamdown/Shiki handle those
@@ -102,7 +175,7 @@ const components = {
   ),
   a: ({ href, children }: { href?: string; children?: ReactNode }) => (
     <a
-      href={href}
+      href={sanitizeHref(href)}
       target="_blank"
       rel="noopener noreferrer"
       className="underline underline-offset-4 decoration-muted-foreground/50 hover:decoration-foreground transition-colors"
@@ -158,7 +231,11 @@ const components = {
 
   // Media
   img: ({ src, alt }: { src?: string; alt?: string }) => (
-    <img src={src} alt={alt || ""} className="max-w-full h-auto rounded-lg my-4" />
+    <img
+      src={sanitizeImgSrc(src)}
+      alt={alt || ""}
+      className="max-w-full h-auto rounded-lg my-4"
+    />
   ),
 };
 
@@ -166,7 +243,10 @@ const components = {
 // MARKDOWN COMPONENT
 // ============================================================================
 
-type MarkdownProps = Omit<ComponentProps<typeof Streamdown>, "components" | "plugins"> & {
+type MarkdownProps = Omit<
+  ComponentProps<typeof Streamdown>,
+  "components" | "plugins"
+> & {
   /** Override specific element renderers */
   components?: Partial<typeof components>;
   /** Enable/disable code syntax highlighting (default: true) */

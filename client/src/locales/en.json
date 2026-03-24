@@ -35,7 +35,12 @@
       "next": "Next"
     },
     "confirm": "Confirm",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "close": "Close",
+    "save": "Save",
+    "actions": "Actions",
+    "openapi": "OpenAPI",
+    "aiSettings": "AI Settings"
   },
   "domains": {
     "title": "Custom Domains",
@@ -632,5 +637,52 @@
     "saveConfig": "Save Config",
     "saveSuccess": "AI config saved",
     "saveFailed": "Save failed"
+  },
+  "recycleBin": {
+    "title": "Recycle Bin",
+    "description": "Deleted links are kept for 30 days. You can restore them during this period.",
+    "empty": "Recycle bin is empty",
+    "deleted": "Deleted at",
+    "restore": "Restore",
+    "permanentDelete": "Permanent Delete",
+    "permanentDeleteConfirm": "Are you sure you want to permanently delete this link? This action cannot be undone.",
+    "emptyBin": "Empty Recycle Bin",
+    "emptyBinConfirm": "Are you sure you want to empty the recycle bin? All links will be permanently deleted."
+  },
+  "groups": {
+    "title": "Groups",
+    "allLinks": "All Links",
+    "ungrouped": "Ungrouped",
+    "createGroup": "Create Group",
+    "editGroup": "Edit Group",
+    "createDescription": "Create a new group to organize your links",
+    "editDescription": "Modify group name and color",
+    "name": "Group Name",
+    "namePlaceholder": "Enter group name",
+    "color": "Color",
+    "customColor": "Custom Color",
+    "preview": "Group Preview",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this group? Links in this group will not be deleted."
+  },
+  "blacklist": {
+    "title": "IP Blacklist",
+    "description": "Banned IPs will not be able to access any short links. Supports CIDR format (e.g., 192.168.1.0/24) for network range bans.",
+    "empty": "Blacklist is empty",
+    "add": "Add IP",
+    "addTitle": "Add IP to Blacklist",
+    "addDescription": "Supports single IP (e.g., 192.168.1.1) or CIDR range (e.g., 192.168.1.0/24)",
+    "ipPattern": "IP/Range",
+    "ipRequired": "Please enter an IP address",
+    "reason": "Reason",
+    "reasonPlaceholder": "Ban reason",
+    "expiresAt": "Expires At",
+    "expiresHint": "Leave empty for permanent ban",
+    "permanent": "Permanent",
+    "expired": "Expired",
+    "createdAt": "Added At",
+    "addSuccess": "Added to blacklist",
+    "removeSuccess": "Removed from blacklist",
+    "removeConfirm": "Are you sure you want to remove this IP?"
   }
 }

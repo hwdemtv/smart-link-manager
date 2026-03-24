@@ -22,9 +22,20 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "vendor-ui": ["lucide-react", "framer-motion", "clsx", "tailwind-merge"],
+          "vendor-ui": [
+            "lucide-react",
+            "framer-motion",
+            "clsx",
+            "tailwind-merge",
+          ],
           "vendor-charts": ["recharts"],
-          "vendor-core": ["react", "react-dom", "wouter", "i18next", "react-i18next"],
+          "vendor-core": [
+            "react",
+            "react-dom",
+            "wouter",
+            "i18next",
+            "react-i18next",
+          ],
         },
       },
     },

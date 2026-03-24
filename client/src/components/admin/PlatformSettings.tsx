@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -19,7 +25,7 @@ export default function PlatformSettings() {
       toast.success(t("admin.system.saveSuccess"));
       utils.configs.getConfig.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -27,15 +33,16 @@ export default function PlatformSettings() {
   const [regDisabled, setRegDisabled] = useState(false);
   const [defaultDomain, setDefaultDomain] = useState("");
 
-  const updateDomainMutation = trpc.configs.updateDefaultDomainConfig.useMutation({
-    onSuccess: () => {
-      toast.success("系统默认域名已更新");
-      utils.configs.getConfig.invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const updateDomainMutation =
+    trpc.configs.updateDefaultDomainConfig.useMutation({
+      onSuccess: () => {
+        toast.success("系统默认域名已更新");
+        utils.configs.getConfig.invalidate();
+      },
+      onError: error => {
+        toast.error(error.message);
+      },
+    });
 
   useEffect(() => {
     if (config) {
@@ -57,12 +64,16 @@ export default function PlatformSettings() {
             <Shield className="w-5 h-5 text-primary" />
             <CardTitle>{t("admin.system.platformControl")}</CardTitle>
           </div>
-          <CardDescription>{t("admin.system.platformControlDesc")}</CardDescription>
+          <CardDescription>
+            {t("admin.system.platformControlDesc")}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
             <div className="space-y-0.5">
-              <Label className="text-base font-semibold">{t("admin.system.allowRegister")}</Label>
+              <Label className="text-base font-semibold">
+                {t("admin.system.allowRegister")}
+              </Label>
               <p className="text-sm text-muted-foreground">
                 {t("admin.system.allowRegisterHint")}
               </p>
@@ -76,7 +87,9 @@ export default function PlatformSettings() {
 
           <div className="flex flex-col gap-3 p-4 border rounded-lg bg-muted/30">
             <div className="space-y-0.5">
-              <Label className="text-base font-semibold">系统默认生成域名</Label>
+              <Label className="text-base font-semibold">
+                系统默认生成域名
+              </Label>
               <p className="text-sm text-muted-foreground">
                 开启此项后，所有前端未指定自有域名的短链接均默认使用该顶级域名进行拼接。留空则退回至当前面板被访问时所用的地址。
               </p>
@@ -85,13 +98,19 @@ export default function PlatformSettings() {
               <Input
                 placeholder="例如：s.example.com"
                 value={defaultDomain}
-                onChange={(e) => setDefaultDomain(e.target.value)}
+                onChange={e => setDefaultDomain(e.target.value)}
                 className="max-w-md font-mono"
               />
               <Button
                 variant="secondary"
-                disabled={isLoading || updateDomainMutation.isPending || (config && defaultDomain === config.defaultDomain)}
-                onClick={() => updateDomainMutation.mutate({ domain: defaultDomain })}
+                disabled={
+                  isLoading ||
+                  updateDomainMutation.isPending ||
+                  (config && defaultDomain === config.defaultDomain)
+                }
+                onClick={() =>
+                  updateDomainMutation.mutate({ domain: defaultDomain })
+                }
               >
                 {updateDomainMutation.isPending ? "保存中..." : "保存域名"}
               </Button>
@@ -112,7 +131,11 @@ export default function PlatformSettings() {
           <CardDescription>{t("admin.system.maintenanceDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button variant="outline" className="flex items-center gap-2" disabled>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            disabled
+          >
             <RefreshCcw className="w-4 h-4" />
             {t("admin.system.clearCache")}
           </Button>

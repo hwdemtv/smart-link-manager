@@ -38,18 +38,17 @@ export const apiKeyService = {
     if (!db || !rawKey.startsWith("slm_")) return null;
 
     const prefix = rawKey.substring(0, 8);
-    const keys = await db.select().from(apiKeys).where(
-      and(
-        eq(apiKeys.prefix, prefix),
-        eq(apiKeys.isActive, 1)
-      )
-    );
+    const keys = await db
+      .select()
+      .from(apiKeys)
+      .where(and(eq(apiKeys.prefix, prefix), eq(apiKeys.isActive, 1)));
 
     for (const key of keys) {
       const isValid = await crypto.verifyPassword(key.keyHash, rawKey);
       if (isValid) {
         // Update last used
-        await db.update(apiKeys)
+        await db
+          .update(apiKeys)
           .set({ lastUsedAt: new Date() })
           .where(eq(apiKeys.id, key.id));
 
@@ -77,8 +76,9 @@ export const apiKeyService = {
   async revokeKey(keyId: number, userId: number) {
     const db = await getDb();
     if (!db) return;
-    return db.update(apiKeys)
+    return db
+      .update(apiKeys)
       .set({ isActive: 0 })
       .where(and(eq(apiKeys.id, keyId), eq(apiKeys.userId, userId)));
-  }
+  },
 };

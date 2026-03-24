@@ -98,14 +98,14 @@ class AuthService {
   async createVisitorToken(shortCode: string): Promise<string> {
     const secretKey = this.getSessionSecret();
     const issuedAt = Math.floor(Date.now() / 1000);
-    const expirationSeconds = issuedAt + (5 * 60); // 5 minutes
+    const expirationSeconds = issuedAt + 5 * 60; // 5 minutes
 
     const jwt = await new SignJWT({ shortCode })
       .setProtectedHeader({ alg: "HS256", typ: "JWT" })
       .setIssuedAt(issuedAt)
       .setExpirationTime(expirationSeconds)
       .sign(secretKey);
-    
+
     // Replace dots with tilde to avoid static file routing issues in some servers
     return jwt.replace(/\./g, "~");
   }
@@ -121,7 +121,7 @@ class AuthService {
       const { payload } = await jwtVerify(jwt, secretKey, {
         algorithms: ["HS256"],
       });
-      
+
       const { shortCode } = payload as { shortCode: string };
       return typeof shortCode === "string" ? shortCode : null;
     } catch (error) {
@@ -144,6 +144,9 @@ export const crypto = {
   verifyPassword: async (hash: string, password: string): Promise<boolean> => {
     const [salt, key] = hash.split(":");
     const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-    return buf.toString("hex") === key;
-  }
+    const keyBuf = Buffer.from(key, "hex");
+    // 长度不同时直接返回 false（timingSafeEqual 要求等长）
+    if (buf.length !== keyBuf.length) return false;
+    return cryptoNode.timingSafeEqual(buf, keyBuf);
+  },
 };

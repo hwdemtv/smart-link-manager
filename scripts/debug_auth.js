@@ -1,4 +1,3 @@
-
 import { drizzle } from "drizzle-orm/mysql2";
 import { users } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
@@ -29,7 +28,11 @@ async function run() {
   const password = "password123";
 
   console.log(`Checking user: ${username}...`);
-  const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.username, username))
+    .limit(1);
   const user = result[0];
 
   if (!user) {
@@ -39,7 +42,7 @@ async function run() {
 
   console.log("User found, validating password...");
   const isValid = await verifyPassword(password, user.passwordHash);
-  
+
   if (isValid) {
     console.log("SUCCESS: Password matches in database!");
   } else {
@@ -48,4 +51,6 @@ async function run() {
   }
 }
 
-run().catch(console.error).finally(() => process.exit());
+run()
+  .catch(console.error)
+  .finally(() => process.exit());

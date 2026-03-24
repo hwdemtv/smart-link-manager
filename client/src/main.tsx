@@ -27,7 +27,13 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   // 如果已经在登录页或首页，不重定向
   const path = window.location.pathname;
-  if (path === "/login" || path === "/" || path.startsWith("/qr/") || path.startsWith("/s/")) return;
+  if (
+    path === "/login" ||
+    path === "/" ||
+    path.startsWith("/qr/") ||
+    path.startsWith("/s/")
+  )
+    return;
 
   window.location.href = "/login";
 };

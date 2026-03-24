@@ -10,32 +10,47 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
 interface BatchTagsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedCount: number;
-  onConfirm: (tags: string[], mode: 'add' | 'remove' | 'set') => Promise<void>;
+  onConfirm: (tags: string[], mode: "add" | "remove" | "set") => Promise<void>;
   isSubmitting: boolean;
 }
 
-export function BatchTagsDialog({ open, onOpenChange, selectedCount, onConfirm, isSubmitting }: BatchTagsDialogProps) {
+export function BatchTagsDialog({
+  open,
+  onOpenChange,
+  selectedCount,
+  onConfirm,
+  isSubmitting,
+}: BatchTagsDialogProps) {
   const { t } = useTranslation();
   const [tagsString, setTagsString] = useState("");
-  const [mode, setMode] = useState<'add' | 'remove' | 'set'>('add');
+  const [mode, setMode] = useState<"add" | "remove" | "set">("add");
 
   useEffect(() => {
     if (!open) {
       setTagsString("");
-      setMode('add');
+      setMode("add");
     }
   }, [open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const tagsArray = tagsString.split(",").map(t => t.trim()).filter(Boolean);
+    const tagsArray = tagsString
+      .split(",")
+      .map(t => t.trim())
+      .filter(Boolean);
     await onConfirm(tagsArray, mode);
   };
 
@@ -43,7 +58,9 @@ export function BatchTagsDialog({ open, onOpenChange, selectedCount, onConfirm, 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("dashboard.batchTagsTitle", { count: selectedCount })}</DialogTitle>
+          <DialogTitle>
+            {t("dashboard.batchTagsTitle", { count: selectedCount })}
+          </DialogTitle>
           <DialogDescription>
             {t("dashboard.batchTagsDesc", { count: selectedCount })}
           </DialogDescription>
@@ -53,12 +70,18 @@ export function BatchTagsDialog({ open, onOpenChange, selectedCount, onConfirm, 
             <Label>{t("dashboard.actionMode")}</Label>
             <Select value={mode} onValueChange={(val: any) => setMode(val)}>
               <SelectTrigger>
-                <SelectValue placeholder={t("dashboard.selectMode", { defaultValue: "选择操作模式" })} />
+                <SelectValue
+                  placeholder={t("dashboard.selectMode", {
+                    defaultValue: "选择操作模式",
+                  })}
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="add">{t("dashboard.modeAdd")}</SelectItem>
                 <SelectItem value="set">{t("dashboard.modeSet")}</SelectItem>
-                <SelectItem value="remove">{t("dashboard.modeRemove")}</SelectItem>
+                <SelectItem value="remove">
+                  {t("dashboard.modeRemove")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -67,15 +90,22 @@ export function BatchTagsDialog({ open, onOpenChange, selectedCount, onConfirm, 
             <Input
               placeholder={t("dashboard.tagsPlaceholder")}
               value={tagsString}
-              onChange={(e) => setTagsString(e.target.value)}
+              onChange={e => setTagsString(e.target.value)}
             />
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting || !tagsString.trim()}>
-              {isSubmitting ? t("dashboard.processing") : t("dashboard.confirm")}
+              {isSubmitting
+                ? t("dashboard.processing")
+                : t("dashboard.confirm")}
             </Button>
           </DialogFooter>
         </form>

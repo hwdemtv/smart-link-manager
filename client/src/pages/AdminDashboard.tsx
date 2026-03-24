@@ -1,7 +1,21 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, BarChart3, Link2, UserCircle, FileText, Bell, Shield } from "lucide-react";
+import {
+  Users,
+  BarChart3,
+  Link2,
+  UserCircle,
+  FileText,
+  Bell,
+  Shield,
+} from "lucide-react";
 import { useState } from "react";
 import UsageAnalytics from "@/components/admin/UsageAnalytics";
 import UserManagement from "@/components/admin/UserManagement";
@@ -9,6 +23,7 @@ import LinkManagement from "@/components/admin/LinkManagement";
 import AuditLogManagement from "@/components/admin/AuditLogManagement";
 import NotificationManagement from "@/components/admin/NotificationManagement";
 import PlatformSettings from "@/components/admin/PlatformSettings";
+import IpBlacklistPanel from "@/components/admin/IpBlacklistPanel";
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
 
@@ -17,7 +32,8 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const { t } = useTranslation();
 
-  const { data: stats, isLoading: statsLoading } = trpc.user.getAdminStats.useQuery();
+  const { data: stats, isLoading: statsLoading } =
+    trpc.user.getAdminStats.useQuery();
 
   if (loading) {
     return (
@@ -50,8 +66,12 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">{t("admin.dashboardTitle")}</h1>
-            <p className="text-muted-foreground">{t("admin.dashboardSubtitle")}</p>
+            <h1 className="text-4xl font-bold text-foreground mb-2">
+              {t("admin.dashboardTitle")}
+            </h1>
+            <p className="text-muted-foreground">
+              {t("admin.dashboardSubtitle")}
+            </p>
           </div>
         </div>
 
@@ -69,7 +89,8 @@ export default function AdminDashboard() {
                 {statsLoading ? "--" : stats?.totalUsers || 0}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {statsLoading ? "--" : stats?.activeUsers || 0} {t("admin.activeUsers")}
+                {statsLoading ? "--" : stats?.activeUsers || 0}{" "}
+                {t("admin.activeUsers")}
               </p>
             </CardContent>
           </Card>
@@ -119,15 +140,21 @@ export default function AdminDashboard() {
               <div className="space-y-1">
                 <div className="flex justify-between text-xs">
                   <span>Free:</span>
-                  <span className="font-mono">{stats?.tierDistribution?.free || 0}</span>
+                  <span className="font-mono">
+                    {stats?.tierDistribution?.free || 0}
+                  </span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span>Pro:</span>
-                  <span className="font-mono">{stats?.tierDistribution?.pro || 0}</span>
+                  <span className="font-mono">
+                    {stats?.tierDistribution?.pro || 0}
+                  </span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span>Business:</span>
-                  <span className="font-mono">{stats?.tierDistribution?.business || 0}</span>
+                  <span className="font-mono">
+                    {stats?.tierDistribution?.business || 0}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -149,7 +176,10 @@ export default function AdminDashboard() {
               <Link2 className="w-4 h-4" />
               {t("admin.links")}
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <TabsTrigger
+              value="notifications"
+              className="flex items-center gap-2"
+            >
               <Bell className="w-4 h-4" />
               {t("admin.notifications")}
             </TabsTrigger>
@@ -185,6 +215,7 @@ export default function AdminDashboard() {
 
           <TabsContent value="system" className="mt-4 space-y-4">
             <PlatformSettings />
+            <IpBlacklistPanel />
           </TabsContent>
         </Tabs>
       </div>

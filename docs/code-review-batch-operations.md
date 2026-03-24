@@ -19,11 +19,11 @@
 
 ### 1. 功能设计
 
-| 方面 | 评价 |
-|------|------|
+| 方面         | 评价                                  |
+| ------------ | ------------------------------------- |
 | 三种标签模式 | `add` / `set` / `remove` 覆盖所有场景 |
-| 有效期清空 | 留空即永久有效，交互简洁 |
-| 权限控制 | 后端验证 `userId`，防止越权操作 |
+| 有效期清空   | 留空即永久有效，交互简洁              |
+| 权限控制     | 后端验证 `userId`，防止越权操作       |
 
 ### 2. 代码质量
 
@@ -53,6 +53,7 @@ for (const link of targetLinks) {
 ```
 
 **问题**：当批量操作 100 个链接时，会产生：
+
 - 1 次 SELECT 查询
 - 100 次 UPDATE 查询
 
@@ -81,12 +82,13 @@ await db.transaction(async (tx) => {
 **位置**: `server/routers.ts:527-536`
 
 ```typescript
-batchUpdateTags: protectedProcedure
-  .input(z.object({
+batchUpdateTags: protectedProcedure.input(
+  z.object({
     linkIds: z.array(z.number()),
-    tags: z.array(z.string()),        // ⚠️ 无长度限制
-    mode: z.enum(['add', 'remove', 'set'])
-  }))
+    tags: z.array(z.string()), // ⚠️ 无长度限制
+    mode: z.enum(["add", "remove", "set"]),
+  })
+);
 ```
 
 **建议**：添加验证约束
@@ -115,7 +117,7 @@ batchUpdateTags: protectedProcedure
 
 ```typescript
 // server/routers.ts
-if (tags.length === 0 && mode !== 'set') {
+if (tags.length === 0 && mode !== "set") {
   throw new TRPCError({
     code: "BAD_REQUEST",
     message: "Tags cannot be empty for add/remove mode",
@@ -140,6 +142,7 @@ if (tags.length === 0 && mode !== 'set') {
 **问题**：`datetime-local` 使用本地时区，可能导致服务端解析不一致
 
 **建议**：
+
 - 在前端转换为 ISO 8601 格式
 - 或在后端明确指定时区
 
@@ -160,7 +163,11 @@ const handleSubmit = async (e: React.FormEvent) => {
 **位置**: `client/src/hooks/dashboard/useLinkMutations.ts:122-125`
 
 ```typescript
-const batchUpdateTags = async (linkIds: number[], tags: string[], mode: 'add' | 'remove' | 'set') => {
+const batchUpdateTags = async (
+  linkIds: number[],
+  tags: string[],
+  mode: "add" | "remove" | "set"
+) => {
   if (linkIds.length === 0) return;
   await batchUpdateTagsMutation.mutateAsync({ linkIds, tags, mode });
 };
@@ -182,7 +189,7 @@ if (linkIds.length > 10) {
 
 ```typescript
 const [tagsString, setTagsString] = useState("");
-const [mode, setMode] = useState<'add' | 'remove' | 'set'>('add');
+const [mode, setMode] = useState<"add" | "remove" | "set">("add");
 ```
 
 **问题**：关闭 Dialog 后，输入内容未清空
@@ -193,7 +200,7 @@ const [mode, setMode] = useState<'add' | 'remove' | 'set'>('add');
 useEffect(() => {
   if (!open) {
     setTagsString("");
-    setMode('add');
+    setMode("add");
   }
 }, [open]);
 ```
@@ -204,15 +211,15 @@ useEffect(() => {
 
 已编写 25 个测试用例，覆盖：
 
-| 测试类别 | 用例数 | 状态 |
-|---------|-------|------|
-| SET 模式 | 3 | ✅ |
-| ADD 模式 | 4 | ✅ |
-| REMOVE 模式 | 3 | ✅ |
-| 边界条件 | 3 | ✅ |
-| 有效期更新 | 4 | ✅ |
-| 前端标签解析 | 6 | ✅ |
-| 日期处理 | 2 | ✅ |
+| 测试类别     | 用例数 | 状态 |
+| ------------ | ------ | ---- |
+| SET 模式     | 3      | ✅   |
+| ADD 模式     | 4      | ✅   |
+| REMOVE 模式  | 3      | ✅   |
+| 边界条件     | 3      | ✅   |
+| 有效期更新   | 4      | ✅   |
+| 前端标签解析 | 6      | ✅   |
+| 日期处理     | 2      | ✅   |
 
 **测试文件**: `server/__tests__/batchOperations.test.ts`
 
@@ -220,14 +227,14 @@ useEffect(() => {
 
 ## 🎯 改进优先级
 
-| 优先级 | 问题 | 影响 |
-|-------|------|------|
-| 🔴 P0 | N+1 查询问题 | 大批量操作性能 |
-| 🟡 P1 | 输入验证缺失 | 安全/数据完整性 |
-| 🟡 P1 | 空标签检查 | 边界条件处理 |
-| 🟡 P1 | 时区处理 | 数据一致性 |
-| 🟢 P2 | 操作确认 | 用户体验 |
-| 🟢 P2 | Dialog 状态重置 | 用户体验 |
+| 优先级 | 问题            | 影响            |
+| ------ | --------------- | --------------- |
+| 🔴 P0  | N+1 查询问题    | 大批量操作性能  |
+| 🟡 P1  | 输入验证缺失    | 安全/数据完整性 |
+| 🟡 P1  | 空标签检查      | 边界条件处理    |
+| 🟡 P1  | 时区处理        | 数据一致性      |
+| 🟢 P2  | 操作确认        | 用户体验        |
+| 🟢 P2  | Dialog 状态重置 | 用户体验        |
 
 ---
 

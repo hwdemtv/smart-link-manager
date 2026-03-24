@@ -30,7 +30,7 @@ export function useBatchSelection(): UseBatchSelectionReturn {
 
   // Actions
   const toggle = useCallback((id: number) => {
-    setSelectedIds((prev) => {
+    setSelectedIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -50,12 +50,12 @@ export function useBatchSelection(): UseBatchSelectionReturn {
   }, []);
 
   const togglePage = useCallback((ids: number[], checked: boolean) => {
-    setSelectedIds((prev) => {
+    setSelectedIds(prev => {
       const next = new Set(prev);
       if (checked) {
-        ids.forEach((id) => next.add(id));
+        ids.forEach(id => next.add(id));
       } else {
-        ids.forEach((id) => next.delete(id));
+        ids.forEach(id => next.delete(id));
       }
       return next;
     });

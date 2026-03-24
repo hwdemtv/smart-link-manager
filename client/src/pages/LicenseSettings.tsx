@@ -1,10 +1,24 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Key, Calendar, CheckCircle, XCircle, Loader2, Crown, Zap } from "lucide-react";
+import {
+  Key,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  Crown,
+  Zap,
+} from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
@@ -15,14 +29,18 @@ export default function LicenseSettings() {
   const { t } = useTranslation();
   const [licenseKey, setLicenseKey] = useState("");
 
-  const { data: subscription, isLoading, refetch } = trpc.user.getSubscription.useQuery();
+  const {
+    data: subscription,
+    isLoading,
+    refetch,
+  } = trpc.user.getSubscription.useQuery();
   const activateMutation = trpc.user.activateLicense.useMutation({
     onSuccess: () => {
       toast.success(t("license.activateSuccess"));
       setLicenseKey("");
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -31,7 +49,7 @@ export default function LicenseSettings() {
       toast.success(t("license.unbindSuccess"));
       refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message);
     },
   });
@@ -50,10 +68,20 @@ export default function LicenseSettings() {
 
   const getTierBadge = (tier: string) => {
     switch (tier) {
-      case 'business':
-        return <Badge className="bg-purple-500"><Crown className="w-3 h-3 mr-1" />Business</Badge>;
-      case 'pro':
-        return <Badge className="bg-blue-500"><Zap className="w-3 h-3 mr-1" />Pro</Badge>;
+      case "business":
+        return (
+          <Badge className="bg-purple-500">
+            <Crown className="w-3 h-3 mr-1" />
+            Business
+          </Badge>
+        );
+      case "pro":
+        return (
+          <Badge className="bg-blue-500">
+            <Zap className="w-3 h-3 mr-1" />
+            Pro
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">Free</Badge>;
     }
@@ -61,12 +89,12 @@ export default function LicenseSettings() {
 
   const getTierName = (tier: string) => {
     switch (tier) {
-      case 'business':
-        return 'Business';
-      case 'pro':
-        return 'Pro';
+      case "business":
+        return "Business";
+      case "pro":
+        return "Pro";
       default:
-        return 'Free';
+        return "Free";
     }
   };
 
@@ -83,7 +111,11 @@ export default function LicenseSettings() {
     );
   }
 
-  const limits = subscription?.limits || { maxLinks: 20, maxDomains: 1, maxApiKeys: 1 };
+  const limits = subscription?.limits || {
+    maxLinks: 20,
+    maxDomains: 1,
+    maxApiKeys: 1,
+  };
   const usage = subscription?.usage || { links: 0, domains: 0 };
 
   return (
@@ -91,7 +123,9 @@ export default function LicenseSettings() {
       <div className="container mx-auto py-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">{t("license.title")}</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            {t("license.title")}
+          </h1>
           <p className="text-muted-foreground">{t("license.subtitle")}</p>
         </div>
 
@@ -102,10 +136,12 @@ export default function LicenseSettings() {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   {t("license.currentPlan")}
-                  {getTierBadge(subscription?.tier || 'free')}
+                  {getTierBadge(subscription?.tier || "free")}
                 </CardTitle>
                 <CardDescription>
-                  {subscription?.isValid ? t("license.active") : t("license.expired")}
+                  {subscription?.isValid
+                    ? t("license.active")
+                    : t("license.expired")}
                 </CardDescription>
               </div>
               {subscription?.isValid ? (
@@ -119,14 +155,20 @@ export default function LicenseSettings() {
             {subscription?.licenseKey && (
               <div className="flex items-center gap-2 text-sm">
                 <Key className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{t("license.keyLabel")}:</span>
-                <code className="bg-muted px-2 py-1 rounded font-mono">{subscription.licenseKey}</code>
+                <span className="text-muted-foreground">
+                  {t("license.keyLabel")}:
+                </span>
+                <code className="bg-muted px-2 py-1 rounded font-mono">
+                  {subscription.licenseKey}
+                </code>
               </div>
             )}
             {subscription?.expiresAt && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{t("license.expiresAt")}:</span>
+                <span className="text-muted-foreground">
+                  {t("license.expiresAt")}:
+                </span>
                 <span>{formatDate(subscription.expiresAt)}</span>
               </div>
             )}
@@ -144,11 +186,16 @@ export default function LicenseSettings() {
               <div className="flex justify-between text-sm">
                 <span>{t("license.linksUsage")}</span>
                 <span>
-                  {usage.links} / {limits.maxLinks === -1 ? '∞' : limits.maxLinks}
+                  {usage.links} /{" "}
+                  {limits.maxLinks === -1 ? "∞" : limits.maxLinks}
                 </span>
               </div>
               <Progress
-                value={limits.maxLinks === -1 ? 0 : (usage.links / limits.maxLinks) * 100}
+                value={
+                  limits.maxLinks === -1
+                    ? 0
+                    : (usage.links / limits.maxLinks) * 100
+                }
                 className="h-2"
               />
             </div>
@@ -158,11 +205,16 @@ export default function LicenseSettings() {
               <div className="flex justify-between text-sm">
                 <span>{t("license.domainsUsage")}</span>
                 <span>
-                  {usage.domains} / {limits.maxDomains === -1 ? '∞' : limits.maxDomains}
+                  {usage.domains} /{" "}
+                  {limits.maxDomains === -1 ? "∞" : limits.maxDomains}
                 </span>
               </div>
               <Progress
-                value={limits.maxDomains === -1 ? 0 : (usage.domains / limits.maxDomains) * 100}
+                value={
+                  limits.maxDomains === -1
+                    ? 0
+                    : (usage.domains / limits.maxDomains) * 100
+                }
                 className="h-2"
               />
             </div>
@@ -180,7 +232,9 @@ export default function LicenseSettings() {
               <Input
                 placeholder={t("license.keyPlaceholder")}
                 value={licenseKey}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLicenseKey(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setLicenseKey(e.target.value)
+                }
                 className="flex-1"
               />
               <Button
@@ -221,7 +275,9 @@ export default function LicenseSettings() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 gap-4 text-center">
-              <div className={`p-4 rounded-lg border ${subscription?.tier === 'free' ? 'border-primary bg-primary/5' : ''}`}>
+              <div
+                className={`p-4 rounded-lg border ${subscription?.tier === "free" ? "border-primary bg-primary/5" : ""}`}
+              >
                 <h3 className="font-semibold mb-2">Free</h3>
                 <div className="text-sm text-muted-foreground space-y-1">
                   <p>{t("license.links")}: 20</p>
@@ -229,7 +285,9 @@ export default function LicenseSettings() {
                   <p>{t("license.apiKeys")}: 1</p>
                 </div>
               </div>
-              <div className={`p-4 rounded-lg border ${subscription?.tier === 'pro' ? 'border-primary bg-primary/5' : ''}`}>
+              <div
+                className={`p-4 rounded-lg border ${subscription?.tier === "pro" ? "border-primary bg-primary/5" : ""}`}
+              >
                 <h3 className="font-semibold mb-2">Pro</h3>
                 <div className="text-sm text-muted-foreground space-y-1">
                   <p>{t("license.links")}: 500</p>
@@ -237,7 +295,9 @@ export default function LicenseSettings() {
                   <p>{t("license.apiKeys")}: 5</p>
                 </div>
               </div>
-              <div className={`p-4 rounded-lg border ${subscription?.tier === 'business' ? 'border-primary bg-primary/5' : ''}`}>
+              <div
+                className={`p-4 rounded-lg border ${subscription?.tier === "business" ? "border-primary bg-primary/5" : ""}`}
+              >
                 <h3 className="font-semibold mb-2">Business</h3>
                 <div className="text-sm text-muted-foreground space-y-1">
                   <p>{t("license.links")}: ∞</p>

@@ -39,7 +39,7 @@ export function LinkTableRow({
           type="checkbox"
           className="rounded border-gray-300 text-accent-blue focus:ring-accent-blue cursor-pointer"
           checked={isSelected}
-          onChange={(e) => onSelect(e.target.checked)}
+          onChange={e => onSelect(e.target.checked)}
         />
       </TableCell>
 
@@ -47,7 +47,9 @@ export function LinkTableRow({
       <TableCell className="font-mono text-accent-blue font-semibold">
         <div className="text-sm">{link.shortCode}</div>
         {link.customDomain && (
-          <div className="text-xs text-muted-foreground">{link.customDomain}</div>
+          <div className="text-xs text-muted-foreground">
+            {link.customDomain}
+          </div>
         )}
       </TableCell>
 
@@ -101,7 +103,9 @@ export function LinkTableRow({
       <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
         {link.expiresAt ? (
           isExpired ? (
-            <span className="text-destructive font-medium">{t("dashboard.expired")}</span>
+            <span className="text-destructive font-medium">
+              {t("dashboard.expired")}
+            </span>
           ) : (
             new Date(link.expiresAt).toLocaleDateString()
           )

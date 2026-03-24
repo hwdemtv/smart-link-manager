@@ -1,6 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
 import type { ImportPreviewDialogProps } from "@/types/dashboard";
@@ -15,7 +29,7 @@ export function ImportPreviewDialog({
 }: ImportPreviewDialogProps) {
   const { t } = useTranslation();
 
-  const hasConflicts = previewLinks.some((l) => l.hasConflict);
+  const hasConflicts = previewLinks.some(l => l.hasConflict);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -30,7 +44,9 @@ export function ImportPreviewDialog({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">{t("dashboard.shortCode")}</TableHead>
+                <TableHead className="w-[100px]">
+                  {t("dashboard.shortCode")}
+                </TableHead>
                 <TableHead>{t("dashboard.originalUrl")}</TableHead>
                 <TableHead>{t("dashboard.tagsLabel")}</TableHead>
                 <TableHead>{t("dashboard.expiresAt")}</TableHead>
@@ -39,7 +55,12 @@ export function ImportPreviewDialog({
             </TableHeader>
             <TableBody>
               {previewLinks.map((link, idx) => (
-                <TableRow key={idx} className={link.hasConflict ? "bg-red-50/50 hover:bg-red-50/80" : ""}>
+                <TableRow
+                  key={idx}
+                  className={
+                    link.hasConflict ? "bg-red-50/50 hover:bg-red-50/80" : ""
+                  }
+                >
                   <TableCell className="font-mono text-xs">
                     <div className="flex items-center gap-2">
                       {link.shortCode || "-"}
@@ -53,7 +74,10 @@ export function ImportPreviewDialog({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="max-w-[300px] truncate" title={link.originalUrl}>
+                  <TableCell
+                    className="max-w-[300px] truncate"
+                    title={link.originalUrl}
+                  >
                     <div className="flex items-center gap-2">
                       <span className="truncate">{link.originalUrl}</span>
                       {link.hasWarning && (
@@ -66,13 +90,18 @@ export function ImportPreviewDialog({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="max-w-[200px] truncate" title={link.tags?.join(', ')}>
-                    {link.tags?.join(', ') || "-"}
+                  <TableCell
+                    className="max-w-[200px] truncate"
+                    title={link.tags?.join(", ")}
+                  >
+                    {link.tags?.join(", ") || "-"}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {link.expiresAt || "-"}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{link.description || "-"}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {link.description || "-"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -83,7 +112,9 @@ export function ImportPreviewDialog({
             {t("common.back")}
           </Button>
           <Button onClick={onConfirm} disabled={isImporting || hasConflicts}>
-            {isImporting ? t("dashboard.importing") : t("dashboard.confirmImport")}
+            {isImporting
+              ? t("dashboard.importing")
+              : t("dashboard.confirmImport")}
           </Button>
         </DialogFooter>
       </DialogContent>

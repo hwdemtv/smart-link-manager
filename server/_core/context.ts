@@ -8,6 +8,14 @@ import * as db from "../db";
 // 开发模式下的默认用户
 const DEV_USER_OPEN_ID = "dev-user-temp";
 
+// 开发模式安全检查：仅允许本地回环地址
+const DEV_ALLOWED_IPS = ["127.0.0.1", "::1", "::ffff:127.0.0.1", "localhost"];
+
+function isDevAllowedIp(ip: string | undefined): boolean {
+  if (!ip) return false;
+  return DEV_ALLOWED_IPS.includes(ip);
+}
+
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
@@ -29,7 +37,11 @@ async function ensureDevUser(): Promise<User> {
     user = await db.getUserByOpenId(DEV_USER_OPEN_ID);
   }
 
-  return user!;
+  if (!user) {
+    throw new Error("Failed to ensure development user");
+  }
+
+  return user;
 }
 
 export async function createContext(
@@ -62,14 +74,30 @@ export async function createContext(
 
   // 开发模式：只有在没有任何 cookie 时才使用临时开发用户
   // 如果有 session cookie（无论有效与否），说明用户正在尝试登录，不应该自动使用开发用户
-  const hasAnyCookie = opts.req.headers.cookie && opts.req.headers.cookie.length > 0;
+  const hasAnyCookie =
+    opts.req.headers.cookie && opts.req.headers.cookie.length > 0;
+
+  // 获取客户端 IP
+  const clientIp =
+    (opts.req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+    opts.req.ip ||
+    opts.req.socket.remoteAddress;
 
   if (!user && !hasAnyCookie && process.env.NODE_ENV === "development") {
-    try {
-      user = await ensureDevUser();
-      console.log("[Dev] Using temporary dev user for development (no cookies)");
-    } catch (error) {
-      console.error("[Dev] Failed to create dev user:", error);
+    // 额外安全检查：仅允许本地 IP 访问开发用户
+    if (isDevAllowedIp(clientIp)) {
+      try {
+        user = await ensureDevUser();
+        console.log(
+          "[Dev] Using temporary dev user for development (no cookies, IP verified)"
+        );
+      } catch (error) {
+        console.error("[Dev] Failed to create dev user:", error);
+      }
+    } else {
+      console.warn(
+        `[Dev] Blocked dev auto-login from non-local IP: ${clientIp}`
+      );
     }
   }
 

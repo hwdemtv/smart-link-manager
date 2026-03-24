@@ -1,0 +1,4318 @@
+
+> smart-link-manager@1.0.0 dev
+> tsx watch server/_core/index.ts
+
+[Database] Connection pool created
+[Blacklist] Loaded 0 entries to cache
+[Blacklist] Cache initialized
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[2026-03-24 20:29:38] WARN: 绔彛 3000 琚崰鐢紝鏀圭敤绔彛 3004 鍚姩
+[2026-03-24 20:29:38] INFO: 馃殌 SaaS 绯荤粺鍚姩鎴愬姛锛岃繍琛屽湪 http://localhost:3004/
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[LOGIN] Attempt for username: admin
+[LOGIN] User fetched: {
+  id: 28,
+  openId: 'admin-d973e061dce06752',
+  username: 'admin',
+  passwordHash: 'be564af879dfe0d1694259f40f22641b:fc584200466ec979fc7706548956caea19423b1610e6adb174af4dd6e18b30b0b04a4cbcfb8109784b1c9c31e875b774385582faae675c536c15beebc0e652ed',
+  name: 'Administrator',
+  email: null,
+  loginMethod: null,
+  role: 'admin',
+  isActive: 1,
+  lastIpAddress: '::1',
+  subscriptionTier: 'free',
+  licenseKey: null,
+  licenseExpiresAt: null,
+  licenseToken: null,
+  createdAt: 2026-03-15T20:39:15.000Z,
+  updatedAt: 2026-03-24T20:24:11.000Z,
+  lastSignedIn: 2026-03-24T12:24:11.000Z
+}
+[LOGIN] Password valid: true
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+20:32:40 [tsx] change in ./server\routers\auth.ts Restarting...
+c[Database] Connection pool created
+[Blacklist] Loaded 0 entries to cache
+[Blacklist] Cache initialized
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[2026-03-24 20:32:42] WARN: 绔彛 3000 琚崰鐢紝鏀圭敤绔彛 3002 鍚姩
+[2026-03-24 20:32:42] INFO: 馃殌 SaaS 绯荤粺鍚姩鎴愬姛锛岃繍琛屽湪 http://localhost:3002/
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+20:33:45 [tsx] change in ./server\redirectHandler.ts Restarting...
+c[Database] Connection pool created
+[Blacklist] Loaded 0 entries to cache
+[Blacklist] Cache initialized
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[2026-03-24 20:33:46] WARN: 绔彛 3000 琚崰鐢紝鏀圭敤绔彛 3003 鍚姩
+[2026-03-24 20:33:46] INFO: 馃殌 SaaS 绯荤粺鍚姩鎴愬姛锛岃繍琛屽湪 http://localhost:3003/
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+20:34:09 [tsx] change in ./server\_core\context.ts Restarting...
+c[Database] Connection pool created
+[Blacklist] Loaded 0 entries to cache
+[Blacklist] Cache initialized
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[2026-03-24 20:34:11] INFO: 馃殌 SaaS 绯荤粺鍚姩鎴愬姛锛岃繍琛屽湪 http://localhost:3000/
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+20:34:48 [tsx] change in ./server\geoIpResolver.ts Restarting...
+c[Database] Connection pool created
+[Blacklist] Loaded 0 entries to cache
+[Blacklist] Cache initialized
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[2026-03-24 20:34:49] WARN: 绔彛 3000 琚崰鐢紝鏀圭敤绔彛 3004 鍚姩
+[2026-03-24 20:34:49] INFO: 馃殌 SaaS 绯荤粺鍚姩鎴愬姛锛岃繍琛屽湪 http://localhost:3004/
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+20:35:08 [tsx] change in ./server\geoIpResolver.ts Restarting...
+c[Database] Connection pool created
+[Blacklist] Loaded 0 entries to cache
+[Blacklist] Cache initialized
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[2026-03-24 20:35:09] INFO: 馃殌 SaaS 绯荤粺鍚姩鎴愬姛锛岃繍琛屽湪 http://localhost:3000/
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}
+[Link Check Queue] Global Error: AggregateError
+    at __node_internal_ (node:internal/errors:174:15)
+    at internalConnectMultiple (node:net:1114:18)
+    at afterConnectMultiple (node:net:1667:5) {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 6379
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:6379
+        at __node_internal_captureLargerStackTrace (node:internal/errors:563:5)
+        at __node_internal_exceptionWithHostPort (node:internal/errors:738:12)
+        at createConnectionError (node:net:1634:14)
+        at afterConnectMultiple (node:net:1664:40) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 6379
+    }
+  ]
+}

@@ -90,10 +90,7 @@ function TableCell({ className, ...props }: ComponentProps<"td">) {
   );
 }
 
-function TableCaption({
-  className,
-  ...props
-}: ComponentProps<"caption">) {
+function TableCaption({ className, ...props }: ComponentProps<"caption">) {
   return (
     <caption
       data-slot="table-caption"

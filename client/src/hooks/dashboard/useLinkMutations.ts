@@ -1,7 +1,13 @@
 import { trpc } from "@/lib/trpc";
+import { copyToClipboard as copyText } from "@/lib/clipboard";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import type { Link, CreateLinkInput, UpdateLinkInput, SeoResult } from "@/types/dashboard";
+import type {
+  Link,
+  CreateLinkInput,
+  UpdateLinkInput,
+  SeoResult,
+} from "@/types/dashboard";
 
 /**
  * useLinkMutations Hook
@@ -37,9 +43,9 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
     },
   });
 
-  const deleteLinkMutation = trpc.links.delete.useMutation({
+  const deleteLinkMutation = trpc.links.softDelete.useMutation({
     onSuccess: () => {
-      toast.success(t("common.success"));
+      toast.success(t("dashboard.movedToRecycleBin") || "已移至回收站");
       options.onSuccess?.();
     },
     onError: (error: any) => {
@@ -107,7 +113,13 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
 
   const batchDelete = async (linkIds: number[]) => {
     if (linkIds.length === 0) return;
-    if (!confirm(t("dashboard.confirmBatchDelete") || `确定删除选中的 ${linkIds.length} 项吗？`)) return;
+    if (
+      !confirm(
+        t("dashboard.confirmBatchDelete") ||
+          `确定删除选中的 ${linkIds.length} 项吗？`
+      )
+    )
+      return;
     await batchDeleteMutation.mutateAsync({ linkIds });
   };
 
@@ -119,12 +131,19 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
     });
   };
 
-  const batchUpdateTags = async (linkIds: number[], tags: string[], mode: 'add' | 'remove' | 'set') => {
+  const batchUpdateTags = async (
+    linkIds: number[],
+    tags: string[],
+    mode: "add" | "remove" | "set"
+  ) => {
     if (linkIds.length === 0) return;
     await batchUpdateTagsMutation.mutateAsync({ linkIds, tags, mode });
   };
 
-  const batchUpdateExpiry = async (linkIds: number[], expiresAt: string | null) => {
+  const batchUpdateExpiry = async (
+    linkIds: number[],
+    expiresAt: string | null
+  ) => {
     if (linkIds.length === 0) return;
     await batchUpdateMutation.mutateAsync({
       linkIds,
@@ -138,15 +157,17 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
 
     let successCount = 0;
     for (const id of linkIds) {
-      const link = links.find((l) => l.id === id);
+      const link = links.find(l => l.id === id);
       if (!link) continue;
 
       try {
-        const seo = await generateSeoMutation.mutateAsync({ url: link.originalUrl });
+        const seo = await generateSeoMutation.mutateAsync({
+          url: link.originalUrl,
+        });
         await updateLinkMutation.mutateAsync({
           linkId: id,
-          seoTitle: (seo as any).seoTitle,
-          seoDescription: (seo as any).seoDescription,
+          seoTitle: seo.seoTitle,
+          seoDescription: seo.seoDescription,
           originalUrl: link.originalUrl,
           shortCode: link.shortCode,
           tags: link.tags || [],
@@ -163,11 +184,20 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
 
   const batchExport = (linkIds: number[], links: Link[]) => {
     if (linkIds.length === 0) return;
-    const selectedLinks = links.filter((l) => linkIds.includes(l.id));
+    const selectedLinks = links.filter(l => linkIds.includes(l.id));
 
     // Generate CSV content
-    const headers = ["Short Code", "Original URL", "Clicks", "Status", "Tags", "Expires At", "Created At", "Description"];
-    const rows = selectedLinks.map((l) => [
+    const headers = [
+      "Short Code",
+      "Original URL",
+      "Clicks",
+      "Status",
+      "Tags",
+      "Expires At",
+      "Created At",
+      "Description",
+    ];
+    const rows = selectedLinks.map(l => [
       l.shortCode,
       l.originalUrl,
       l.clickCount,
@@ -178,8 +208,14 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
       l.description || "",
     ]);
 
-    const csvContent = [headers, ...rows].map((e) => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const csvContent = [headers, ...rows]
+      .map(e =>
+        e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")
+      )
+      .join("\n");
+    const blob = new Blob(["\ufeff" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
@@ -203,11 +239,16 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
 
   const exportLinks = async (format: "json" | "csv") => {
     try {
-      const result = await utils.links.export.fetch({ format, includeStats: true });
+      const result = await utils.links.export.fetch({
+        format,
+        includeStats: true,
+      });
       if (!result) return;
 
       if (format === "json") {
-        const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: "application/json" });
+        const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+          type: "application/json",
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -215,7 +256,9 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
         a.click();
         URL.revokeObjectURL(url);
       } else {
-        const blob = new Blob([result.data as unknown as string], { type: "text/csv" });
+        const blob = new Blob([result.data as unknown as string], {
+          type: "text/csv",
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -230,16 +273,24 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
     }
   };
 
-  const copyToClipboard = (link: Pick<Link, 'shortCode' | 'customDomain'>, defaultDomain?: string) => {
-    let baseDomain = link.customDomain || defaultDomain || window.location.origin;
+  const copyToClipboard = async (
+    link: Pick<Link, "shortCode" | "customDomain">,
+    defaultDomain?: string
+  ) => {
+    let baseDomain =
+      link.customDomain || defaultDomain || window.location.origin;
     if (!baseDomain.startsWith("http")) {
       baseDomain = `${window.location.protocol}//${baseDomain}`;
     }
     // 防止出现 //s/xx 或者带多余斜杠
     const cleanBaseDomain = baseDomain.replace(/\/+$/, "");
     const fullUrl = `${cleanBaseDomain}/s/${link.shortCode}`;
-    navigator.clipboard.writeText(fullUrl);
-    toast.success(t("dashboard.copySuccess"));
+    const success = await copyText(fullUrl);
+    if (success) {
+      toast.success(t("dashboard.copySuccess"));
+    } else {
+      toast.error(t("dashboard.copyFailed", "复制失败，请手动复制"));
+    }
   };
 
   return {

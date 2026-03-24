@@ -1,10 +1,35 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, Eye, Clock, User, Globe, Info } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -45,19 +70,32 @@ export default function AuditLogManagement() {
   };
 
   const getActionLabel = (action: string) => {
-    const label = t(`admin.auditLog.actionLabels.${action}`, { defaultValue: action });
+    const label = t(`admin.auditLog.actionLabels.${action}`, {
+      defaultValue: action,
+    });
     return label;
   };
 
   const getTargetTypeLabel = (targetType: string | null) => {
     if (!targetType) return "-";
-    return t(`admin.auditLog.targetTypes.${targetType}`, { defaultValue: targetType });
+    return t(`admin.auditLog.targetTypes.${targetType}`, {
+      defaultValue: targetType,
+    });
   };
 
-  const getActionBadgeVariant = (action: string): "default" | "secondary" | "destructive" | "outline" => {
-    if (action.includes('.delete') || action.includes('_deleted')) return "destructive";
-    if (action.includes('.create') || action.includes('_activated')) return "default";
-    if (action.includes('.update') || action.includes('.change') || action.includes('_updated')) return "secondary";
+  const getActionBadgeVariant = (
+    action: string
+  ): "default" | "secondary" | "destructive" | "outline" => {
+    if (action.includes(".delete") || action.includes("_deleted"))
+      return "destructive";
+    if (action.includes(".create") || action.includes("_activated"))
+      return "default";
+    if (
+      action.includes(".update") ||
+      action.includes(".change") ||
+      action.includes("_updated")
+    )
+      return "secondary";
     return "outline";
   };
 
@@ -83,17 +121,24 @@ export default function AuditLogManagement() {
           {/* Filters */}
           <div className="flex flex-wrap gap-4 mt-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">{t("admin.auditLog.filterAction")}:</span>
-              <Select value={selectedAction} onValueChange={(value: string) => {
-                setSelectedAction(value);
-                setCurrentPage(1);
-              }}>
+              <span className="text-sm text-muted-foreground">
+                {t("admin.auditLog.filterAction")}:
+              </span>
+              <Select
+                value={selectedAction}
+                onValueChange={(value: string) => {
+                  setSelectedAction(value);
+                  setCurrentPage(1);
+                }}
+              >
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder={t("admin.auditLog.allActions")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t("admin.auditLog.allActions")}</SelectItem>
-                  {actions?.map((action) => (
+                  <SelectItem value="all">
+                    {t("admin.auditLog.allActions")}
+                  </SelectItem>
+                  {actions?.map(action => (
                     <SelectItem key={action.value} value={action.value}>
                       {action.label}
                     </SelectItem>
@@ -108,7 +153,9 @@ export default function AuditLogManagement() {
           {isLoading ? (
             <div className="text-center py-8">{t("common.loading")}</div>
           ) : !auditLogs?.logs || auditLogs.logs.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">{t("admin.auditLog.noLogs")}</div>
+            <div className="text-center py-8 text-muted-foreground">
+              {t("admin.auditLog.noLogs")}
+            </div>
           ) : (
             <>
               <Table>
@@ -135,9 +182,15 @@ export default function AuditLogManagement() {
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-muted-foreground" />
                           <div>
-                            <div className="font-medium">{log.userName || log.userUsername || t("admin.auditLog.noUser")}</div>
+                            <div className="font-medium">
+                              {log.userName ||
+                                log.userUsername ||
+                                t("admin.auditLog.noUser")}
+                            </div>
                             {log.userUsername && log.userName && (
-                              <div className="text-xs text-muted-foreground">@{log.userUsername}</div>
+                              <div className="text-xs text-muted-foreground">
+                                @{log.userUsername}
+                              </div>
                             )}
                           </div>
                         </div>
@@ -150,8 +203,14 @@ export default function AuditLogManagement() {
                       <TableCell>
                         {log.targetType && (
                           <div className="text-sm">
-                            <div className="text-muted-foreground">{getTargetTypeLabel(log.targetType)}</div>
-                            {log.targetId && <div className="font-mono text-xs">#{log.targetId}</div>}
+                            <div className="text-muted-foreground">
+                              {getTargetTypeLabel(log.targetType)}
+                            </div>
+                            {log.targetId && (
+                              <div className="font-mono text-xs">
+                                #{log.targetId}
+                              </div>
+                            )}
                           </div>
                         )}
                       </TableCell>
@@ -185,14 +244,16 @@ export default function AuditLogManagement() {
                     {t("admin.pagination.showing", {
                       from: (currentPage - 1) * itemsPerPage + 1,
                       to: Math.min(currentPage * itemsPerPage, auditLogs.total),
-                      total: auditLogs.total
+                      total: auditLogs.total,
                     })}
                   </div>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
+                      onClick={() =>
+                        setCurrentPage((p: number) => Math.max(1, p - 1))
+                      }
                       disabled={currentPage === 1}
                     >
                       ← {t("admin.pagination.prev")}
@@ -203,7 +264,11 @@ export default function AuditLogManagement() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setCurrentPage((p: number) => Math.min(auditLogs.totalPages, p + 1))}
+                      onClick={() =>
+                        setCurrentPage((p: number) =>
+                          Math.min(auditLogs.totalPages, p + 1)
+                        )
+                      }
                       disabled={currentPage === auditLogs.totalPages}
                     >
                       {t("admin.pagination.next")} →
@@ -227,7 +292,8 @@ export default function AuditLogManagement() {
             <DialogDescription>
               {selectedLog && (
                 <span>
-                  {getActionLabel(selectedLog.action)} - {formatDate(selectedLog.createdAt)}
+                  {getActionLabel(selectedLog.action)} -{" "}
+                  {formatDate(selectedLog.createdAt)}
                 </span>
               )}
             </DialogDescription>
@@ -238,29 +304,50 @@ export default function AuditLogManagement() {
                 {/* Basic Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">{t("admin.auditLog.time")}</label>
-                    <p className="text-sm">{formatDate(selectedLog.createdAt)}</p>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      {t("admin.auditLog.time")}
+                    </label>
+                    <p className="text-sm">
+                      {formatDate(selectedLog.createdAt)}
+                    </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">{t("admin.auditLog.action")}</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      {t("admin.auditLog.action")}
+                    </label>
                     <p className="text-sm">
-                      <Badge variant={getActionBadgeVariant(selectedLog.action)}>
+                      <Badge
+                        variant={getActionBadgeVariant(selectedLog.action)}
+                      >
                         {getActionLabel(selectedLog.action)}
                       </Badge>
                     </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">{t("admin.auditLog.user")}</label>
-                    <p className="text-sm">{selectedLog.userName || selectedLog.userUsername || t("admin.auditLog.noUser")}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">{t("admin.auditLog.ipAddress")}</label>
-                    <p className="text-sm font-mono">{selectedLog.ipAddress || "-"}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">{t("admin.auditLog.target")}</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      {t("admin.auditLog.user")}
+                    </label>
                     <p className="text-sm">
-                      {selectedLog.targetType && getTargetTypeLabel(selectedLog.targetType)}
+                      {selectedLog.userName ||
+                        selectedLog.userUsername ||
+                        t("admin.auditLog.noUser")}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      {t("admin.auditLog.ipAddress")}
+                    </label>
+                    <p className="text-sm font-mono">
+                      {selectedLog.ipAddress || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      {t("admin.auditLog.target")}
+                    </label>
+                    <p className="text-sm">
+                      {selectedLog.targetType &&
+                        getTargetTypeLabel(selectedLog.targetType)}
                       {selectedLog.targetId && ` #${selectedLog.targetId}`}
                     </p>
                   </div>
@@ -269,20 +356,25 @@ export default function AuditLogManagement() {
                 {/* User Agent */}
                 {selectedLog.userAgent && (
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">User Agent</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      User Agent
+                    </label>
                     <p className="text-sm break-all">{selectedLog.userAgent}</p>
                   </div>
                 )}
 
                 {/* Details JSON */}
-                {selectedLog.details && Object.keys(selectedLog.details).length > 0 && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">{t("admin.auditLog.details")}</label>
-                    <pre className="mt-2 p-3 bg-muted rounded-md text-xs overflow-auto">
-                      {JSON.stringify(selectedLog.details, null, 2)}
-                    </pre>
-                  </div>
-                )}
+                {selectedLog.details &&
+                  Object.keys(selectedLog.details).length > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        {t("admin.auditLog.details")}
+                      </label>
+                      <pre className="mt-2 p-3 bg-muted rounded-md text-xs overflow-auto">
+                        {JSON.stringify(selectedLog.details, null, 2)}
+                      </pre>
+                    </div>
+                  )}
               </div>
             </ScrollArea>
           )}

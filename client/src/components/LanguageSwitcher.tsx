@@ -1,12 +1,12 @@
-import { useTranslation } from 'react-i18next';
-import { Button } from './ui/button';
-import { Languages } from 'lucide-react';
+import { useTranslation } from "react-i18next";
+import { Button } from "./ui/button";
+import { Languages } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
+} from "./ui/dropdown-menu";
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
@@ -24,10 +24,10 @@ export function LanguageSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => changeLanguage('zh')}>
+        <DropdownMenuItem onClick={() => changeLanguage("zh")}>
           中文
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => changeLanguage('en')}>
+        <DropdownMenuItem onClick={() => changeLanguage("en")}>
           English
         </DropdownMenuItem>
       </DropdownMenuContent>

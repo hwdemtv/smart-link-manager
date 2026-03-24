@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { scrypt, randomBytes } from "crypto";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { protectedProcedure, adminProcedure, router } from "./_core/trpc";
+import { protectedProcedure, adminProcedure, router } from "../_core/trpc";
 import {
   getUserById,
   getUserByUsername,
@@ -33,23 +33,22 @@ import {
   adminBatchUpdateLinks,
   adminBatchDeleteLinks,
   getAdminQuickStats,
-} from "./db";
-import { hashPassword } from "./_core/auth";
-import { licenseService } from "./licenseService";
+} from "../db";
+import { hashPassword } from "../_core/auth";
+import { licenseService } from "../licenseService";
 
 export const userRouter = router({
   // === Admin Operations ===
 
-  /**
-   * Create a new user (Admin only)
-   */
   create: adminProcedure
-    .input(z.object({
-      username: z.string().min(3),
-      password: z.string().min(6),
-      name: z.string().optional(),
-      role: z.enum(["user", "admin"]).default("user"),
-    }))
+    .input(
+      z.object({
+        username: z.string().min(3),
+        password: z.string().min(6),
+        name: z.string().optional(),
+        role: z.enum(["user", "admin"]).default("user"),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const existingUser = await getUserByUsername(input.username);
       if (existingUser) {
@@ -68,10 +67,9 @@ export const userRouter = router({
         passwordHash,
         name: input.name,
         role: input.role,
-        subscriptionTier: 'free',
+        subscriptionTier: "free",
       });
 
-      // Log the action
       await createAuditLog({
         userId: ctx.user.id,
         action: "user_created_manually",
@@ -85,23 +83,26 @@ export const userRouter = router({
       return { success: true };
     }),
 
-  /**
-   * Batch update users (Admin only)
-   */
   batchUpdate: adminProcedure
-    .input(z.object({
-      userIds: z.array(z.number()).min(1),
-      data: z.object({
-        role: z.enum(["user", "admin"]).optional(),
-        isActive: z.number().optional(),
-        subscriptionTier: z.string().optional(),
-        licenseExpiresAt: z.date().nullable().optional(),
-      }).refine(data => Object.keys(data).length > 0, "No data provided for update"),
-    }))
+    .input(
+      z.object({
+        userIds: z.array(z.number()).min(1),
+        data: z
+          .object({
+            role: z.enum(["user", "admin"]).optional(),
+            isActive: z.number().optional(),
+            subscriptionTier: z.string().optional(),
+            licenseExpiresAt: z.date().nullable().optional(),
+          })
+          .refine(
+            data => Object.keys(data).length > 0,
+            "No data provided for update"
+          ),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       await batchUpdateUsers(input.userIds, input.data as any);
-      
-      // Log the action
+
       await createAuditLog({
         userId: ctx.user.id,
         action: "users_batch_updated",
@@ -111,29 +112,26 @@ export const userRouter = router({
           updatedData: input.data,
         },
       });
-      
+
       return { success: true };
     }),
 
-  /**
-   * Batch delete users (Admin only)
-   */
   batchDelete: adminProcedure
-    .input(z.object({
-      userIds: z.array(z.number()).min(1),
-    }))
+    .input(
+      z.object({
+        userIds: z.array(z.number()).min(1),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
-      // Prevent deleting self
       if (input.userIds.includes(ctx.user.id)) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Cannot delete your own account in a batch operation",
         });
       }
-      
+
       await batchDeleteUsers(input.userIds);
-      
-      // Log the action
+
       await createAuditLog({
         userId: ctx.user.id,
         action: "users_batch_deleted",
@@ -142,20 +140,14 @@ export const userRouter = router({
           count: input.userIds.length,
         },
       });
-      
+
       return { success: true };
     }),
 
-  /**
-   * Get quick stats for User Management (Admin only)
-   */
   getQuickStats: adminProcedure.query(async () => {
     return await getAdminQuickStats();
   }),
 
-  /**
-   * Export all users as CSV (Admin only)
-   */
   exportUsersCSV: adminProcedure.mutation(async ({ ctx }) => {
     await createAuditLog({
       userId: ctx.user.id,
@@ -164,31 +156,30 @@ export const userRouter = router({
       details: { exportTime: new Date().toISOString() },
     });
 
-    const { users } = await getAllUsers(100000, 0); // Safe high limit for export
-    let csv = "ID,Username,Name,Role,Tier,Status,Created At,Last Signed In,Last IP Address\n";
-    
+    const { users } = await getAllUsers(100000, 0);
+    let csv =
+      "ID,Username,Name,Role,Tier,Status,Created At,Last Signed In,Last IP Address\n";
+
     const escapeCsv = (str: string | null | undefined) => {
       if (!str) return '""';
       return `"${String(str).replace(/"/g, '""')}"`;
     };
 
     for (const u of users) {
-      csv += `${u.id},${escapeCsv(u.username)},${escapeCsv(u.name)},${u.role},${u.subscriptionTier || 'free'},${u.isActive ? 'Active' : 'Banned'},"${u.createdAt.toISOString()}","${u.lastSignedIn ? u.lastSignedIn.toISOString() : ''}",${escapeCsv(u.lastIpAddress)}\n`;
+      csv += `${u.id},${escapeCsv(u.username)},${escapeCsv(u.name)},${u.role},${u.subscriptionTier || "free"},${u.isActive ? "Active" : "Banned"},"${u.createdAt.toISOString()}","${u.lastSignedIn ? u.lastSignedIn.toISOString() : ""}",${escapeCsv(u.lastIpAddress)}\n`;
     }
     return csv;
   }),
 
   // === License Management ===
 
-  /**
-   * Activate a license key for the current user
-   */
   activateLicense: protectedProcedure
-    .input(z.object({
-      licenseKey: z.string().min(1),
-    }))
+    .input(
+      z.object({
+        licenseKey: z.string().min(1),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
-      // Verify license with hw-license-center
       const result = await licenseService.verifyLicense(
         input.licenseKey,
         ctx.user.id.toString(),
@@ -202,15 +193,13 @@ export const userRouter = router({
         });
       }
 
-      // Update user's license information
       await updateUser(ctx.user.id, {
         licenseKey: input.licenseKey,
-        subscriptionTier: result.tier || 'free',
+        subscriptionTier: result.tier || "free",
         licenseExpiresAt: result.expiresAt,
         licenseToken: result.token,
       });
 
-      // Log the activation
       await createAuditLog({
         userId: ctx.user.id,
         action: "license_activated",
@@ -229,9 +218,6 @@ export const userRouter = router({
       };
     }),
 
-  /**
-   * Get current user's subscription info
-   */
   getSubscription: protectedProcedure.query(async ({ ctx }) => {
     const user = await getUserById(ctx.user.id);
     if (!user) {
@@ -241,15 +227,19 @@ export const userRouter = router({
       });
     }
 
-    const limits = licenseService.getTierLimits(user.subscriptionTier || 'free');
+    const limits = licenseService.getTierLimits(
+      user.subscriptionTier || "free"
+    );
     const linkCount = await getUserLinkCount(ctx.user.id);
     const domainCount = await getUserDomainCount(ctx.user.id);
 
     const isValid = licenseService.isSubscriptionValid(user.licenseExpiresAt);
 
     return {
-      tier: user.subscriptionTier || 'free',
-      licenseKey: user.licenseKey ? `${user.licenseKey.substring(0, 8)}****` : null, // Masked
+      tier: user.subscriptionTier || "free",
+      licenseKey: user.licenseKey
+        ? `${user.licenseKey.substring(0, 8)}****`
+        : null,
       expiresAt: user.licenseExpiresAt,
       isValid,
       limits,
@@ -260,9 +250,6 @@ export const userRouter = router({
     };
   }),
 
-  /**
-   * Unbind current license from user
-   */
   unbindLicense: protectedProcedure.mutation(async ({ ctx }) => {
     const user = await getUserById(ctx.user.id);
     if (!user || !user.licenseKey) {
@@ -272,8 +259,10 @@ export const userRouter = router({
       });
     }
 
-    // Notify license server to unbind
-    const result = await licenseService.unbindLicense(user.licenseKey, ctx.user.id.toString());
+    const result = await licenseService.unbindLicense(
+      user.licenseKey,
+      ctx.user.id.toString()
+    );
 
     if (!result.success) {
       throw new TRPCError({
@@ -282,15 +271,13 @@ export const userRouter = router({
       });
     }
 
-    // Reset user's subscription to free
     await updateUser(ctx.user.id, {
-      subscriptionTier: 'free',
+      subscriptionTier: "free",
       licenseKey: null,
       licenseExpiresAt: null,
       licenseToken: null,
     });
 
-    // Log the unbind
     await createAuditLog({
       userId: ctx.user.id,
       action: "license_unbound",
@@ -301,14 +288,13 @@ export const userRouter = router({
     return { success: true };
   }),
 
-  /**
-   * Update current user's profile
-   */
   updateProfile: protectedProcedure
-    .input(z.object({
-      name: z.string().min(1).optional(),
-      email: z.string().email().optional(),
-    }))
+    .input(
+      z.object({
+        name: z.string().min(1).optional(),
+        email: z.string().email().optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       await updateUser(ctx.user.id, input);
 
@@ -323,41 +309,53 @@ export const userRouter = router({
       return { success: true };
     }),
 
-  /**
-   * Change current user's password
-   */
   changePassword: protectedProcedure
-    .input(z.object({
-      oldPassword: z.string(),
-      newPassword: z.string().min(6),
-    }))
+    .input(
+      z.object({
+        oldPassword: z.string(),
+        newPassword: z.string().min(6),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const user = await getUserById(ctx.user.id);
-      if (!user || user.openId) {
+      if (!user || !user.username) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "User not found or social login user cannot change password here",
+          message:
+            "User not found or social login user cannot change password here",
         });
       }
 
-      // Verify old password
       const scryptAsync = promisify(scrypt);
-      const [salt, storedHash] = (user as any).passwordHash.split(":");
+      const userWithPassword = user as any;
+      if (!userWithPassword.passwordHash) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Social login user cannot change password here",
+        });
+      }
+
+      const [salt, storedHash] = userWithPassword.passwordHash.split(":");
       const buf = (await scryptAsync(input.oldPassword, salt, 64)) as Buffer;
-      
-      if (buf.toString("hex") !== storedHash) {
+      const storedBuf = Buffer.from(storedHash, "hex");
+
+      // 使用 timingSafeEqual 防止时序攻击
+      if (buf.length !== storedBuf.length || !timingSafeEqual(buf, storedBuf)) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Incorrect current password",
         });
       }
 
-      // Hash new password
       const newSalt = randomBytes(16).toString("hex");
-      const newBuf = (await scryptAsync(input.newPassword, newSalt, 64)) as Buffer;
+      const newBuf = (await scryptAsync(
+        input.newPassword,
+        newSalt,
+        64
+      )) as Buffer;
       const newPasswordHash = `${newSalt}:${newBuf.toString("hex")}`;
 
-      const { resetUserPassword } = await import("./db");
+      const { resetUserPassword } = await import("../db");
       await resetUserPassword(ctx.user.id, newPasswordHash);
 
       await createAuditLog({
@@ -372,23 +370,23 @@ export const userRouter = router({
 
   // === User Management (Admin) ===
 
-  /**
-   * List all users (admin only)
-   */
   list: adminProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(20),
-      offset: z.number().min(0).default(0),
-      search: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+        search: z.string().optional(),
+      })
+    )
     .query(async ({ input }) => {
-      const { users, total } = await getAllUsers(input.limit, input.offset, input.search);
+      const { users, total } = await getAllUsers(
+        input.limit,
+        input.offset,
+        input.search
+      );
       return { users, total };
     }),
 
-  /**
-   * Get user by ID (admin only)
-   */
   getById: adminProcedure
     .input(z.object({ userId: z.number() }))
     .query(async ({ input }) => {
@@ -400,7 +398,6 @@ export const userRouter = router({
         });
       }
 
-      // Get usage stats
       const linkCount = await getUserLinkCount(input.userId);
       const domainCount = await getUserDomainCount(input.userId);
 
@@ -413,17 +410,18 @@ export const userRouter = router({
       };
     }),
 
-  /**
-   * Update user (admin only)
-   */
   update: adminProcedure
-    .input(z.object({
-      userId: z.number(),
-      name: z.string().optional(),
-      email: z.string().email().optional(),
-      role: z.enum(["user", "admin"]).optional(),
-      subscriptionTier: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        userId: z.number(),
+        name: z.string().optional(),
+        email: z.string().email().optional(),
+        role: z.enum(["user", "admin"]).optional(),
+        subscriptionTier: z.string().optional(),
+        licenseExpiresAt: z.date().nullable().optional(),
+        isActive: z.number().min(0).max(1).optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const { userId, ...updates } = input;
 
@@ -448,9 +446,6 @@ export const userRouter = router({
       return { success: true };
     }),
 
-  /**
-   * Delete user (admin only)
-   */
   delete: adminProcedure
     .input(z.object({ userId: z.number() }))
     .mutation(async ({ ctx, input }) => {
@@ -462,7 +457,6 @@ export const userRouter = router({
         });
       }
 
-      // Prevent deleting yourself
       if (input.userId === ctx.user.id) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -471,74 +465,66 @@ export const userRouter = router({
       }
 
       await deleteUser(input.userId);
- 
-       await createAuditLog({
-         userId: ctx.user.id,
-         action: "user_deleted",
-         targetType: "user",
-         targetId: input.userId,
-       });
- 
-       return { success: true };
-     }),
- 
-   /**
-    * Reset user password (admin only)
-    */
-   resetPassword: adminProcedure
-     .input(z.object({
-       userId: z.number(),
-       password: z.string().min(6),
-     }))
-     .mutation(async ({ ctx, input }) => {
-       const scryptAsync = promisify(scrypt);
-       const salt = randomBytes(16).toString("hex");
-       const buf = (await scryptAsync(input.password, salt, 64)) as Buffer;
-       const passwordHash = `${salt}:${buf.toString("hex")}`;
- 
-       const { resetUserPassword } = await import("./db");
-       await resetUserPassword(input.userId, passwordHash);
- 
-       await createAuditLog({
-         userId: ctx.user.id,
-         action: "user_password_reset",
-         targetType: "user",
-         targetId: input.userId,
-       });
- 
-       return { success: true };
-     }),
+
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "user_deleted",
+        targetType: "user",
+        targetId: input.userId,
+      });
+
+      return { success: true };
+    }),
+
+  resetPassword: adminProcedure
+    .input(
+      z.object({
+        userId: z.number(),
+        password: z.string().min(6),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const scryptAsync = promisify(scrypt);
+      const salt = randomBytes(16).toString("hex");
+      const buf = (await scryptAsync(input.password, salt, 64)) as Buffer;
+      const passwordHash = `${salt}:${buf.toString("hex")}`;
+
+      const { resetUserPassword } = await import("../db");
+      await resetUserPassword(input.userId, passwordHash);
+
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "user_password_reset",
+        targetType: "user",
+        targetId: input.userId,
+      });
+
+      return { success: true };
+    }),
 
   // === Statistics ===
 
-  /**
-   * Get admin dashboard statistics
-   */
   getAdminStats: adminProcedure.query(async () => {
     return getAdminDashboardStats();
   }),
 
-  /**
-   * Get platform usage statistics
-   */
   getPlatformUsage: adminProcedure
     .input(z.object({ days: z.number().default(30) }))
     .query(async ({ input }) => {
       return getPlatformUsageStats(input.days);
     }),
 
-  // === Audit Logs (Admin) ===
+  // === Audit Logs ===
 
-  /**
-   * Get audit logs
-   */
   getAuditLogs: adminProcedure
-    .input(z.object({
-      userId: z.number().optional(),
-      action: z.string().optional(),
-      limit: z.number().min(1).max(100).default(20),
-      offset: z.number().min(0).default(0),
-    }))
+    .input(
+      z.object({
+        userId: z.number().optional(),
+        action: z.string().optional(),
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+      })
+    )
     .query(async ({ input }) => {
       const { logs, total } = await getAuditLogs({
         userId: input.userId,
@@ -550,9 +536,6 @@ export const userRouter = router({
       return { logs, total, totalPages };
     }),
 
-  /**
-   * Get audit log action types
-   */
   getAuditLogActions: adminProcedure.query(async () => {
     return [
       { value: "user.login", label: "User Login" },
@@ -575,22 +558,21 @@ export const userRouter = router({
     ];
   }),
 
-  // === Link Management (Admin) ===
+  // === Link Management ===
 
-  /**
-   * Get all links with pagination
-   */
   getAllLinks: adminProcedure
-    .input(z.object({
-      search: z.string().optional(),
-      isActive: z.number().optional(),
-      isValid: z.number().optional(),
-      userId: z.number().optional(),
-      domain: z.string().optional(),
-      expiresSoon: z.boolean().optional(),
-      limit: z.number().min(1).max(100).default(20),
-      offset: z.number().min(0).default(0),
-    }))
+    .input(
+      z.object({
+        search: z.string().optional(),
+        isActive: z.number().optional(),
+        isValid: z.number().optional(),
+        userId: z.number().optional(),
+        domain: z.string().optional(),
+        expiresSoon: z.boolean().optional(),
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+      })
+    )
     .query(async ({ input }) => {
       const { links, total } = await searchAllLinks({
         search: input.search,
@@ -606,9 +588,6 @@ export const userRouter = router({
       return { links, total, totalPages };
     }),
 
-  /**
-   * Delete a link (admin)
-   */
   adminDeleteLink: adminProcedure
     .input(z.object({ linkId: z.number() }))
     .mutation(async ({ ctx, input }) => {
@@ -622,14 +601,13 @@ export const userRouter = router({
       return { success: true };
     }),
 
-  /**
-   * Toggle link status (admin)
-   */
   adminToggleLinkStatus: adminProcedure
-    .input(z.object({
-      linkId: z.number(),
-      isActive: z.number().min(0).max(1),
-    }))
+    .input(
+      z.object({
+        linkId: z.number(),
+        isActive: z.number().min(0).max(1),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       await updateLink(input.linkId, { isActive: input.isActive });
       await createAuditLog({
@@ -642,17 +620,16 @@ export const userRouter = router({
       return { success: true };
     }),
 
-  /**
-   * Batch update link status (admin)
-   */
   adminBatchToggleLinkStatus: adminProcedure
-    .input(z.object({
-      linkIds: z.array(z.number()).min(1),
-      isActive: z.number().min(0).max(1),
-    }))
+    .input(
+      z.object({
+        linkIds: z.array(z.number()).min(1),
+        isActive: z.number().min(0).max(1),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       await adminBatchUpdateLinks(input.linkIds, { isActive: input.isActive });
-      
+
       await createAuditLog({
         userId: ctx.user.id,
         action: "links_batch_updated",
@@ -665,16 +642,15 @@ export const userRouter = router({
       return { success: true };
     }),
 
-  /**
-   * Batch delete links (admin)
-   */
   adminBatchDeleteLinks: adminProcedure
-    .input(z.object({
-      linkIds: z.array(z.number()).min(1),
-    }))
+    .input(
+      z.object({
+        linkIds: z.array(z.number()).min(1),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       await adminBatchDeleteLinks(input.linkIds);
-      
+
       await createAuditLog({
         userId: ctx.user.id,
         action: "links_batch_deleted",
@@ -686,40 +662,39 @@ export const userRouter = router({
 
   // === Notification Management ===
 
-  /**
-   * Get notification statistics (admin)
-   */
-  getNotificationStats: adminProcedure
-    .query(async () => {
-      return await getNotificationStats();
-    }),
+  getNotificationStats: adminProcedure.query(async () => {
+    return await getNotificationStats();
+  }),
 
-  /**
-   * List all notifications (admin)
-   */
   listNotifications: adminProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(20),
-      offset: z.number().min(0).default(0),
-      type: z.string().optional(),
-      userId: z.number().optional(),
-    }))
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+        type: z.string().optional(),
+        userId: z.number().optional(),
+      })
+    )
     .query(async ({ input }) => {
-      const notifications = await getAllNotifications(input.limit, input.offset, input.type, input.userId);
+      const notifications = await getAllNotifications(
+        input.limit,
+        input.offset,
+        input.type,
+        input.userId
+      );
       return notifications;
     }),
 
-  /**
-   * Send notification to users (admin)
-   */
   sendNotification: adminProcedure
-    .input(z.object({
-      title: z.string().min(1).max(255),
-      message: z.string().min(1),
-      type: z.enum(['announcement', 'warning', 'info', 'system']),
-      priority: z.enum(['low', 'normal', 'high']).default('normal'),
-      targetUserIds: z.array(z.number()).optional(), // undefined = broadcast to all
-    }))
+    .input(
+      z.object({
+        title: z.string().min(1).max(255),
+        message: z.string().min(1),
+        type: z.enum(["announcement", "warning", "info", "system"]),
+        priority: z.enum(["low", "normal", "high"]).default("normal"),
+        targetUserIds: z.array(z.number()).optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const result = await sendBroadcastNotification({
         title: input.title,
@@ -746,13 +721,12 @@ export const userRouter = router({
       return result;
     }),
 
-  /**
-   * Delete notification (admin)
-   */
   deleteNotification: adminProcedure
-    .input(z.object({
-      notificationId: z.number(),
-    }))
+    .input(
+      z.object({
+        notificationId: z.number(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       await deleteNotification(input.notificationId);
       await createAuditLog({
@@ -764,40 +738,38 @@ export const userRouter = router({
       return { success: true };
     }),
 
-  // === User Notifications (for regular users) ===
+  // === User Notifications ===
 
-  /**
-   * Get current user's notifications
-   */
   getMyNotifications: protectedProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(20),
-      offset: z.number().min(0).default(0),
-    }))
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(20),
+        offset: z.number().min(0).default(0),
+      })
+    )
     .query(async ({ ctx, input }) => {
-      const notifications = await getNotificationsForUser(ctx.user.id, input.limit, input.offset);
+      const notifications = await getNotificationsForUser(
+        ctx.user.id,
+        input.limit,
+        input.offset
+      );
       const counts = await getNotificationCount(ctx.user.id);
       return { notifications, ...counts };
     }),
 
-  /**
-   * Mark notification as read
-   */
   markNotificationRead: protectedProcedure
-    .input(z.object({
-      notificationId: z.number(),
-    }))
+    .input(
+      z.object({
+        notificationId: z.number(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       await markNotificationRead(input.notificationId, ctx.user.id);
       return { success: true };
     }),
 
-  /**
-   * Mark all notifications as read
-   */
-  markAllNotificationsRead: protectedProcedure
-    .mutation(async ({ ctx }) => {
-      await markAllNotificationsRead(ctx.user.id);
-      return { success: true };
-    }),
+  markAllNotificationsRead: protectedProcedure.mutation(async ({ ctx }) => {
+    await markAllNotificationsRead(ctx.user.id);
+    return { success: true };
+  }),
 });

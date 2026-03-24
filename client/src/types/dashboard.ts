@@ -90,17 +90,17 @@ export interface SeoResult {
 /**
  * 状态过滤类型
  */
-export type StatusFilter = 'all' | 'active' | 'invalid';
+export type StatusFilter = "all" | "active" | "invalid";
 
 /**
  * 导出格式类型
  */
-export type ExportFormat = 'json' | 'csv';
+export type ExportFormat = "json" | "csv";
 
 /**
  * 链接表单对话框模式
  */
-export type LinkFormMode = 'create' | 'edit';
+export type LinkFormMode = "create" | "edit";
 
 /**
  * 表格行操作回调类型

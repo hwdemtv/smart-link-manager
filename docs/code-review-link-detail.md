@@ -5,6 +5,7 @@
 审查范围：短链详情页面的多维度数据可视化功能
 
 **相关文件**：
+
 - `client/src/pages/LinkDetail.tsx` - 前端页面组件
 - `server/db.ts` - 后端数据聚合方法 `getLinkStatsSummary`
 - `server/routers.ts` - tRPC 路由 `getStatsSummary`
@@ -15,11 +16,11 @@
 
 ### 1. 架构设计
 
-| 方面 | 评价 |
-|------|------|
-| 关注点分离 | 前端组件 `StatPieChart` 提取为内部组件，复用性好 |
+| 方面         | 评价                                                    |
+| ------------ | ------------------------------------------------------- |
+| 关注点分离   | 前端组件 `StatPieChart` 提取为内部组件，复用性好        |
 | 数据降维算法 | `formatDataForPie` 智能折叠 Top 5 + Other，避免饼图杂乱 |
-| 空状态处理 | 各维度独立处理 `undefined` 和空数组情况 |
+| 空状态处理   | 各维度独立处理 `undefined` 和空数组情况                 |
 
 ### 2. 用户体验
 
@@ -42,10 +43,14 @@
 
 ```typescript
 // 当前实现：获取所有统计数据后在内存中聚合
-const stats = await db.select().from(linkStats).where(eq(linkStats.linkId, linkId));
+const stats = await db
+  .select()
+  .from(linkStats)
+  .where(eq(linkStats.linkId, linkId));
 ```
 
 **问题**：当单个链接有大量点击记录（如 10万+），会导致：
+
 - 内存占用过高
 - 响应延迟
 
@@ -69,7 +74,9 @@ const deviceStats = await db
 **位置**: `server/db.ts:438`
 
 ```typescript
-const stats = await db.select().from(linkStats)
+const stats = await db
+  .select()
+  .from(linkStats)
   .where(eq(linkStats.linkId, linkId))
   .orderBy(desc(linkStats.clickedAt))
   .limit(100); // ⚠️ 有 limit 但为硬编码
@@ -84,12 +91,20 @@ const stats = await db.select().from(linkStats)
 **位置**: `client/src/pages/LinkDetail.tsx:11`
 
 ```typescript
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
+const COLORS = [
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#64748b",
+];
 ```
 
 **问题**：当数据超过 6 项时，颜色会循环重复
 
 **建议**：
+
 - 扩展颜色数组到 10+ 种
 - 或使用 `colorbrewer` 等配色库
 
@@ -158,11 +173,11 @@ interface LinkStatRow {
 
 已编写 18 个测试用例，覆盖：
 
-| 测试类别 | 用例数 | 状态 |
-|---------|-------|------|
-| getLinkStatsSummary 后端聚合 | 7 | ✅ |
-| formatDataForPie 数据降维 | 9 | ✅ |
-| StatPieChart 边界条件 | 2 | ✅ |
+| 测试类别                     | 用例数 | 状态 |
+| ---------------------------- | ------ | ---- |
+| getLinkStatsSummary 后端聚合 | 7      | ✅   |
+| formatDataForPie 数据降维    | 9      | ✅   |
+| StatPieChart 边界条件        | 2      | ✅   |
 
 **测试文件**: `server/__tests__/linkStats.test.ts`
 
@@ -170,13 +185,13 @@ interface LinkStatRow {
 
 ## 🎯 改进优先级
 
-| 优先级 | 问题 | 影响 |
-|-------|------|------|
-| 🔴 P0 | 全量数据加载 | 大流量链接性能崩溃 |
-| 🟡 P1 | 类型定义缺失 | 代码维护性 |
-| 🟡 P1 | 加载状态未处理 | 用户体验 |
-| 🟢 P2 | 颜色数组硬编码 | UI 一致性 |
-| 🟢 P2 | 时间窗口硬编码 | 功能扩展性 |
+| 优先级 | 问题           | 影响               |
+| ------ | -------------- | ------------------ |
+| 🔴 P0  | 全量数据加载   | 大流量链接性能崩溃 |
+| 🟡 P1  | 类型定义缺失   | 代码维护性         |
+| 🟡 P1  | 加载状态未处理 | 用户体验           |
+| 🟢 P2  | 颜色数组硬编码 | UI 一致性          |
+| 🟢 P2  | 时间窗口硬编码 | 功能扩展性         |
 
 ---
 

@@ -2,12 +2,12 @@
 
 ## 服务器信息
 
-| 项目 | 值 |
-|------|-----|
-| IP 地址 | YOUR_SERVER_IP |
-| 用户名 | ubuntu |
-| 密码 | `YOUR_SERVER_PASSWORD` |
-| 系统 | Ubuntu 22.04 LTS |
+| 项目    | 值                     |
+| ------- | ---------------------- |
+| IP 地址 | YOUR_SERVER_IP         |
+| 用户名  | ubuntu                 |
+| 密码    | `YOUR_SERVER_PASSWORD` |
+| 系统    | Ubuntu 22.04 LTS       |
 
 ---
 
@@ -171,6 +171,7 @@ ssh ubuntu@YOUR_SERVER_IP "cd /opt/smart-link-manager && docker compose restart 
 ### 1. 解析域名
 
 在域名服务商添加 A 记录:
+
 - 主机记录: `s` (或其他)
 - 记录类型: A
 - 记录值: `YOUR_SERVER_IP`
@@ -237,12 +238,12 @@ docker compose exec mysql mysql -u root -p smart_link
 
 ## 端口说明
 
-| 端口 | 服务 | 说明 |
-|------|------|------|
-| 22 | SSH | 远程连接 |
-| 80 | Nginx | HTTP |
-| 443 | Nginx | HTTPS |
-| 3000 | App | Node.js 应用 |
+| 端口 | 服务  | 说明          |
+| ---- | ----- | ------------- |
+| 22   | SSH   | 远程连接      |
+| 80   | Nginx | HTTP          |
+| 443  | Nginx | HTTPS         |
+| 3000 | App   | Node.js 应用  |
 | 3306 | MySQL | 数据库 (内部) |
 
 ---

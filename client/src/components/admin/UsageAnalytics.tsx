@@ -1,5 +1,18 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 // @ts-ignore
 import * as Recharts from "recharts";
 const {
@@ -12,7 +25,7 @@ const {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } = Recharts as any;
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
@@ -38,20 +51,32 @@ interface UserStatItem {
 
 export default function UsageAnalytics() {
   const { t } = useTranslation();
-  const { data: platformUsage, isLoading } = trpc.user.getPlatformUsage.useQuery({ days: 30 });
+  const { data: platformUsage, isLoading } =
+    trpc.user.getPlatformUsage.useQuery({ days: 30 });
 
-  const platformTotals = platformUsage?.totals || { linksCreated: 0, apiCalls: 0, totalClicks: 0 };
+  const platformTotals = platformUsage?.totals || {
+    linksCreated: 0,
+    apiCalls: 0,
+    totalClicks: 0,
+  };
   const dailyData = platformUsage?.daily || [];
   const userStats = platformUsage?.userStats || [];
 
   // Format chart data
   const sortedChartData: ChartDataItem[] = dailyData
-    .map((d: { date: string; linksCreated?: number; totalClicks?: number; apiCalls?: number }) => ({
-      date: d.date,
-      links: d.linksCreated || 0,
-      clicks: d.totalClicks || 0,
-      apiCalls: d.apiCalls || 0,
-    }))
+    .map(
+      (d: {
+        date: string;
+        linksCreated?: number;
+        totalClicks?: number;
+        apiCalls?: number;
+      }) => ({
+        date: d.date,
+        links: d.linksCreated || 0,
+        clicks: d.totalClicks || 0,
+        apiCalls: d.apiCalls || 0,
+      })
+    )
     .sort((a: ChartDataItem, b: ChartDataItem) => a.date.localeCompare(b.date))
     .slice(-7);
 
@@ -65,8 +90,12 @@ export default function UsageAnalytics() {
               <Link2 className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">{t("admin.usage.links")}</p>
-              <p className="text-2xl font-bold">{platformTotals.linksCreated.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">
+                {t("admin.usage.links")}
+              </p>
+              <p className="text-2xl font-bold">
+                {platformTotals.linksCreated.toLocaleString()}
+              </p>
             </div>
           </div>
         </Card>
@@ -77,8 +106,12 @@ export default function UsageAnalytics() {
               <MousePointer className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">{t("admin.usage.clicks")}</p>
-              <p className="text-2xl font-bold">{platformTotals.totalClicks.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">
+                {t("admin.usage.clicks")}
+              </p>
+              <p className="text-2xl font-bold">
+                {platformTotals.totalClicks.toLocaleString()}
+              </p>
             </div>
           </div>
         </Card>
@@ -89,8 +122,12 @@ export default function UsageAnalytics() {
               <Activity className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">{t("admin.usage.apiCalls")}</p>
-              <p className="text-2xl font-bold">{platformTotals.apiCalls.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">
+                {t("admin.usage.apiCalls")}
+              </p>
+              <p className="text-2xl font-bold">
+                {platformTotals.apiCalls.toLocaleString()}
+              </p>
             </div>
           </div>
         </Card>
@@ -104,12 +141,17 @@ export default function UsageAnalytics() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">{t("common.loading")}</div>
+            <div className="text-center py-8 text-muted-foreground">
+              {t("common.loading")}
+            </div>
           ) : sortedChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={sortedChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickFormatter={(v: string) => v.substring(5)} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(v: string) => v.substring(5)}
+                />
                 <YAxis />
                 <Tooltip />
                 <Legend />
@@ -123,7 +165,9 @@ export default function UsageAnalytics() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">{t("admin.usage.noData")}</div>
+            <div className="text-center py-8 text-muted-foreground">
+              {t("admin.usage.noData")}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -136,21 +180,36 @@ export default function UsageAnalytics() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">{t("common.loading")}</div>
+            <div className="text-center py-8 text-muted-foreground">
+              {t("common.loading")}
+            </div>
           ) : sortedChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={sortedChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickFormatter={(v: string) => v.substring(5)} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(v: string) => v.substring(5)}
+                />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar name={t("admin.usage.clicks")} dataKey="clicks" fill="#ec4899" />
-                <Bar name={t("admin.usage.apiCalls")} dataKey="apiCalls" fill="#f59e0b" />
+                <Bar
+                  name={t("admin.usage.clicks")}
+                  dataKey="clicks"
+                  fill="#ec4899"
+                />
+                <Bar
+                  name={t("admin.usage.apiCalls")}
+                  dataKey="apiCalls"
+                  fill="#f59e0b"
+                />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">{t("admin.usage.noData")}</div>
+            <div className="text-center py-8 text-muted-foreground">
+              {t("admin.usage.noData")}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -163,7 +222,9 @@ export default function UsageAnalytics() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">{t("common.loading")}</div>
+            <div className="text-center py-8 text-muted-foreground">
+              {t("common.loading")}
+            </div>
           ) : userStats && userStats.length > 0 ? (
             <Table>
               <TableHeader>
@@ -175,14 +236,22 @@ export default function UsageAnalytics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(userStats as UserStatItem[]).slice(0, 10).map((stat) => (
+                {(userStats as UserStatItem[]).slice(0, 10).map(stat => (
                   <TableRow key={stat.userId}>
                     <TableCell className="font-medium">
-                      {stat.userName || stat.userUsername || `User ${stat.userId}`}
+                      {stat.userName ||
+                        stat.userUsername ||
+                        `User ${stat.userId}`}
                     </TableCell>
-                    <TableCell>{(stat.linksCreated || 0).toLocaleString()}</TableCell>
-                    <TableCell>{(stat.totalClicks || 0).toLocaleString()}</TableCell>
-                    <TableCell>{(stat.apiCalls || 0).toLocaleString()}</TableCell>
+                    <TableCell>
+                      {(stat.linksCreated || 0).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {(stat.totalClicks || 0).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {(stat.apiCalls || 0).toLocaleString()}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -39,7 +39,7 @@ export function NotificationBell() {
   // 标记已读 mutation
   const markReadMutation = trpc.user.markNotificationRead.useMutation({
     onSuccess: () => refetch(),
-    onError: (err) => toast.error(err.message),
+    onError: err => toast.error(err.message),
   });
 
   // 全部标记已读 mutation
@@ -48,7 +48,7 @@ export function NotificationBell() {
       toast.success(t("notifications.markAllSuccess"));
       refetch();
     },
-    onError: (err) => toast.error(err.message),
+    onError: err => toast.error(err.message),
   });
 
   const unreadCount = data?.unread ?? 0;

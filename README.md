@@ -29,6 +29,7 @@
 ## 🛠️ 技术栈
 
 ### 前端 (Frontend)
+
 - **Framework**: [React 19](https://react.dev/) (选用最新并发特性)
 - **Build Tool**: [Vite](https://vitejs.dev/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
@@ -37,6 +38,7 @@
 - **i18n**: [react-i18next](https://react.i18next.com/)
 
 ### 后端 (Backend)
+
 - **Runtime**: [Node.js](https://nodejs.org/)
 - **ORM**: [Drizzle ORM](https://orm.drizzle.team/) (类型安全、轻量级)
 - **Database**: MySQL (支持分布式架构)
@@ -67,9 +69,11 @@
 ## 🚀 快速启动
 
 ### 1. 环境准备
+
 确保您的环境中已安装 **Node.js 18+** 和 **MySQL**。
 
 ### 2. 安装依赖
+
 ```bash
 npm install
 # 或者

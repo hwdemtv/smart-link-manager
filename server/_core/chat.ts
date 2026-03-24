@@ -9,7 +9,7 @@ import { streamText, stepCountIs } from "ai";
 import { tool } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import type { Express } from "express";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { ENV } from "./env";
 import { createPatchedFetch } from "./patchedFetch";
 
@@ -17,13 +17,16 @@ import { createPatchedFetch } from "./patchedFetch";
  * Creates an OpenAI-compatible provider with patched fetch.
  */
 function createLLMProvider() {
-  const baseURL = ENV.forgeApiUrl.endsWith("/v1")
-    ? ENV.forgeApiUrl
-    : `${ENV.forgeApiUrl}/v1`;
+  // 如果没有配置 API URL，使用默认配置避免崩溃
+  const baseUrl = ENV.forgeApiUrl
+    ? ENV.forgeApiUrl.endsWith("/v1")
+      ? ENV.forgeApiUrl
+      : `${ENV.forgeApiUrl}/v1`
+    : "https://api.openai.com/v1";
 
   return createOpenAI({
-    baseURL,
-    apiKey: ENV.forgeApiKey,
+    baseURL: baseUrl,
+    apiKey: ENV.forgeApiKey || "not-configured",
     fetch: createPatchedFetch(fetch),
   });
 }

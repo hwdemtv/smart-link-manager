@@ -22,9 +22,11 @@ export function SearchFilterBar({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input
             ref={searchInputRef}
-            placeholder={t("dashboard.searchPlaceholder") || "搜索链接、短码..."}
+            placeholder={
+              t("dashboard.searchPlaceholder") || "搜索链接、短码..."
+            }
             value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={e => onSearchChange(e.target.value)}
             className="pl-10 pr-10 border-border/60 focus-visible:ring-primary/20"
           />
           {searchQuery && (
@@ -49,14 +51,14 @@ export function SearchFilterBar({
         <Input
           placeholder={t("dashboard.filterByTag")}
           value={tagFilter}
-          onChange={(e) => onTagChange(e.target.value)}
+          onChange={e => onTagChange(e.target.value)}
           className="w-full sm:w-48"
         />
 
         {/* Status Filter */}
         <select
           value={statusFilter}
-          onChange={(e) => onStatusChange(e.target.value as any)}
+          onChange={e => onStatusChange(e.target.value as any)}
           className="px-4 py-2 border border-border rounded-md bg-background text-foreground"
         >
           <option value="all">{t("dashboard.allStatus")}</option>

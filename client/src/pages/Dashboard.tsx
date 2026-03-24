@@ -18,12 +18,27 @@ import {
   BatchTagsDialog,
   BatchExpiryDialog,
 } from "@/components/dashboard";
+import { RecycleBinDialog } from "@/components/dashboard/RecycleBinDialog";
+import { GroupSidebar } from "@/components/dashboard/GroupSidebar";
 
 // Hooks
-import { useLinkMutations, useLinkFilters, useBatchSelection, useLinkPagination } from "@/hooks/dashboard";
+import {
+  useLinkMutations,
+  useLinkFilters,
+  useBatchSelection,
+  useLinkPagination,
+} from "@/hooks/dashboard";
 
 // Types
-import type { Link, LinkFormData, ParsedImportLink, PreviewLink, StatusFilter, CreateLinkInput, UpdateLinkInput } from "@/types/dashboard";
+import type {
+  Link,
+  LinkFormData,
+  ParsedImportLink,
+  PreviewLink,
+  StatusFilter,
+  CreateLinkInput,
+  UpdateLinkInput,
+} from "@/types/dashboard";
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -35,6 +50,12 @@ export default function Dashboard() {
   const domainsQuery = trpc.domains.list.useQuery();
   const systemConfigQuery = trpc.configs.getConfig.useQuery();
   const utils = (trpc as any).useUtils();
+
+  // Group selection state
+  // undefined = All, null = Ungrouped, number = specific
+  const [selectedGroupId, setSelectedGroupId] = useState<
+    number | null | undefined
+  >(undefined);
 
   // Custom hooks
   const mutations = useLinkMutations({
@@ -50,7 +71,10 @@ export default function Dashboard() {
     setStatusFilter,
     filteredLinks,
     resetFilters,
-  } = useLinkFilters({ links: linksQuery.data });
+  } = useLinkFilters({
+    links: linksQuery.data,
+    selectedGroupId,
+  });
 
   const {
     selectedIds,
@@ -83,24 +107,38 @@ export default function Dashboard() {
   const [isBatchTagsOpen, setIsBatchTagsOpen] = useState(false);
   const [isBatchExpiryOpen, setIsBatchExpiryOpen] = useState(false);
 
+  // Recycle bin state
+  const [isRecycleBinOpen, setIsRecycleBinOpen] = useState(false);
+
   // Import states
   const [importText, setImportText] = useState("");
   const [previewLinks, setPreviewLinks] = useState<PreviewLink[]>([]);
 
-  // Reset pagination and selection when filters change
+  // Reset pagination and selection when filters or group change
   useEffect(() => {
     setCurrentPage(1);
     deselectAll();
-  }, [searchQuery, statusFilter, tagFilter]);
+  }, [searchQuery, statusFilter, tagFilter, selectedGroupId]);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+      if (
+        e.key === "/" &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
         e.preventDefault();
         searchInputRef.current?.focus();
       }
-      if (e.key === "n" && !isCreateOpen && !isEditOpen && !isImportOpen && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+      if (
+        e.key === "n" &&
+        !isCreateOpen &&
+        !isEditOpen &&
+        !isImportOpen &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
         e.preventDefault();
         setIsCreateOpen(true);
       }
@@ -122,7 +160,12 @@ export default function Dashboard() {
       description: formData.description,
       expiresAt: formData.expiresAt ? new Date(formData.expiresAt) : undefined,
       password: formData.password || undefined,
-      tags: formData.tagsString ? formData.tagsString.split(",").map((tag) => tag.trim()).filter(Boolean) : [],
+      tags: formData.tagsString
+        ? formData.tagsString
+            .split(",")
+            .map(tag => tag.trim())
+            .filter(Boolean)
+        : [],
       seoTitle: formData.seoTitle || undefined,
       seoDescription: formData.seoDescription || undefined,
       seoImage: formData.seoImage || undefined,
@@ -143,7 +186,12 @@ export default function Dashboard() {
       description: formData.description || null,
       expiresAt: formData.expiresAt ? new Date(formData.expiresAt) : null,
       password: formData.password || null,
-      tags: formData.tagsString ? formData.tagsString.split(",").map((tag) => tag.trim()).filter(Boolean) : [],
+      tags: formData.tagsString
+        ? formData.tagsString
+            .split(",")
+            .map(tag => tag.trim())
+            .filter(Boolean)
+        : [],
       seoTitle: formData.seoTitle || null,
       seoDescription: formData.seoDescription || null,
       seoImage: formData.seoImage || null,
@@ -163,7 +211,10 @@ export default function Dashboard() {
     setSelectedLink(null);
   };
 
-  const handleBatchTagsConfirm = async (tags: string[], mode: 'add' | 'remove' | 'set') => {
+  const handleBatchTagsConfirm = async (
+    tags: string[],
+    mode: "add" | "remove" | "set"
+  ) => {
     await mutations.batchUpdateTags(Array.from(selectedIds), tags, mode);
     setIsBatchTagsOpen(false);
     deselectAll();
@@ -186,42 +237,65 @@ export default function Dashboard() {
     try {
       const parsed = JSON.parse(importText);
       if (Array.isArray(parsed)) {
-        links = parsed.map((item) => ({
-          originalUrl: (typeof item === "string" ? item : item.url || item.originalUrl) as string,
+        links = parsed.map(item => ({
+          originalUrl: (typeof item === "string"
+            ? item
+            : item.url || item.originalUrl) as string,
           shortCode: item.shortCode || item.code,
           description: item.description || item.desc,
-          tags: Array.isArray(item.tags) ? item.tags : (item.tags ? item.tags.split(';').map((t: string) => t.trim()).filter(Boolean) : []),
+          tags: Array.isArray(item.tags)
+            ? item.tags
+            : item.tags
+              ? item.tags
+                  .split(";")
+                  .map((t: string) => t.trim())
+                  .filter(Boolean)
+              : [],
           expiresAt: item.expiresAt,
         }));
       }
     } catch {
       // Simple CSV/Text parsing
-      const lines = importText.split("\n").map(l => l.trim()).filter(Boolean);
-      const isCsv = lines[0].toLowerCase().includes("url") || lines[0].includes(",");
-      
+      const lines = importText
+        .split("\n")
+        .map(l => l.trim())
+        .filter(Boolean);
+      const isCsv =
+        lines[0].toLowerCase().includes("url") || lines[0].includes(",");
+
       if (isCsv && lines.length > 1) {
         // Simple CSV parser (supports headers)
-        const headers = lines[0].split(",").map(h => h.trim().replace(/"/g, '').toLowerCase());
+        const headers = lines[0]
+          .split(",")
+          .map(h => h.trim().replace(/"/g, "").toLowerCase());
         const dataLines = lines.slice(1);
-        
-        links = dataLines.map(line => {
-          // Simple split by comma, respecting quotes
-          const cells = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
-          const row: any = {};
-          headers.forEach((h, i) => {
-            if (h.includes("url")) row.originalUrl = cells[i];
-            else if (h.includes("code")) row.shortCode = cells[i];
-            else if (h.includes("desc")) row.description = cells[i];
-            else if (h.includes("tag")) row.tags = cells[i]?.split(';').map(t => t.trim()).filter(Boolean);
-            else if (h.includes("expire")) row.expiresAt = cells[i];
-          });
-          return row;
-        }).filter(l => l.originalUrl);
+
+        links = dataLines
+          .map(line => {
+            // Simple split by comma, respecting quotes
+            const cells = line
+              .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+              .map(c => c.trim().replace(/^"|"$/g, "").replace(/""/g, '"'));
+            const row: any = {};
+            headers.forEach((h, i) => {
+              if (h.includes("url")) row.originalUrl = cells[i];
+              else if (h.includes("code")) row.shortCode = cells[i];
+              else if (h.includes("desc")) row.description = cells[i];
+              else if (h.includes("tag"))
+                row.tags = cells[i]
+                  ?.split(";")
+                  .map(t => t.trim())
+                  .filter(Boolean);
+              else if (h.includes("expire")) row.expiresAt = cells[i];
+            });
+            return row;
+          })
+          .filter(l => l.originalUrl);
       } else {
         // Plain text list of URLs
         links = lines
-          .filter((line) => line.startsWith("http"))
-          .map((line) => ({ originalUrl: line }));
+          .filter(line => line.startsWith("http"))
+          .map(line => ({ originalUrl: line }));
       }
     }
 
@@ -236,10 +310,14 @@ export default function Dashboard() {
 
     links.forEach((link, idx) => {
       if (link.shortCode) {
-        codeCountMap.set(link.shortCode, (codeCountMap.get(link.shortCode) || 0) + 1);
+        codeCountMap.set(
+          link.shortCode,
+          (codeCountMap.get(link.shortCode) || 0) + 1
+        );
       }
       if (link.originalUrl) {
-        if (!urlInternalMap.has(link.originalUrl)) urlInternalMap.set(link.originalUrl, []);
+        if (!urlInternalMap.has(link.originalUrl))
+          urlInternalMap.set(link.originalUrl, []);
         urlInternalMap.get(link.originalUrl)!.push(idx + 1);
       }
     });
@@ -260,30 +338,50 @@ export default function Dashboard() {
       const internalIndices = urlInternalMap.get(link.originalUrl);
       if (internalIndices && internalIndices.length > 1) {
         hasWarning = true;
-        const otherRows = internalIndices.filter((i) => i !== idx + 1);
-        warningReason = t("dashboard.sameTargetBatch", { rows: otherRows.join(", ") });
+        const otherRows = internalIndices.filter(i => i !== idx + 1);
+        warningReason = t("dashboard.sameTargetBatch", {
+          rows: otherRows.join(", "),
+        });
       } else {
-        const existing = allExistingLinks.find((l: Link) => l.originalUrl === link.originalUrl);
+        const existing = allExistingLinks.find(
+          (l: Link) => l.originalUrl === link.originalUrl
+        );
         if (existing) {
           hasWarning = true;
-          warningReason = t("dashboard.sameTargetSystem", { shortCode: existing.shortCode });
+          warningReason = t("dashboard.sameTargetSystem", {
+            shortCode: existing.shortCode,
+          });
         }
       }
 
-      return { ...link, hasConflict, conflictReason, hasWarning, warningReason };
+      return {
+        ...link,
+        hasConflict,
+        conflictReason,
+        hasWarning,
+        warningReason,
+      };
     });
 
     // Cloud validation
-    const codesToCheck = linksWithInternalCheck.filter((l) => l.shortCode && !l.hasConflict).map((l) => l.shortCode!);
+    const codesToCheck = linksWithInternalCheck
+      .filter(l => l.shortCode && !l.hasConflict)
+      .map(l => l.shortCode!);
 
     let finalLinks = linksWithInternalCheck;
     if (codesToCheck.length > 0) {
       try {
-        const existingCodes = await utils.links.checkShortCodes.fetch({ shortCodes: codesToCheck });
+        const existingCodes = await utils.links.checkShortCodes.fetch({
+          shortCodes: codesToCheck,
+        });
         const existingSet = new Set(existingCodes);
-        finalLinks = linksWithInternalCheck.map((link) => {
+        finalLinks = linksWithInternalCheck.map(link => {
           if (link.shortCode && existingSet.has(link.shortCode)) {
-            return { ...link, hasConflict: true, conflictReason: t("dashboard.shortCodeTaken") };
+            return {
+              ...link,
+              hasConflict: true,
+              conflictReason: t("dashboard.shortCodeTaken"),
+            };
           }
           return link;
         });
@@ -299,8 +397,12 @@ export default function Dashboard() {
 
   const handleConfirmImport = async () => {
     try {
-      const result = await mutations.batchImportMutation.mutateAsync({ links: previewLinks });
-      toast.success(t("dashboard.importSuccess", { count: result.success.length }));
+      const result = await mutations.batchImportMutation.mutateAsync({
+        links: previewLinks,
+      });
+      toast.success(
+        t("dashboard.importSuccess", { count: result.success.length })
+      );
       setIsImportPreviewOpen(false);
       setPreviewLinks([]);
       setImportText("");
@@ -322,8 +424,10 @@ export default function Dashboard() {
 
   // Computed
   const paginatedLinks = paginate(filteredLinks);
-  const linkIds = paginatedLinks.map((l) => l.id);
-  const hasFilters = Boolean(searchQuery || tagFilter || statusFilter !== "all");
+  const linkIds = paginatedLinks.map(l => l.id);
+  const hasFilters = Boolean(
+    searchQuery || tagFilter || statusFilter !== "all"
+  );
 
   return (
     <div className="min-h-content bg-background">
@@ -331,139 +435,174 @@ export default function Dashboard() {
       <DashboardHeader
         onCreateClick={() => setIsCreateOpen(true)}
         onImportClick={() => setIsImportOpen(true)}
-        onExportClick={(format) => mutations.exportLinks(format)}
+        onExportClick={format => mutations.exportLinks(format)}
+        onRecycleBinClick={() => setIsRecycleBinOpen(true)}
       />
 
-      {/* Search & Filter */}
-      <SearchFilterBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        tagFilter={tagFilter}
-        onTagChange={setTagFilter}
-        statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
-        searchInputRef={searchInputRef}
-      />
-
-      {/* Links Table */}
-      <div className="container pb-8">
-        <LinksTable
-          links={paginatedLinks}
-          isLoading={linksQuery.isLoading}
-          selectedIds={selectedIds}
-          onToggleSelect={toggle}
-          onTogglePage={(checked) => togglePage(linkIds, checked)}
-          onEdit={openEditDialog}
-          onDelete={openDeleteDialog}
-          onCopy={(link: Link) => mutations.copyToClipboard(link, systemConfigQuery.data?.defaultDomain)}
-          onTagClick={setTagFilter}
-          onQrCode={(shortCode) => setLocation(`/qr/${shortCode}`)}
-          onCreateClick={() => setIsCreateOpen(true)}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={filteredLinks.length}
-          startIndex={startIndex}
-          endIndex={endIndex}
-          hasFilters={hasFilters}
-          onClearFilters={resetFilters}
+      <div className="flex">
+        {/* Group Sidebar */}
+        <GroupSidebar
+          selectedGroupId={selectedGroupId}
+          onGroupSelect={setSelectedGroupId}
         />
+
+        <div className="flex-1">
+          {/* Search & Filter */}
+          <SearchFilterBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            tagFilter={tagFilter}
+            onTagChange={setTagFilter}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            searchInputRef={searchInputRef}
+          />
+
+          {/* Links Table */}
+          <div className="container pb-8">
+            <LinksTable
+              links={paginatedLinks}
+              isLoading={linksQuery.isLoading}
+              selectedIds={selectedIds}
+              onToggleSelect={toggle}
+              onTogglePage={checked => togglePage(linkIds, checked)}
+              onEdit={openEditDialog}
+              onDelete={openDeleteDialog}
+              onCopy={(link: Link) =>
+                mutations.copyToClipboard(
+                  link,
+                  systemConfigQuery.data?.defaultDomain
+                )
+              }
+              onTagClick={setTagFilter}
+              onQrCode={shortCode => setLocation(`/qr/${shortCode}`)}
+              onCreateClick={() => setIsCreateOpen(true)}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={filteredLinks.length}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              hasFilters={hasFilters}
+              onClearFilters={resetFilters}
+            />
+          </div>
+
+          {/* Batch Action Bar */}
+          {hasSelection && (
+            <BatchActionBar
+              selectedCount={selectedCount}
+              onEnable={() => {
+                mutations.batchToggleStatus(Array.from(selectedIds), 1);
+                deselectAll();
+              }}
+              onDisable={() => {
+                mutations.batchToggleStatus(Array.from(selectedIds), 0);
+                deselectAll();
+              }}
+              onGenerateSeo={() =>
+                mutations.batchGenerateSeo(
+                  Array.from(selectedIds),
+                  linksQuery.data || []
+                )
+              }
+              onExport={() =>
+                mutations.batchExport(
+                  Array.from(selectedIds),
+                  linksQuery.data || []
+                )
+              }
+              onDelete={() => mutations.batchDelete(Array.from(selectedIds))}
+              onClear={deselectAll}
+              onBatchTags={() => setIsBatchTagsOpen(true)}
+              onBatchExpiry={() => setIsBatchExpiryOpen(true)}
+            />
+          )}
+
+          {/* Create Dialog */}
+          <LinkFormDialog
+            mode="create"
+            open={isCreateOpen}
+            onOpenChange={setIsCreateOpen}
+            domains={domainsQuery.data || []}
+            onSubmit={handleCreateLink}
+            isSubmitting={mutations.createLinkMutation.isPending}
+            onGenerateSeo={mutations.generateSeo}
+            isGeneratingSeo={mutations.generateSeoMutation.isPending}
+          />
+
+          {/* Edit Dialog */}
+          <LinkFormDialog
+            mode="edit"
+            open={isEditOpen}
+            onOpenChange={setIsEditOpen}
+            initialData={selectedLink || undefined}
+            domains={domainsQuery.data || []}
+            onSubmit={handleEditLink}
+            isSubmitting={mutations.updateLinkMutation.isPending}
+            onGenerateSeo={mutations.generateSeo}
+            isGeneratingSeo={mutations.generateSeoMutation.isPending}
+          />
+
+          {/* Delete Dialog */}
+          <DeleteConfirmDialog
+            open={isDeleteOpen}
+            onOpenChange={setIsDeleteOpen}
+            onConfirm={handleDeleteLink}
+            shortCode={selectedLink?.shortCode}
+            isDeleting={mutations.deleteLinkMutation.isPending}
+          />
+
+          {/* Import Dialog */}
+          <ImportLinksDialog
+            open={isImportOpen}
+            onOpenChange={setIsImportOpen}
+            importText={importText}
+            onImportTextChange={setImportText}
+            onPreview={handleBatchImport}
+            isImporting={mutations.batchImportMutation.isPending}
+          />
+
+          {/* Import Preview Dialog */}
+          <ImportPreviewDialog
+            open={isImportPreviewOpen}
+            onOpenChange={setIsImportPreviewOpen}
+            previewLinks={previewLinks}
+            onConfirm={handleConfirmImport}
+            onBack={() => {
+              setIsImportPreviewOpen(false);
+              setIsImportOpen(true);
+            }}
+            isImporting={mutations.batchImportMutation.isPending}
+          />
+
+          {/* Batch Dialogs */}
+          <BatchTagsDialog
+            open={isBatchTagsOpen}
+            onOpenChange={setIsBatchTagsOpen}
+            selectedCount={selectedCount}
+            onConfirm={handleBatchTagsConfirm}
+            isSubmitting={
+              mutations.updateLinkMutation.isPending
+            } /* We can just use the generic isPending or none */
+          />
+
+          <BatchExpiryDialog
+            open={isBatchExpiryOpen}
+            onOpenChange={setIsBatchExpiryOpen}
+            selectedCount={selectedCount}
+            onConfirm={handleBatchExpiryConfirm}
+            isSubmitting={mutations.updateLinkMutation.isPending}
+          />
+
+          {/* Recycle Bin Dialog */}
+          <RecycleBinDialog
+            open={isRecycleBinOpen}
+            onOpenChange={setIsRecycleBinOpen}
+            onRestored={() => linksQuery.refetch()}
+          />
+        </div>
       </div>
-
-      {/* Batch Action Bar */}
-      {hasSelection && (
-        <BatchActionBar
-          selectedCount={selectedCount}
-          onEnable={() => {
-            mutations.batchToggleStatus(Array.from(selectedIds), 1);
-            deselectAll();
-          }}
-          onDisable={() => {
-            mutations.batchToggleStatus(Array.from(selectedIds), 0);
-            deselectAll();
-          }}
-          onGenerateSeo={() => mutations.batchGenerateSeo(Array.from(selectedIds), linksQuery.data || [])}
-          onExport={() => mutations.batchExport(Array.from(selectedIds), linksQuery.data || [])}
-          onDelete={() => mutations.batchDelete(Array.from(selectedIds))}
-          onClear={deselectAll}
-          onBatchTags={() => setIsBatchTagsOpen(true)}
-          onBatchExpiry={() => setIsBatchExpiryOpen(true)}
-        />
-      )}
-
-      {/* Create Dialog */}
-      <LinkFormDialog
-        mode="create"
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-        domains={domainsQuery.data || []}
-        onSubmit={handleCreateLink}
-        isSubmitting={mutations.createLinkMutation.isPending}
-        onGenerateSeo={mutations.generateSeo}
-        isGeneratingSeo={mutations.generateSeoMutation.isPending}
-      />
-
-      {/* Edit Dialog */}
-      <LinkFormDialog
-        mode="edit"
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-        initialData={selectedLink || undefined}
-        domains={domainsQuery.data || []}
-        onSubmit={handleEditLink}
-        isSubmitting={mutations.updateLinkMutation.isPending}
-        onGenerateSeo={mutations.generateSeo}
-        isGeneratingSeo={mutations.generateSeoMutation.isPending}
-      />
-
-      {/* Delete Dialog */}
-      <DeleteConfirmDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        onConfirm={handleDeleteLink}
-        shortCode={selectedLink?.shortCode}
-        isDeleting={mutations.deleteLinkMutation.isPending}
-      />
-
-      {/* Import Dialog */}
-      <ImportLinksDialog
-        open={isImportOpen}
-        onOpenChange={setIsImportOpen}
-        importText={importText}
-        onImportTextChange={setImportText}
-        onPreview={handleBatchImport}
-        isImporting={mutations.batchImportMutation.isPending}
-      />
-
-      {/* Import Preview Dialog */}
-      <ImportPreviewDialog
-        open={isImportPreviewOpen}
-        onOpenChange={setIsImportPreviewOpen}
-        previewLinks={previewLinks}
-        onConfirm={handleConfirmImport}
-        onBack={() => {
-          setIsImportPreviewOpen(false);
-          setIsImportOpen(true);
-        }}
-        isImporting={mutations.batchImportMutation.isPending}
-      />
-
-      {/* Batch Dialogs */}
-      <BatchTagsDialog
-        open={isBatchTagsOpen}
-        onOpenChange={setIsBatchTagsOpen}
-        selectedCount={selectedCount}
-        onConfirm={handleBatchTagsConfirm}
-        isSubmitting={mutations.updateLinkMutation.isPending} /* We can just use the generic isPending or none */
-      />
-
-      <BatchExpiryDialog
-        open={isBatchExpiryOpen}
-        onOpenChange={setIsBatchExpiryOpen}
-        selectedCount={selectedCount}
-        onConfirm={handleBatchExpiryConfirm}
-        isSubmitting={mutations.updateLinkMutation.isPending}
-      />
     </div>
   );
 }

@@ -30,21 +30,29 @@ interface UseLinkPaginationReturn {
   paginate: <T>(items: T[]) => T[];
 }
 
-export function useLinkPagination(options: UseLinkPaginationOptions): UseLinkPaginationReturn {
+export function useLinkPagination(
+  options: UseLinkPaginationOptions
+): UseLinkPaginationReturn {
   const { totalItems, itemsPerPage = 10 } = options;
 
   const [currentPage, setCurrentPage] = useState(1);
 
   // Computed
-  const totalPages = useMemo(() => Math.ceil(totalItems / itemsPerPage), [totalItems, itemsPerPage]);
+  const totalPages = useMemo(
+    () => Math.ceil(totalItems / itemsPerPage),
+    [totalItems, itemsPerPage]
+  );
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
   // Navigation
   const goToFirst = useCallback(() => setCurrentPage(1), []);
   const goToLast = useCallback(() => setCurrentPage(totalPages), [totalPages]);
-  const next = useCallback(() => setCurrentPage((p) => Math.min(p + 1, totalPages)), [totalPages]);
-  const prev = useCallback(() => setCurrentPage((p) => Math.max(p - 1, 1)), []);
+  const next = useCallback(
+    () => setCurrentPage(p => Math.min(p + 1, totalPages)),
+    [totalPages]
+  );
+  const prev = useCallback(() => setCurrentPage(p => Math.max(p - 1, 1)), []);
 
   // Data slicing
   const paginate = useCallback(

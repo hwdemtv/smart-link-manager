@@ -23,13 +23,21 @@ export async function setupVite(app: Express, server: Server) {
   // 1. 自定义 HTML 动态分发 (最高优先级)
   app.get("/", async (req, res, next) => {
     try {
-      const clientTemplate = path.resolve(import.meta.dirname, "../..", "client", "index.html");
+      const clientTemplate = path.resolve(
+        import.meta.dirname,
+        "../..",
+        "client",
+        "index.html"
+      );
       const template = fs.readFileSync(clientTemplate, "utf-8");
       const page = await vite.transformIndexHtml(req.url, template);
-      res.status(200).set({ 
-        "Content-Type": "text/html",
-        "Cache-Control": "no-store, no-cache, must-revalidate"
-      }).end(page);
+      res
+        .status(200)
+        .set({
+          "Content-Type": "text/html",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        })
+        .end(page);
     } catch (e) {
       next(e);
     }
@@ -41,18 +49,31 @@ export async function setupVite(app: Express, server: Server) {
   // 3. 兜底通配符 (处理 SPA 路由)
   app.use(async (req, res, next) => {
     const url = req.originalUrl;
-    if (url.startsWith("/api") || url.startsWith("/@vite") || url.startsWith("/src") || url.includes(".")) {
+    if (
+      url.startsWith("/api") ||
+      url.startsWith("/@vite") ||
+      url.startsWith("/src") ||
+      url.includes(".")
+    ) {
       return next();
     }
 
     try {
-      const clientTemplate = path.resolve(import.meta.dirname, "../..", "client", "index.html");
+      const clientTemplate = path.resolve(
+        import.meta.dirname,
+        "../..",
+        "client",
+        "index.html"
+      );
       const template = fs.readFileSync(clientTemplate, "utf-8");
       const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ 
-        "Content-Type": "text/html",
-        "Cache-Control": "no-store, no-cache, must-revalidate"
-      }).end(page);
+      res
+        .status(200)
+        .set({
+          "Content-Type": "text/html",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        })
+        .end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);

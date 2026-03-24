@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -21,20 +21,24 @@ export default function Login() {
   const configQuery = trpc.configs.getConfig.useQuery();
   const registrationDisabled = configQuery.data?.registrationDisabled;
 
-  // 如果注册被禁用且当前在注册模式，强制切回登录模式
-  if (registrationDisabled && isRegister) {
-    setIsRegister(false);
-  }
+  // 使用 useEffect 处理注册模式切换，避免渲染期间 setState
+  useEffect(() => {
+    if (registrationDisabled && isRegister) {
+      setIsRegister(false);
+    }
+  }, [registrationDisabled, isRegister]);
 
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: () => {
       utils.auth.me.invalidate();
       setLocation("/dashboard");
     },
-    onError: (err) => {
+    onError: err => {
       // 尝试翻译错误码，如果翻译不存在则显示原始消息
       const errorCode = err.message;
-      const translated = t(`serverError.${errorCode}`, { defaultValue: errorCode });
+      const translated = t(`serverError.${errorCode}`, {
+        defaultValue: errorCode,
+      });
       setError(translated);
     },
   });
@@ -44,10 +48,12 @@ export default function Login() {
       utils.auth.me.invalidate();
       setLocation("/dashboard");
     },
-    onError: (err) => {
+    onError: err => {
       // 尝试翻译错误码，如果翻译不存在则显示原始消息
       const errorCode = err.message;
-      const translated = t(`serverError.${errorCode}`, { defaultValue: errorCode });
+      const translated = t(`serverError.${errorCode}`, {
+        defaultValue: errorCode,
+      });
       setError(translated);
     },
   });
@@ -59,7 +65,11 @@ export default function Login() {
 
     try {
       if (isRegister) {
-        await registerMutation.mutateAsync({ username, password, name: name || undefined });
+        await registerMutation.mutateAsync({
+          username,
+          password,
+          name: name || undefined,
+        });
       } else {
         await loginMutation.mutateAsync({ username, password });
       }
@@ -100,14 +110,17 @@ export default function Login() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5" htmlFor="username">
+                <label
+                  className="block text-sm font-medium mb-1.5"
+                  htmlFor="username"
+                >
                   {t("common.username")}
                 </label>
                 <input
                   id="username"
                   type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={e => setUsername(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/50"
                   placeholder={t("login.usernamePlaceholder")}
                   required
@@ -117,32 +130,43 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1.5" htmlFor="password">
+                <label
+                  className="block text-sm font-medium mb-1.5"
+                  htmlFor="password"
+                >
                   {t("common.password")}
                 </label>
                 <input
                   id="password"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/50"
                   placeholder={t("login.passwordPlaceholder")}
                   required
                   minLength={isRegister ? 6 : 1}
-                  autoComplete={isRegister ? "new-password" : "current-password"}
+                  autoComplete={
+                    isRegister ? "new-password" : "current-password"
+                  }
                 />
               </div>
 
               {isRegister && (
                 <div>
-                  <label className="block text-sm font-medium mb-1.5" htmlFor="name">
-                    {t("login.displayName")} <span className="text-muted-foreground">({t("common.optional")})</span>
+                  <label
+                    className="block text-sm font-medium mb-1.5"
+                    htmlFor="name"
+                  >
+                    {t("login.displayName")}{" "}
+                    <span className="text-muted-foreground">
+                      ({t("common.optional")})
+                    </span>
                   </label>
                   <input
                     id="name"
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={e => setName(e.target.value)}
                     className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/50"
                     placeholder={t("login.namePlaceholder")}
                     autoComplete="name"
@@ -156,7 +180,11 @@ export default function Login() {
                 size="lg"
                 disabled={loading}
               >
-                {loading ? t("login.processing") : (isRegister ? t("common.register") : t("common.login"))}
+                {loading
+                  ? t("login.processing")
+                  : isRegister
+                    ? t("common.register")
+                    : t("common.login")}
               </Button>
             </form>
 
@@ -166,7 +194,10 @@ export default function Login() {
                   {t("login.haveAccount")}{" "}
                   <button
                     type="button"
-                    onClick={() => { setIsRegister(false); setError(""); }}
+                    onClick={() => {
+                      setIsRegister(false);
+                      setError("");
+                    }}
                     className="text-accent-blue hover:underline font-medium"
                   >
                     {t("login.loginNow")}
@@ -178,7 +209,10 @@ export default function Login() {
                     {t("login.noAccount")}{" "}
                     <button
                       type="button"
-                      onClick={() => { setIsRegister(true); setError(""); }}
+                      onClick={() => {
+                        setIsRegister(true);
+                        setError("");
+                      }}
                       className="text-accent-blue hover:underline font-medium"
                     >
                       {t("login.registerNow")}

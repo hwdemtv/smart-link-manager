@@ -34,4 +34,4 @@ export const ErrorCodes = {
   SECURITY_TOKEN_EXPIRED: "SECURITY_TOKEN_EXPIRED",
 } as const;
 
-export type ErrorCode = typeof ErrorCodes[keyof typeof ErrorCodes];
+export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];

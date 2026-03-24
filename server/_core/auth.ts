@@ -1,4 +1,4 @@
-import { scrypt, randomBytes } from "crypto";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 
 const scryptAsync = promisify(scrypt);
@@ -14,9 +14,16 @@ export async function hashPassword(password: string): Promise<string> {
 
 /**
  * Compare a password with a hash
+ * 使用 timingSafeEqual 防止时序攻击
  */
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  hash: string
+): Promise<boolean> {
   const [salt, key] = hash.split(":");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return key === buf.toString("hex");
+  const keyBuf = Buffer.from(key, "hex");
+  // 长度不同时直接返回 false（timingSafeEqual 要求等长）
+  if (buf.length !== keyBuf.length) return false;
+  return timingSafeEqual(buf, keyBuf);
 }

@@ -1,6 +1,13 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -23,7 +30,9 @@ export default function AiSettings() {
   });
 
   const configQuery = (trpc.configs.getAiConfig as any).useQuery();
-  const updateConfigMutation = (trpc.configs.updateAiConfig as any).useMutation();
+  const updateConfigMutation = (
+    trpc.configs.updateAiConfig as any
+  ).useMutation();
 
   useEffect(() => {
     if (configQuery.data) {
@@ -51,7 +60,9 @@ export default function AiSettings() {
     <div className="container py-8 max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t("aiSettings.title")}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {t("aiSettings.title")}
+          </h1>
           <p className="text-muted-foreground mt-2">
             {t("aiSettings.subtitle")}
           </p>
@@ -66,9 +77,7 @@ export default function AiSettings() {
               <Sparkles className="w-5 h-5 text-accent-blue" />
               {t("aiSettings.basicConfig")}
             </CardTitle>
-            <CardDescription>
-              {t("aiSettings.basicConfigDesc")}
-            </CardDescription>
+            <CardDescription>{t("aiSettings.basicConfigDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -77,7 +86,9 @@ export default function AiSettings() {
                 <Input
                   id="provider"
                   value={formData.provider}
-                  onChange={(e: ChangeEventT<HTMLInputElement>) => setFormData({ ...formData, provider: e.target.value })}
+                  onChange={(e: ChangeEventT<HTMLInputElement>) =>
+                    setFormData({ ...formData, provider: e.target.value })
+                  }
                   placeholder="openai / deepseek"
                 />
               </div>
@@ -86,7 +97,9 @@ export default function AiSettings() {
                 <Input
                   id="model"
                   value={formData.model}
-                  onChange={(e: ChangeEventT<HTMLInputElement>) => setFormData({ ...formData, model: e.target.value })}
+                  onChange={(e: ChangeEventT<HTMLInputElement>) =>
+                    setFormData({ ...formData, model: e.target.value })
+                  }
                   placeholder="gpt-4o / deepseek-chat"
                 />
               </div>
@@ -97,7 +110,9 @@ export default function AiSettings() {
               <Input
                 id="baseUrl"
                 value={formData.baseUrl}
-                onChange={(e: ChangeEventT<HTMLInputElement>) => setFormData({ ...formData, baseUrl: e.target.value })}
+                onChange={(e: ChangeEventT<HTMLInputElement>) =>
+                  setFormData({ ...formData, baseUrl: e.target.value })
+                }
                 placeholder="https://api.openai.com/v1"
               />
               <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -113,7 +128,9 @@ export default function AiSettings() {
                   id="apiKey"
                   type={showApiKey ? "text" : "password"}
                   value={formData.apiKey}
-                  onChange={(e: ChangeEventT<HTMLInputElement>) => setFormData({ ...formData, apiKey: e.target.value })}
+                  onChange={(e: ChangeEventT<HTMLInputElement>) =>
+                    setFormData({ ...formData, apiKey: e.target.value })
+                  }
                   className="pr-10"
                   placeholder={t("aiSettings.apiKeyPlaceholder")}
                 />
@@ -122,7 +139,11 @@ export default function AiSettings() {
                   onClick={() => setShowApiKey(!showApiKey)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showApiKey ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -134,16 +155,20 @@ export default function AiSettings() {
             <CardTitle className="flex items-center gap-2">
               {t("aiSettings.fineTune")}
             </CardTitle>
-            <CardDescription>
-              {t("aiSettings.fineTuneDesc")}
-            </CardDescription>
+            <CardDescription>{t("aiSettings.fineTuneDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <Label>{t("aiSettings.temperature", { value: formData.temperature })}</Label>
+                <Label>
+                  {t("aiSettings.temperature", { value: formData.temperature })}
+                </Label>
                 <span className="text-xs text-muted-foreground">
-                  {formData.temperature < 0.3 ? t("aiSettings.modeProfessional") : formData.temperature > 0.7 ? t("aiSettings.modeCreative") : t("aiSettings.modeBalance")}
+                  {formData.temperature < 0.3
+                    ? t("aiSettings.modeProfessional")
+                    : formData.temperature > 0.7
+                      ? t("aiSettings.modeCreative")
+                      : t("aiSettings.modeBalance")}
                 </span>
               </div>
               <Slider
@@ -151,7 +176,9 @@ export default function AiSettings() {
                 min={0}
                 max={1.5}
                 step={0.1}
-                onValueChange={(val: number[]) => setFormData({ ...formData, temperature: val[0] })}
+                onValueChange={(val: number[]) =>
+                  setFormData({ ...formData, temperature: val[0] })
+                }
                 className="py-4"
               />
               <div className="flex justify-between text-[10px] text-muted-foreground px-1">

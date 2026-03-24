@@ -1,5 +1,11 @@
 import "dotenv/config";
-import { db, getDb, getUserByUsername, createLink, getUserLinkCount } from "../server/db";
+import {
+  db,
+  getDb,
+  getUserByUsername,
+  createLink,
+  getUserLinkCount,
+} from "../server/db";
 import { licenseService } from "../server/licenseService";
 
 async function runSmokeTest() {
@@ -13,7 +19,12 @@ async function runSmokeTest() {
   // 1. Verify admin user created during init
   const admin = await getUserByUsername("admin");
   if (admin) {
-    console.log("✅ Admin user exists:", admin.username, "Tier:", admin.subscriptionTier);
+    console.log(
+      "✅ Admin user exists:",
+      admin.username,
+      "Tier:",
+      admin.subscriptionTier
+    );
   } else {
     console.error("❌ Admin user not found");
   }
@@ -26,17 +37,17 @@ async function runSmokeTest() {
   if (admin) {
     const linkCount = await getUserLinkCount(admin.id);
     console.log(`ℹ️ Current links for admin: ${linkCount}`);
-    
+
     // Attempt to create a test link
     try {
-        const newLink = await createLink({
-            userId: admin.id,
-            originalUrl: "https://example.com/test-" + Date.now(),
-            shortCode: "test" + Math.random().toString(36).substring(7),
-        });
-        console.log("✅ Test link created:", newLink.shortCode);
+      const newLink = await createLink({
+        userId: admin.id,
+        originalUrl: "https://example.com/test-" + Date.now(),
+        shortCode: "test" + Math.random().toString(36).substring(7),
+      });
+      console.log("✅ Test link created:", newLink.shortCode);
     } catch (e) {
-        console.error("❌ Failed to create link:", e);
+      console.error("❌ Failed to create link:", e);
     }
   }
 

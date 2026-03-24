@@ -9,3 +9,6 @@ export { ImportPreviewDialog } from "./ImportPreviewDialog";
 export { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 export { BatchTagsDialog } from "./BatchTagsDialog";
 export { BatchExpiryDialog } from "./BatchExpiryDialog";
+export { RecycleBinDialog } from "./RecycleBinDialog";
+export { GroupSidebar } from "./GroupSidebar";
+export { GroupManageDialog } from "./GroupManageDialog";

@@ -21,10 +21,23 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Globe, ShieldCheck, Link2, Terminal, Bot, Settings, Key, ChevronRight, User } from "lucide-react";
+import {
+  LayoutDashboard,
+  LogOut,
+  PanelLeft,
+  Globe,
+  ShieldCheck,
+  Link2,
+  Terminal,
+  Bot,
+  Settings,
+  Key,
+  ChevronRight,
+  User,
+} from "lucide-react";
 import * as React from "react";
 import { useLocation } from "wouter";
-import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
+import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import { Button } from "./ui/button";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -35,9 +48,7 @@ const DEFAULT_WIDTH = 280;
 const MIN_WIDTH = 200;
 const MAX_WIDTH = 480;
 
-export default function DashboardLayout({
-  children,
-}: any) {
+export default function DashboardLayout({ children }: any) {
   const [sidebarWidth, setSidebarWidth] = React.useState(() => {
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     const parsed = saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
@@ -51,7 +62,7 @@ export default function DashboardLayout({
   }, [sidebarWidth]);
 
   if (loading) {
-    return <DashboardLayoutSkeleton />
+    return <DashboardLayoutSkeleton />;
   }
 
   if (!user) {
@@ -102,10 +113,7 @@ type DashboardLayoutContentProps = {
   setSidebarWidth: (width: number) => void;
 };
 
-function DashboardLayoutContent({
-  children,
-  setSidebarWidth,
-}: any) {
+function DashboardLayoutContent({ children, setSidebarWidth }: any) {
   const { user, logout } = useAuth();
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar } = useSidebar();
@@ -119,11 +127,11 @@ function DashboardLayoutContent({
     { icon: LayoutDashboard, label: t("common.analytics"), path: "/dashboard" },
     { icon: Link2, label: t("common.links"), path: "/links" },
     { icon: Globe, label: t("dashboard.customDomain"), path: "/domains" },
-    { icon: Terminal, label: "OpenAPI", path: "/api-keys" },
+    { icon: Terminal, label: t("common.openapi"), path: "/api-keys" },
   ];
 
   const manageItems = [
-    { icon: Bot, label: "AI 设置", path: "/ai-settings" },
+    { icon: Bot, label: t("common.aiSettings"), path: "/ai-settings" },
     { icon: Key, label: t("license.title"), path: "/license" },
   ];
 
@@ -132,7 +140,7 @@ function DashboardLayoutContent({
     manageItems.push({
       icon: ShieldCheck,
       label: t("admin.dashboardTitle"),
-      path: "/admin"
+      path: "/admin",
     });
   }
 
@@ -226,10 +234,16 @@ function DashboardLayoutContent({
                         <item.icon
                           className={`h-[18px] w-[18px] ${isActive ? "text-accent-blue" : "text-muted-foreground/70"}`}
                         />
-                        <span className={`font-medium ${isActive ? "text-accent-blue" : "text-foreground/80"}`}>{item.label}</span>
+                        <span
+                          className={`font-medium ${isActive ? "text-accent-blue" : "text-foreground/80"}`}
+                        >
+                          {item.label}
+                        </span>
                       </div>
                       {!isCollapsed && (
-                        <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${isActive ? "text-accent-blue opacity-100" : "text-muted-foreground/30 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5"}`} />
+                        <ChevronRight
+                          className={`h-3.5 w-3.5 transition-transform duration-200 ${isActive ? "text-accent-blue opacity-100" : "text-muted-foreground/30 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5"}`}
+                        />
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -261,10 +275,16 @@ function DashboardLayoutContent({
                         <item.icon
                           className={`h-[18px] w-[18px] ${isActive ? "text-accent-blue" : "text-muted-foreground/70"}`}
                         />
-                        <span className={`font-medium ${isActive ? "text-accent-blue" : "text-foreground/80"}`}>{item.label}</span>
+                        <span
+                          className={`font-medium ${isActive ? "text-accent-blue" : "text-foreground/80"}`}
+                        >
+                          {item.label}
+                        </span>
                       </div>
                       {!isCollapsed && (
-                        <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${isActive ? "text-accent-blue opacity-100" : "text-muted-foreground/30 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5"}`} />
+                        <ChevronRight
+                          className={`h-3.5 w-3.5 transition-transform duration-200 ${isActive ? "text-accent-blue opacity-100" : "text-muted-foreground/30 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5"}`}
+                        />
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -292,7 +312,9 @@ function DashboardLayoutContent({
                         {user?.name || "-"}
                       </p>
                       <p className="text-xs text-muted-foreground truncate mt-1.5 opacity-70">
-                        {user?.role === "admin" ? t("auth.saasAdmin") : t("auth.user")}
+                        {user?.role === "admin"
+                          ? t("auth.saasAdmin")
+                          : t("auth.user")}
                       </p>
                     </div>
                   </button>
@@ -346,9 +368,7 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </SidebarInset>
     </>
   );

@@ -15,10 +15,13 @@ function getLogFileName(type: "application" | "error") {
 function formatLog(level: string, message: string, meta?: any) {
   // 生成可读的本地时间戳格式 YYYY-MM-DD HH:mm:ss
   const tzOffset = new Date().getTimezoneOffset() * 60000;
-  const localIso = new Date(Date.now() - tzOffset).toISOString().replace("T", " ").substring(0, 19);
-  
+  const localIso = new Date(Date.now() - tzOffset)
+    .toISOString()
+    .replace("T", " ")
+    .substring(0, 19);
+
   let logStr = `[${localIso}] ${level.toUpperCase()}: ${message}`;
-  
+
   if (meta) {
     if (meta instanceof Error) {
       logStr += `\n${meta.stack}`;
@@ -34,7 +37,7 @@ function formatLog(level: string, message: string, meta?: any) {
 // 异步追加写入避免阻塞主线程
 function writeLog(type: "application" | "error", logStr: string) {
   const file = getLogFileName(type);
-  fs.appendFile(file, logStr, (err) => {
+  fs.appendFile(file, logStr, err => {
     if (err) console.error("❌ 原生 Logger 写入硬盘失败:", err);
   });
 }
@@ -64,12 +67,12 @@ export const logger = {
       const logStr = formatLog("debug", message, meta);
       console.debug("\x1b[36m%s\x1b[0m", logStr.trimEnd()); // 青色展示
     }
-  }
+  },
 };
 
 // 暴露流接口以适配极个别依赖 Stream 的第三方包
 export const stream = {
   write: (message: string) => {
     logger.info(message.trim());
-  }
+  },
 };

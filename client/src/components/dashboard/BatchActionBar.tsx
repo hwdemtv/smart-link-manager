@@ -1,5 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Check, X, Sparkles, Download, Trash2, Tag, CalendarClock } from "lucide-react";
+import {
+  Check,
+  X,
+  Sparkles,
+  Download,
+  Trash2,
+  Tag,
+  CalendarClock,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { BatchActionBarProps } from "@/types/dashboard";
 
@@ -23,7 +31,9 @@ export function BatchActionBar({
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-blue text-[10px] font-bold text-white">
             {selectedCount}
           </span>
-          <span className="text-sm font-medium">{t("dashboard.selected") || "已选中"}</span>
+          <span className="text-sm font-medium">
+            {t("dashboard.selected") || "已选中"}
+          </span>
         </div>
 
         <div className="flex items-center gap-1">

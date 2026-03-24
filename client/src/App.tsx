@@ -29,11 +29,17 @@ import DashboardLayout from "./components/DashboardLayout";
 
 function Router() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-background" aria-busy="true" aria-label="Loading">
-        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div
+          className="min-h-screen flex items-center justify-center bg-background"
+          aria-busy="true"
+          aria-label="Loading"
+        >
+          <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+        </div>
+      }
+    >
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/login" component={Login} />
@@ -101,16 +107,15 @@ function Router() {
 }
 
 function App() {
-  const ErrorBoundaryAny = ErrorBoundary as any;
   return (
-    <ErrorBoundaryAny>
+    <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Router />
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>
-    </ErrorBoundaryAny>
+    </ErrorBoundary>
   );
 }
 

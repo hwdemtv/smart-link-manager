@@ -35,7 +35,12 @@
       "next": "下一页"
     },
     "confirm": "确认",
-    "processing": "处理中..."
+    "processing": "处理中...",
+    "close": "关闭",
+    "save": "保存",
+    "actions": "操作",
+    "openapi": "OpenAPI",
+    "aiSettings": "AI 设置"
   },
   "domains": {
     "title": "自定义域名",
@@ -361,7 +366,7 @@
         "subscription.update": "更新订阅",
         "subscription.cancel": "取消订阅",
         "apikey.create": "创建 API Key",
-       "apikey.delete": "删除 API Key"
+        "apikey.delete": "删除 API Key"
       },
       "targetTypes": {
         "user": "用户",
@@ -631,5 +636,52 @@
     "saveConfig": "保存配置",
     "saveSuccess": "AI 配置已保存",
     "saveFailed": "保存失败"
+  },
+  "recycleBin": {
+    "title": "回收站",
+    "description": "已删除的链接将保留 30 天，您可以在此期间恢复。",
+    "empty": "回收站是空的",
+    "deleted": "删除于",
+    "restore": "恢复",
+    "permanentDelete": "永久删除",
+    "permanentDeleteConfirm": "确定要永久删除此链接吗？此操作不可恢复。",
+    "emptyBin": "清空回收站",
+    "emptyBinConfirm": "确定要清空回收站吗？所有链接将被永久删除。"
+  },
+  "groups": {
+    "title": "分组",
+    "allLinks": "全部链接",
+    "ungrouped": "未分组",
+    "createGroup": "创建分组",
+    "editGroup": "编辑分组",
+    "createDescription": "创建新分组来整理您的链接",
+    "editDescription": "修改分组名称和颜色",
+    "name": "分组名称",
+    "namePlaceholder": "输入分组名称",
+    "color": "颜色",
+    "customColor": "自定义颜色",
+    "preview": "分组预览",
+    "delete": "删除",
+    "deleteConfirm": "确定要删除此分组吗？分组内的链接不会被删除。"
+  },
+  "blacklist": {
+    "title": "IP 黑名单",
+    "description": "被封禁的 IP 将无法访问任何短链接。支持 CIDR 格式（如 192.168.1.0/24）进行网段封禁。",
+    "empty": "黑名单为空",
+    "add": "添加 IP",
+    "addTitle": "添加 IP 到黑名单",
+    "addDescription": "支持单个 IP（如 192.168.1.1）或 CIDR 网段（如 192.168.1.0/24）",
+    "ipPattern": "IP/网段",
+    "ipRequired": "请输入 IP 地址",
+    "reason": "原因",
+    "reasonPlaceholder": "封禁原因",
+    "expiresAt": "过期时间",
+    "expiresHint": "留空表示永久封禁",
+    "permanent": "永久",
+    "expired": "已过期",
+    "createdAt": "添加时间",
+    "addSuccess": "已添加到黑名单",
+    "removeSuccess": "已从黑名单移除",
+    "removeConfirm": "确定要移除此 IP 吗？"
   }
 }
