@@ -215,11 +215,12 @@ export function LinkFormDialog({
           {/* A/B Testing Section */}
           <div className="pt-2 border-t border-border mt-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <GitCompare className="w-4 h-4 text-primary" />
-                <h4 className="text-sm font-medium">{t("dashboard.abTestSection", "A/B 智能测试 (A/B Testing)")}</h4>
-              </div>
+              <Label htmlFor="abTestSwitch" className="flex items-center gap-2 cursor-pointer group">
+                <GitCompare className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                <h4 className="text-sm font-medium group-hover:text-primary transition-colors">{t("dashboard.abTestSection", "A/B 智能测试 (A/B Testing)")}</h4>
+              </Label>
               <Switch
+                id="abTestSwitch"
                 checked={formData.abTestEnabled === 1}
                 onCheckedChange={(checked) => handleInputChange("abTestEnabled", checked ? 1 : 0)}
               />
