@@ -8,9 +8,9 @@ echo ==========================================
 echo.
 
 :: 服务器配置
-set SERVER_IP=43.156.55.3
+set SERVER_IP=YOUR_SERVER_IP
 set SERVER_USER=ubuntu
-set SERVER_PASS=!9V)gDP/k?n+6=4
+set SERVER_PASS=YOUR_SERVER_PASSWORD
 set PROJECT_DIR=/opt/smart-link-manager
 
 :: 检查 pscp 是否存在 (PuTTY 工具)

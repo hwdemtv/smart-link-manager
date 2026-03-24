@@ -4,9 +4,9 @@
 
 | 项目 | 值 |
 |------|-----|
-| IP 地址 | 43.156.55.3 |
+| IP 地址 | YOUR_SERVER_IP |
 | 用户名 | ubuntu |
-| 密码 | `!9V)gDP/k?n+6=4` |
+| 密码 | `YOUR_SERVER_PASSWORD` |
 | 系统 | Ubuntu 22.04 LTS |
 
 ---
@@ -20,17 +20,17 @@
 ssh-keygen -t ed25519
 
 # 2. 复制公钥到服务器
-type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh ubuntu@43.156.55.3 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh ubuntu@YOUR_SERVER_IP "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
 
 # 3. 测试连接
-ssh ubuntu@43.156.55.3
+ssh ubuntu@YOUR_SERVER_IP
 ```
 
 ### 步骤 2: 运行部署脚本
 
 ```powershell
 # 进入项目目录
-cd D:\软件开发\smart-link-manager
+cd YOUR_LOCAL_PROJECT_PATH
 
 # 执行完整部署
 .\deploy\deploy.ps1 -Action full
@@ -38,9 +38,9 @@ cd D:\软件开发\smart-link-manager
 
 ### 步骤 3: 访问应用
 
-- **地址**: http://43.156.55.3
+- **地址**: http://YOUR_SERVER_IP
 - **用户名**: admin
-- **密码**: Admin@123456
+- **密码**: YOUR_ADMIN_PASSWORD
 
 ---
 
@@ -49,8 +49,8 @@ cd D:\软件开发\smart-link-manager
 ### 1. 连接服务器
 
 ```bash
-ssh ubuntu@43.156.55.3
-# 密码: !9V)gDP/k?n+6=4
+ssh ubuntu@YOUR_SERVER_IP
+# 密码: YOUR_SERVER_PASSWORD
 ```
 
 ### 2. 安装 Docker
@@ -84,7 +84,7 @@ cd /opt/smart-link-manager
 
 ```powershell
 # 使用 scp 上传
-scp -r D:\软件开发\smart-link-manager/* ubuntu@43.156.55.3:/opt/smart-link-manager/
+scp -r YOUR_LOCAL_PROJECT_PATH/* ubuntu@YOUR_SERVER_IP:/opt/smart-link-manager/
 ```
 
 或使用 WinSCP / FileZilla 图形化工具上传。
@@ -97,12 +97,12 @@ cd /opt/smart-link-manager
 # 创建 .env 文件
 cat > .env << 'EOF'
 DATABASE_URL=mysql://smartlink:YourDbPassword123@mysql:3306/smart_link
-VITE_APP_ID=http://43.156.55.3
+VITE_APP_ID=http://YOUR_SERVER_IP
 JWT_SECRET=your-random-jwt-secret-32-chars
 NODE_ENV=production
 PORT=3000
 DEFAULT_ADMIN_USERNAME=admin
-DEFAULT_ADMIN_PASSWORD=Admin@123456
+DEFAULT_ADMIN_PASSWORD=YOUR_ADMIN_PASSWORD
 DB_ROOT_PASSWORD=RootPassword123
 DB_PASSWORD=YourDbPassword123
 EOF
@@ -158,10 +158,10 @@ docker compose logs --tail=100 app
 
 ```bash
 # 1. 本地更新代码后上传
-scp -r ./server ./client ubuntu@43.156.55.3:/opt/smart-link-manager/
+scp -r ./server ./client ubuntu@YOUR_SERVER_IP:/opt/smart-link-manager/
 
 # 2. 重启服务
-ssh ubuntu@43.156.55.3 "cd /opt/smart-link-manager && docker compose restart app"
+ssh ubuntu@YOUR_SERVER_IP "cd /opt/smart-link-manager && docker compose restart app"
 ```
 
 ---
@@ -173,7 +173,7 @@ ssh ubuntu@43.156.55.3 "cd /opt/smart-link-manager && docker compose restart app
 在域名服务商添加 A 记录:
 - 主机记录: `s` (或其他)
 - 记录类型: A
-- 记录值: `43.156.55.3`
+- 记录值: `YOUR_SERVER_IP`
 
 ### 2. 安装 Certbot
 

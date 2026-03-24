@@ -26,11 +26,11 @@ if %errorlevel% neq 0 (
 
 echo.
 echo [1/2] 检查 MySQL 连接...
-node -e "const mysql = require('mysql2/promise'); mysql.createConnection({host:'127.0.0.1',port:3306,user:'smartlink',password:'smartlink123',database:'smart_link'}).then(()=>console.log('MySQL 连接成功!')).catch(e=>{console.error('MySQL 连接失败:', e.message);process.exit(1)})"
+node -e "const mysql = require('mysql2/promise'); mysql.createConnection({host:'127.0.0.1',port:3306,user:'smartlink',password:'YOUR_DB_PASSWORD',database:'smart_link'}).then(()=>console.log('MySQL 连接成功!')).catch(e=>{console.error('MySQL 连接失败:', e.message);process.exit(1)})"
 if errorlevel 1 (
     echo.
     echo 请确保 MySQL 已启动: wsl -d Ubuntu -- sudo docker start smart-link-mysql
-    echo 或者运行: wsl -d Ubuntu -- sudo docker compose -f /mnt/c/Users/飞牛/.openclaw-autoclaw/workspace/projects/smart-link-manager/docker-compose.yml up -d mysql
+    echo 或者运行: wsl -d Ubuntu -- sudo docker compose -f YOUR_DOCKER_COMPOSE_PATH up -d mysql
     pause
     exit /b 1
 )

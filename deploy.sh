@@ -4,8 +4,8 @@
 set -e
 
 # 配置
-SSH_KEY="D:/Users/hwdem/Downloads/PC.pem"
-SERVER="ubuntu@43.156.55.3"
+SSH_KEY="YOUR_SSH_KEY_PATH"
+SERVER="ubuntu@YOUR_SERVER_IP"
 PROJECT_DIR="/www/wwwroot/smart-link-manager"
 
 echo "=========================================="
@@ -55,10 +55,10 @@ ENDSSH
 echo ""
 echo ">>> [4/4] 验证部署..."
 sleep 2
-curl -s -o /dev/null -w "    HTTP 状态码: %{http_code}\n" http://43.156.55.3
+curl -s -o /dev/null -w "    HTTP 状态码: %{http_code}\n" http://YOUR_SERVER_IP
 
 echo ""
 echo "=========================================="
 echo " 部署完成！"
-echo " 访问地址: http://43.156.55.3"
+echo " 访问地址: http://YOUR_SERVER_IP"
 echo "=========================================="

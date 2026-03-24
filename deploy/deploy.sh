@@ -1,6 +1,6 @@
 #!/bin/bash
 # Smart Link Manager - 腾讯云部署脚本
-# 服务器: 43.156.55.3
+# 服务器: YOUR_SERVER_IP
 # 用户: ubuntu
 
 set -e
@@ -129,7 +129,7 @@ create_env_file() {
 DATABASE_URL=mysql://smartlink:${DB_PASSWORD}@mysql:3306/smart_link
 
 # Application Configuration
-VITE_APP_ID=http://43.156.55.3
+VITE_APP_ID=http://YOUR_SERVER_IP
 JWT_SECRET=${JWT_SECRET}
 NODE_ENV=production
 PORT=3000
@@ -139,7 +139,7 @@ LICENSE_SERVER_URL=
 
 # Default Admin Account
 DEFAULT_ADMIN_USERNAME=admin
-DEFAULT_ADMIN_PASSWORD=Admin@123456
+DEFAULT_ADMIN_PASSWORD=YOUR_ADMIN_PASSWORD
 
 # Docker Compose 内部使用
 DB_ROOT_PASSWORD=root_$(openssl rand -hex 8)
@@ -217,7 +217,7 @@ configure_nginx() {
     sudo tee /etc/nginx/sites-available/smart-link <<'EOF'
 server {
     listen 80;
-    server_name 43.156.55.3;
+    server_name YOUR_SERVER_IP;
 
     client_max_body_size 50M;
 
@@ -306,10 +306,10 @@ main() {
     echo ""
     echo "后续步骤:"
     echo "1. 上传项目文件到服务器:"
-    echo "   scp -r ./smart-link-manager ubuntu@43.156.55.3:/opt/"
+    echo "   scp -r ./smart-link-manager ubuntu@YOUR_SERVER_IP:/opt/"
     echo ""
     echo "2. 登录服务器并启动服务:"
-    echo "   ssh ubuntu@43.156.55.3"
+    echo "   ssh ubuntu@YOUR_SERVER_IP"
     echo "   cd /opt/smart-link-manager"
     echo "   docker compose up -d --build"
     echo ""
@@ -318,7 +318,7 @@ main() {
     echo ""
     echo "默认管理员账号:"
     echo "   用户名: admin"
-    echo "   密码: Admin@123456"
+    echo "   密码: YOUR_ADMIN_PASSWORD"
     echo ""
 }
 

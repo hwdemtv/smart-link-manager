@@ -8,9 +8,9 @@ param(
 )
 
 # 服务器配置
-$SERVER_IP = "43.156.55.3"
+$SERVER_IP = "YOUR_SERVER_IP"
 $SERVER_USER = "ubuntu"
-$SERVER_PASS = "!9V)gDP/k?n+6=4"
+$SERVER_PASS = "YOUR_SERVER_PASSWORD"
 $PROJECT_DIR = "/opt/smart-link-manager"
 $LOCAL_DIR = Split-Path -Parent $PSScriptRoot
 
@@ -63,7 +63,7 @@ PORT=3000
 
 # Default Admin Account
 DEFAULT_ADMIN_USERNAME=admin
-DEFAULT_ADMIN_PASSWORD=Admin@123456
+DEFAULT_ADMIN_PASSWORD=YOUR_ADMIN_PASSWORD
 
 # Docker internal
 DB_ROOT_PASSWORD=root_$( -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_}))
@@ -115,7 +115,7 @@ DB_PASSWORD=${dbPassword}
     Write-Host "访问地址: http://$SERVER_IP" -ForegroundColor Cyan
     Write-Host "默认管理员账号:" -ForegroundColor Yellow
     Write-Host "  用户名: admin" -ForegroundColor Yellow
-    Write-Host "  密码: Admin@123456" -ForegroundColor Yellow
+    Write-Host "  密码: YOUR_ADMIN_PASSWORD" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "查看日志: .\deploy.ps1 -Action logs" -ForegroundColor Gray
 }
