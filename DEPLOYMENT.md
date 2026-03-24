@@ -7,13 +7,13 @@
 | 项目 | 值 |
 |------|-----|
 | 云服务商 | 腾讯云 |
-| IP 地址 | 43.156.55.3 |
-| 内网 IP | 10.3.0.17 |
+| IP 地址 | YOUR_SERVER_IP |
+| 内网 IP | YOUR_INTERNAL_IP |
 | 操作系统 | Ubuntu 22.04 LTS |
 | CPU | 2 核 |
 | 内存 | 3.3 GB |
 | 磁盘 | 59 GB |
-| SSH 密钥 | 本地路径：`D:\Users\hwdem\Downloads\PC.pem` |
+| SSH 密钥 | 本地路径：`YOUR_SSH_KEY_PATH` |
 
 ---
 
@@ -23,18 +23,18 @@
 
 ```bash
 # SSH 连接服务器
-ssh -i "D:\Users\hwdem\Downloads\PC.pem" ubuntu@43.156.55.3
+ssh -i "YOUR_SSH_KEY_PATH" ubuntu@YOUR_SERVER_IP
 
 # 安装宝塔面板
-wget -O install.sh https://download.bt.cn/install/install-ubuntu_6.0.sh && sudo bash install.sh ed8484bec
+wget -O install.sh https://download.bt.cn/install/install-ubuntu_6.0.sh && sudo bash install.sh YOUR_BT_INSTALL_TOKEN
 ```
 
 ### 2.2 宝塔面板信息
 
 | 项目 | 值 |
 |------|-----|
-| 面板地址 | https://43.156.55.3:38557/6b245c2f |
-| 用户名 | hwdemtv |
+| 面板地址 | https://YOUR_SERVER_IP:38557/YOUR_PANEL_TOKEN |
+| 用户名 | YOUR_USERNAME |
 | 密码 | （在面板设置中查看） |
 
 ### 2.3 宝塔防火墙放行端口
@@ -104,7 +104,7 @@ pnpm --version
 2. 配置：
    - 数据库名：`smart_link`
    - 用户名：`smart_link`
-   - 密码：`smartlink123`
+   - 密码：`YOUR_DB_PASSWORD`
    - 访问权限：本地服务器
 
 ### 5.2 手动创建（可选）
@@ -115,7 +115,7 @@ mysql -u root -p
 
 # 创建数据库和用户
 CREATE DATABASE smart_link CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'smart_link'@'localhost' IDENTIFIED BY 'smartlink123';
+CREATE USER 'smart_link'@'localhost' IDENTIFIED BY 'YOUR_DB_PASSWORD';
 GRANT ALL PRIVILEGES ON smart_link.* TO 'smart_link'@'localhost';
 FLUSH PRIVILEGES;
 ```
@@ -133,7 +133,7 @@ sudo chown $USER:$USER /www/wwwroot
 
 # 克隆代码
 cd /www/wwwroot
-git clone https://github.com/hwdemtv/smart-link-manager.git
+git clone https://github.com/YOUR_USERNAME/smart-link-manager.git
 cd smart-link-manager
 ```
 
@@ -141,9 +141,9 @@ cd smart-link-manager
 
 ```bash
 cat > .env << 'EOF'
-DATABASE_URL=mysql://smart_link:smartlink123@127.0.0.1:3306/smart_link
-JWT_SECRET=smart-link-jwt-secret-your-random-string-32-chars
-VITE_APP_ID=http://43.156.55.3
+DATABASE_URL=mysql://smart_link:YOUR_DB_PASSWORD@127.0.0.1:3306/smart_link
+JWT_SECRET=YOUR_JWT_SECRET
+VITE_APP_ID=http://YOUR_SERVER_IP
 NODE_ENV=production
 PORT=3000
 DEFAULT_ADMIN_USERNAME=admin
@@ -163,9 +163,9 @@ services:
     network_mode: host
     environment:
       NODE_ENV: production
-      DATABASE_URL: mysql://smart_link:smartlink123@127.0.0.1:3306/smart_link
+      DATABASE_URL: mysql://smart_link:YOUR_DB_PASSWORD@127.0.0.1:3306/smart_link
       JWT_SECRET: ${JWT_SECRET}
-      VITE_APP_ID: http://43.156.55.3
+      VITE_APP_ID: http://YOUR_SERVER_IP
       PORT: 3000
     volumes:
       - ./uploads:/app/uploads
@@ -224,9 +224,9 @@ pnpm build
 
 # 创建环境配置（如果还没有）
 cat > .env << 'EOF'
-DATABASE_URL=mysql://smart_link:smartlink123@127.0.0.1:3306/smart_link
-JWT_SECRET=smart-link-jwt-secret-your-random-string-32-chars
-VITE_APP_ID=http://43.156.55.3
+DATABASE_URL=mysql://smart_link:YOUR_DB_PASSWORD@127.0.0.1:3306/smart_link
+JWT_SECRET=YOUR_JWT_SECRET
+VITE_APP_ID=http://YOUR_SERVER_IP
 NODE_ENV=production
 PORT=3000
 DEFAULT_ADMIN_USERNAME=admin
@@ -303,9 +303,9 @@ module.exports = {
     env: {
       NODE_ENV: 'production',
       PORT: 3000,
-      DATABASE_URL: 'mysql://smart_link:smartlink123@127.0.0.1:3306/smart_link',
-      JWT_SECRET: 'smart-link-jwt-secret-your-random-string-32-chars',
-      VITE_APP_ID: 'http://43.156.55.3'
+      DATABASE_URL: 'mysql://smart_link:YOUR_DB_PASSWORD@127.0.0.1:3306/smart_link',
+      JWT_SECRET: 'YOUR_JWT_SECRET',
+      VITE_APP_ID: 'http://YOUR_SERVER_IP'
     },
     error_file: '/www/wwwroot/smart-link-manager/logs/error.log',
     out_file: '/www/wwwroot/smart-link-manager/logs/out.log',
@@ -390,7 +390,7 @@ pm2 start dist/index.js --name smart-link -i 2
 sudo tee /www/server/nginx/conf/vhost/smart-link.conf > /dev/null << 'EOF'
 server {
     listen 80;
-    server_name 43.156.55.3;
+    server_name YOUR_SERVER_IP;
 
     # Gzip 压缩
     gzip on;
@@ -443,7 +443,7 @@ sudo nginx -s reload
 ### 10.1 添加缺失字段（如果需要）
 
 ```bash
-mysql -u smart_link -psmartlink123 smart_link << 'EOF'
+mysql -u smart_link -pYOUR_DB_PASSWORD smart_link << 'EOF'
 ALTER TABLE users
 ADD COLUMN subscriptionTier varchar(50) NOT NULL DEFAULT 'free',
 ADD COLUMN licenseKey varchar(255),
@@ -531,10 +531,10 @@ sudo systemctl status nginx
 
 | 项目 | 值 |
 |------|-----|
-| 应用地址 | http://43.156.55.3 |
+| 应用地址 | http://YOUR_SERVER_IP |
 | 管理员账号 | admin |
 | 管理员密码 | admin123 |
-| 宝塔面板 | https://43.156.55.3:38557/6b245c2f |
+| 宝塔面板 | https://YOUR_SERVER_IP:38557/YOUR_PANEL_TOKEN |
 
 ---
 
@@ -582,7 +582,7 @@ pm2 monit
 
 ```bash
 # 测试数据库连接
-mysql -u smart_link -psmartlink123 smart_link -e "SELECT 1"
+mysql -u smart_link -pYOUR_DB_PASSWORD smart_link -e "SELECT 1"
 
 # 检查 MySQL 状态
 sudo systemctl status mysql
@@ -685,7 +685,7 @@ echo ">>> 检查服务状态..."
 sudo docker ps | grep smart-link-app
 
 echo ">>> 部署完成！"
-echo "访问地址: http://43.156.55.3"
+echo "访问地址: http://YOUR_SERVER_IP"
 ```
 
 ### PM2 部署脚本
@@ -714,7 +714,7 @@ echo ">>> 检查服务状态..."
 pm2 status
 
 echo ">>> 部署完成！"
-echo "访问地址: http://43.156.55.3"
+echo "访问地址: http://YOUR_SERVER_IP"
 ```
 
 ---
@@ -746,9 +746,9 @@ echo "访问地址: http://43.156.55.3"
 在项目设置中添加环境变量：
 
 ```
-DATABASE_URL=mysql://smart_link:smartlink123@127.0.0.1:3306/smart_link
-JWT_SECRET=smart-link-jwt-secret-your-random-string-32-chars
-VITE_APP_ID=http://43.156.55.3
+DATABASE_URL=mysql://smart_link:YOUR_DB_PASSWORD@127.0.0.1:3306/smart_link
+JWT_SECRET=YOUR_JWT_SECRET
+VITE_APP_ID=http://YOUR_SERVER_IP
 NODE_ENV=production
 PORT=3000
 ```
@@ -780,21 +780,21 @@ pnpm build
 
 ## 十八、自定义域名 DNS 配置 (Cloudflare)
 
-如果你需要为短链接平台配置自定义域名（例如 `s.hwdemtv.com`），建议在 Cloudflare 中使用 CNAME 记录指向你的主服务器域名。
+如果你需要为短链接平台配置自定义域名（例如 `s.YOUR_USERNAME.com`），建议在 Cloudflare 中使用 CNAME 记录指向你的主服务器域名。
 
 ### 18.1 配置步骤
 
-1.  **登录 Cloudflare**：进入你的域名控制面板（例如 `hwdemtv.com`）。
+1.  **登录 Cloudflare**：进入你的域名控制面板（例如 `YOUR_USERNAME.com`）。
 2.  **添加 DNS 记录**：
     *   **类型 (Type)**: `CNAME`
-    *   **名称 (Name)**: `s` (这将生成 `s.hwdemtv.com`)
-    *   **目标 (Target)**: `hubingwei.top` (指向你已解析到服务器 IP 的主域名)
+    *   **名称 (Name)**: `s` (这将生成 `s.YOUR_USERNAME.com`)
+    *   **目标 (Target)**: `YOUR_DOMAIN` (指向你已解析到服务器 IP 的主域名)
     *   **代理状态 (Proxy status)**: ☁️ **橙色云朵 (Proxied)**
 3.  **SSL/TLS 设置**：在 Cloudflare 的 SSL 设置中，确保模式为 **Full** 或 **Full (strict)**，以支持端到端加密。
 
 ### 18.2 架构优势
 
-*   **解耦 IP 地址**：若服务器 IP (`43.156.55.3`) 发生变更，你只需修改 `hubingwei.top` 的 A 记录。所有的 CNAME 记录会自动同步生效，无需逐个修改。
+*   **解耦 IP 地址**：若服务器 IP (`YOUR_SERVER_IP`) 发生变更，你只需修改 `YOUR_DOMAIN` 的 A 记录。所有的 CNAME 记录会自动同步生效，无需逐个修改。
 *   **安全防护**：配合 Cloudflare 代理，可以有效隐藏后端真实服务器 IP，降低被攻击风险。
 
 ### 18.3 系统关键步骤
@@ -802,6 +802,6 @@ pnpm build
 完成解析后，你**必须**在 Smart Link Manager 管理后台执行以下操作：
 1.  进入 **「域名管理」**。
 2.  点击 **「添加域名」**。
-3.  输入你的自定义域名 `s.hwdemtv.com` 并保存。
+3.  输入你的自定义域名 `s.YOUR_USERNAME.com` 并保存。
 4.  （可选）在 **「平台设置」** 中将其设为默认域名。
 
