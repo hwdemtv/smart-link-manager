@@ -139,27 +139,27 @@ export default function AdminDashboard() {
           <TabsList className="grid w-full grid-cols-6 mb-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              {t("admin.tabs.overview")}
+              {t("admin.overview")}
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              {t("admin.tabs.users")}
+              {t("admin.users")}
             </TabsTrigger>
             <TabsTrigger value="links" className="flex items-center gap-2">
               <Link2 className="w-4 h-4" />
-              {t("admin.tabs.links")}
+              {t("admin.links")}
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-2">
               <Bell className="w-4 h-4" />
-              {t("admin.tabs.notifications")}
+              {t("admin.notifications")}
             </TabsTrigger>
             <TabsTrigger value="audit" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              {t("admin.tabs.audit")}
+              {t("admin.audit")}
             </TabsTrigger>
             <TabsTrigger value="system" className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
-              {t("admin.tabs.system")}
+              {t("admin.system_settings")}
             </TabsTrigger>
           </TabsList>
 

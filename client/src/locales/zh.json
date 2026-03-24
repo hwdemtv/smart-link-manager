@@ -235,14 +235,12 @@
     "userDistribution": "用户套餐分布",
     "accessDenied": "拒绝访问",
     "noPermission": "您没有权限访问此页面。",
-    "tabs": {
-      "overview": "数据概览",
-      "users": "用户管理",
-      "links": "短链管理",
-      "audit": "审计日志",
-      "notifications": "系统通知",
-      "system": "平台设置"
-    },
+    "overview": "数据概览",
+    "users": "用户管理",
+    "links": "短链管理",
+    "notifications": "系统通知管理",
+    "audit": "审计日志追踪",
+    "system_settings": "平台全局设置",
     "pagination": {
       "showing": "显示第 {{from}} - {{to}} 条，共 {{total}} 条",
       "prev": "上一页",

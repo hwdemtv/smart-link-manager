@@ -110,6 +110,38 @@ async function startServer() {
     await handleShortLinkRedirect(req, res, req.params.shortCode);
   });
 
+  // 2. 自定义域名短链路由 (Host 不是默认域名时，直接匹配短码)
+  app.get("/:shortCode", redirectRateLimiter, async (req, res, next) => {
+    const host = req.get('host') || '';
+    const defaultHost = process.env.VITE_APP_ID?.replace(/^https?:\/\//, '') || 'localhost';
+
+    // 如果是默认域名，跳过（交给前端路由处理）
+    if (host === defaultHost || host.startsWith('localhost') || host.startsWith('127.0.0.1') || host.includes(':3000')) {
+      return next();
+    }
+
+    // 自定义域名：提取域名部分（去掉端口）
+    const customDomain = host.split(':')[0];
+    const shortCode = req.params.shortCode;
+
+    // 排除静态资源和 API 路由
+    if (shortCode.startsWith('api') || shortCode.startsWith('assets') || shortCode.includes('.')) {
+      return next();
+    }
+
+    // 查询该域名下的短链
+    const { getLinkByDomainAndCode } = await import("../db");
+    const link = await getLinkByDomainAndCode(customDomain, shortCode);
+
+    if (link) {
+      logger.info(`[自定义域名] ${customDomain}/${shortCode} -> ${link.originalUrl}`);
+      await handleShortLinkRedirect(req, res, shortCode);
+    } else {
+      // 不是短链，交给前端路由
+      next();
+    }
+  });
+
   // 2. 保护高危鉴权接口 (防止暴力破解和撞库)
   app.use("/api/trpc", (req, res, next) => {
     const isHighRiskEndpoint = 
