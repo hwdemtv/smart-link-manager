@@ -29,6 +29,10 @@ export default function AiSettings() {
     temperature: 0.3,
   });
 
+  const testConnectionMutation = (
+    trpc.admin.testAiConnection as any
+  ).useMutation();
+
   const configQuery = (trpc.configs.getAiConfig as any).useQuery();
   const updateConfigMutation = (
     trpc.configs.updateAiConfig as any
@@ -47,6 +51,34 @@ export default function AiSettings() {
       configQuery.refetch();
     } catch (error: any) {
       toast.error(error.message || t("aiSettings.saveFailed"));
+    }
+  };
+
+  const handleTestConnection = async () => {
+    const loadingToast = toast.info(t("aiSettings.testing"));
+    try {
+      const result = await testConnectionMutation.mutateAsync({
+        baseUrl: formData.baseUrl,
+        apiKey: formData.apiKey,
+        model: formData.model,
+      });
+
+      toast.dismiss(loadingToast);
+      if (result.success) {
+        toast.success(
+          t("aiSettings.testSuccess", {
+            duration: result.duration,
+            model: result.model,
+          })
+        );
+      } else {
+        toast.error(
+          t("aiSettings.testFailed", { error: result.message || result.error })
+        );
+      }
+    } catch (error: any) {
+      toast.dismiss(loadingToast);
+      toast.error(t("aiSettings.testFailed", { error: error.message }));
     }
   };
 
@@ -187,8 +219,23 @@ export default function AiSettings() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="bg-accent-blue/5 border-t px-6 py-4">
-            <Button onClick={handleSave} className="ml-auto gap-2 bg-primary">
+          <CardFooter className="bg-accent-blue/5 border-t px-6 py-4 flex justify-between gap-4">
+            <Button
+              variant="outline"
+              onClick={handleTestConnection}
+              disabled={testConnectionMutation.isPending}
+              className="gap-2"
+            >
+              <Sparkles
+                className={`w-4 h-4 ${testConnectionMutation.isPending ? "animate-spin" : ""}`}
+              />
+              {t("aiSettings.testConnection")}
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={updateConfigMutation.isPending}
+              className="gap-2 bg-primary ml-auto"
+            >
               <Save className="w-4 h-4" />
               {t("aiSettings.saveConfig")}
             </Button>

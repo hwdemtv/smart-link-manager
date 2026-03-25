@@ -386,4 +386,18 @@ export const adminRouter = router({
       });
       return { success: true };
     }),
+
+  testAiConnection: adminProcedure
+    .input(
+      z.object({
+        baseUrl: z.string().optional(),
+        apiKey: z.string().optional(),
+        model: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      // 动态导入以避免循环依赖或加载顺序问题
+      const { testAiConnection } = await import("../aiSeoService");
+      return await testAiConnection(input);
+    }),
 });

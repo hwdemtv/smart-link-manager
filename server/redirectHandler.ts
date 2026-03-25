@@ -12,6 +12,8 @@ import { authService } from "./_core/sdk";
 import { Link } from "../drizzle/schema";
 import * as QRCode from "qrcode";
 
+const DEFAULT_SEO_IMAGE = "/default-seo.png";
+
 // QR 码缓存 - 缓存生成的 QR Data URL
 const qrCache = new Map<string, { dataUrl: string; expiresAt: number }>();
 const QR_CACHE_TTL_MS = 5 * 60 * 1000; // 5分钟缓存
@@ -96,6 +98,7 @@ async function renderQRPage(
   res: Response,
   shortCode: string,
   fullUrl: string,
+  link: Link,
   lng: "zh" | "en" = "zh"
 ): Promise<void> {
   const qrDataUrl = await getQRDataUrl(fullUrl);
@@ -146,10 +149,17 @@ async function renderQRPage(
       margin: 0 auto 16px;
     }
     .icon-wrap svg { width: 24px; height: 24px; color: #3b82f6; }
+    .cover-img {
+      width: 100%; height: 180px;
+      object-fit: cover;
+      border-bottom: 1px solid #f1f5f9;
+    }
     h1 {
-      font-size: 22px; font-weight: 700;
+      font-size: 20px; font-weight: 700;
       color: #0f172a;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+      padding: 0 10px;
     }
     .subtitle {
       font-size: 14px; color: #64748b;
@@ -192,7 +202,11 @@ async function renderQRPage(
       cursor: pointer;
       transition: background 0.2s;
     }
-    .btn:hover { background: #1e293b; }
+    .btn:hover { background: #1e293b; transform: translateY(-1px); }
+    .btn-secondary {
+      background: #f1f5f9; color: #475569; margin-top: 10px;
+    }
+    .btn-secondary:hover { background: #e2e8f0; }
     .btn svg { width: 16px; height: 16px; }
     .footer {
       margin-top: 24px;
@@ -238,26 +252,25 @@ async function renderQRPage(
 <body>
   <div class="card">
     <div class="gradient-bar"></div>
+    ${(link.seoImage || DEFAULT_SEO_IMAGE) ? `<img class="cover-img" src="${(link.seoImage || DEFAULT_SEO_IMAGE)}" alt="Cover" />` : ""}
     <div class="content">
       <div class="icon-wrap">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.826a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
         </svg>
       </div>
-      <h1>${t.title}</h1>
-      <p class="subtitle">${t.subtitle}</p>
+      <h1>${escapeHtml(link.seoTitle || t.title)}</h1>
+      <p class="subtitle">${escapeHtml(link.seoDescription || link.description || t.subtitle)}</p>
 
       <div class="qr-wrap">
         <img src="${qrDataUrl}" alt="QR Code" />
       </div>
 
-      <div class="link-box">${escapedUrl}</div>
-
-      <button class="btn" onclick="copyLink()">
+      <button class="btn" onclick="copyShareText()">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
         </svg>
-        ${t.copyBtn}
+        复制分享口令
       </button>
 
       <div class="footer">
@@ -270,28 +283,33 @@ async function renderQRPage(
   <div id="toast" class="toast">${t.copySuccess}</div>
 
   <script>
-    function copyLink() {
-      var url = "${escapedUrl}";
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(showToast).catch(fallbackCopy);
-      } else {
-        fallbackCopy();
-      }
-      function fallbackCopy() {
-        var ta = document.createElement('textarea');
-        ta.value = url;
-        ta.style.cssText = 'position:fixed;left:-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        showToast();
-      }
-      function showToast() {
-        var t = document.getElementById('toast');
-        t.classList.add('show');
-        setTimeout(function() { t.classList.remove('show'); }, 2000);
-      }
+    function copyShareText() {
+        const title = "${escapeJson(link.seoTitle || t.title)}";
+        const url = "${escapedUrl}";
+        const desc = "${escapeJson(link.description || '')}";
+        const text = "【" + title + "】\\n🔗 链接：" + url + (desc ? "\\n🔑 " + desc : "") + "\\n—— 来自 互为AI超级个体";
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(showToast).catch(fallbackCopy);
+        } else {
+          fallbackCopy();
+        }
+        function fallbackCopy() {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.cssText = 'position:fixed;left:-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast();
+        }
+    }
+    function showToast() {
+      var t = document.getElementById('toast');
+      t.innerText = "分享口令已复制";
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2000);
     }
   </script>
 </body>
@@ -591,7 +609,7 @@ export async function handleShortLinkRedirect(
       const acceptLanguage = req.headers["accept-language"] || "";
       const lng = acceptLanguage.toLowerCase().includes("zh") ? "zh" : "en";
 
-      return renderQRPage(res, shortCode, fullUrl, lng as "zh" | "en");
+      return renderQRPage(res, shortCode, fullUrl, link, lng as "zh" | "en");
     }
   } catch (error) {
     logger.error("[短链引擎跳转] 未知崩溃:", error);

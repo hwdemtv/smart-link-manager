@@ -163,6 +163,7 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
       try {
         const seo = await generateSeoMutation.mutateAsync({
           url: link.originalUrl,
+          description: link.description || undefined,
         });
         await updateLinkMutation.mutateAsync({
           linkId: id,
@@ -225,8 +226,11 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
     document.body.removeChild(link);
   };
 
-  const generateSeo = async (url: string): Promise<SeoResult> => {
-    const result = await generateSeoMutation.mutateAsync({ url });
+  const generateSeo = async (
+    url: string,
+    description?: string
+  ): Promise<SeoResult> => {
+    const result = await generateSeoMutation.mutateAsync({ url, description });
     if ((result as any).success) {
       toast.success(t("dashboard.seoGenerated"));
     }

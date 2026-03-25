@@ -758,7 +758,11 @@
     "creative": "Creative (1.5)",
     "saveConfig": "Save Config",
     "saveSuccess": "AI config saved",
-    "saveFailed": "Save failed"
+    "saveFailed": "Save failed",
+    "testConnection": "Test Connection",
+    "testing": "Testing connection...",
+    "testSuccess": "Connection successful! AI is responsive (Time: {{duration}}ms, Model: {{model}})",
+    "testFailed": "Connection failed: {{error}}"
   },
   "recycleBin": {
     "title": "Recycle Bin",

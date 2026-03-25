@@ -757,7 +757,11 @@
     "creative": "创意 (1.5)",
     "saveConfig": "保存配置",
     "saveSuccess": "AI 配置已保存",
-    "saveFailed": "保存失败"
+    "saveFailed": "保存失败",
+    "testConnection": "连通性测试",
+    "testing": "正在尝试连接...",
+    "testSuccess": "连接成功！AI 响应正常 (耗时: {{duration}}ms, 模型: {{model}})",
+    "testFailed": "连通性异常：{{error}}"
   },
   "recycleBin": {
     "title": "回收站",

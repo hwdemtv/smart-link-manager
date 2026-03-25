@@ -120,7 +120,7 @@ export default function QRPage() {
         {/* Short Code Display */}
         <div className="text-center space-y-2">
           <p className="text-sm text-muted-foreground">{t("qr.shortLink")}</p>
-          <p className="font-mono text-lg font-semibold text-accent break-all">
+          <p className="font-mono text-lg font-semibold text-blue-600 break-all">
             {fullUrl}
           </p>
         </div>

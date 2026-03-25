@@ -99,12 +99,13 @@ export function LinkFormDialog({
     if (!formData.originalUrl) {
       return;
     }
-    const result = await onGenerateSeo(formData.originalUrl);
+    const result = await onGenerateSeo(formData.originalUrl, formData.description);
     if (result.success) {
       setFormData(prev => ({
         ...prev,
         seoTitle: result.seoTitle || prev.seoTitle,
         seoDescription: result.seoDescription || prev.seoDescription,
+        seoImage: result.seoImage || prev.seoImage,
       }));
     }
   };
@@ -207,10 +208,13 @@ export function LinkFormDialog({
             </Label>
             <Input
               id="description"
-              placeholder={t("dashboard.addNote")}
+              placeholder={t("dashboard.descriptionPlaceholder", "如：互为螺旋AI超级个体修行社实战课，提取码 1234")}
               value={formData.description}
               onChange={e => handleInputChange("description", e.target.value)}
             />
+            <p className="text-[10px] text-muted-foreground mt-1 px-1">
+              💡 {t("dashboard.descriptionHint", "提示：输入资源描述或网盘提取码，可帮助 AI 生成更精准的 SEO 标题")}
+            </p>
           </div>
 
           {/* Expires At */}

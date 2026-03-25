@@ -28,10 +28,13 @@
  */
 export function createPatchedFetch(originalFetch: typeof fetch): typeof fetch {
   return async (input, init) => {
+    const url = typeof input === "string" ? input : (input as Request).url || input.toString();
+    const isForge = url.toLowerCase().includes("forge");
+
     const response = await originalFetch(input, init);
 
-    // Only patch streaming responses
-    if (!response.body) return response;
+    // Only patch streaming responses for Forge
+    if (!response.body || !isForge) return response;
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();

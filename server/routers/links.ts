@@ -414,10 +414,15 @@ export const linksRouter = router({
     }),
 
   generateSeo: protectedProcedure
-    .input(z.object({ url: z.string().url() }))
+    .input(
+      z.object({
+        url: z.string().url(),
+        description: z.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       try {
-        const seoData = await generateSeoFromUrl(input.url);
+        const seoData = await generateSeoFromUrl(input.url, input.description);
         return { success: true, ...seoData };
       } catch (error) {
         const err = error as { message?: string };

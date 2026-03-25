@@ -85,6 +85,7 @@ export interface SeoResult {
   success: boolean;
   seoTitle?: string;
   seoDescription?: string;
+  seoImage?: string;
 }
 
 /**
@@ -152,7 +153,7 @@ export interface LinkFormDialogProps {
   domains: Domain[];
   onSubmit: (data: LinkFormData) => Promise<void>;
   isSubmitting: boolean;
-  onGenerateSeo: (url: string) => Promise<SeoResult>;
+  onGenerateSeo: (url: string, description?: string) => Promise<SeoResult>;
   isGeneratingSeo: boolean;
 }
 

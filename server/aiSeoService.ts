@@ -1,9 +1,10 @@
-import { generateObject } from "ai";
+import { generateText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
-import { z } from "zod";
 import { ENV } from "./_core/env";
 import { createPatchedFetch } from "./_core/patchedFetch";
 import { logger } from "./_core/logger";
+
+const DEFAULT_SEO_IMAGE = "/default-seo.png";
 
 import { getSystemConfig } from "./db";
 
@@ -55,9 +56,41 @@ function extractTextFromHTML(html: string): string {
 }
 
 /**
- * AI智能分析原网页提炼SEO内容
- * @param url 需要分析的原始链接
+ * 从大模型输出文本中智能提取 JSON（兼容 markdown 包裹、裸 JSON、混入说明文字）
  */
+function extractJsonFromText(
+  text: string
+): { seoTitle: string; seoDescription: string; seoImage?: string } | null {
+  // 尝试 1: 直接解析
+  try {
+    return JSON.parse(text.trim());
+  } catch {
+    /* 继续 */
+  }
+
+  // 尝试 2: 从 ```json ... ``` 代码块提取
+  const mdMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (mdMatch) {
+    try {
+      return JSON.parse(mdMatch[1].trim());
+    } catch {
+      /* 继续 */
+    }
+  }
+
+  // 尝试 3: 正则全文匹配第一个 {...} 对象
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      return JSON.parse(jsonMatch[0]);
+    } catch {
+      /* 继续 */
+    }
+  }
+
+  return null;
+}
+
 /**
  * 校验 URL 是否安全（SSRF 防护）
  * 拦截内网 IP 和私有地址段
@@ -88,8 +121,8 @@ function validateUrlForSsrf(url: string): void {
     /^fc00:/,
     /^fe80:/,
     /^0\.0\.0\.0$/,
-    /^169\.254\./,        // Link-local
-    /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./,  // CGNAT
+    /^169\.254\./, // Link-local
+    /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./, // CGNAT
   ];
 
   for (const pattern of blockedPatterns) {
@@ -99,8 +132,57 @@ function validateUrlForSsrf(url: string): void {
   }
 }
 
-export async function generateSeoFromUrl(url: string) {
+/**
+ * AI智能分析原网页提炼SEO内容
+ * @param url 需要分析的原始链接
+ * @param description 可选的用户描述背景
+ */
+export async function generateSeoFromUrl(url: string, description?: string) {
   try {
+    const defaultResult = {
+      seoTitle: "",
+      seoDescription: "",
+      seoImage: DEFAULT_SEO_IMAGE,
+    };
+
+    // 优先策略：如果用户已填入描述，直接用描述来生成 SEO
+    // 无需抓取网页（特别适合网盘链接、需登录的页面等）
+    if (description && description.trim().length > 0) {
+      logger.info(
+        `[AI SEO] 检测到用户描述，跳过网页抓取，直接基于描述生成 SEO...`
+      );
+
+      const { provider, modelName, temperature } = await createLLMProvider();
+      const { text } = await generateText({
+        model: provider.chat(modelName),
+        prompt: `你是一个专业的数字营销与 SEO 专家。
+请根据用户提供的链接描述，撰写高质量的 SEO 标题(seoTitle)和页面摘要描述(seoDescription)。
+语言：必须使用中文。
+风格：吸引点击、清晰传达价值。
+目标链接：${url}
+seoTitle 建议 20-40 个汉字，seoDescription 建议 80-150 个汉字。
+
+💡 特别要求：如果描述中包含“网盘提取码”或类似取件码（如数字、字母组合），请**务必且必须**将其原样包含在标题或描述中（建议优先放在标题里，如：[提取码: 9999]）。这是为了确保用户能直接看到。
+
+重要：只返回一个 JSON 对象，不要包含任何 Markdown 代码块标签：
+{"seoTitle": "...", "seoDescription": "...", "seoImage": "..."}
+
+用户提供的描述：
+${description.trim()}`,
+        temperature,
+      });
+
+      const parsed = extractJsonFromText(text);
+      const result = {
+        seoTitle: (parsed?.seoTitle || "").slice(0, 60),
+        seoDescription: (parsed?.seoDescription || "").slice(0, 160),
+        seoImage: parsed?.seoImage || DEFAULT_SEO_IMAGE,
+      };
+      logger.info("[AI SEO] 基于用户描述生成 SEO 完成", result);
+      return { success: true, ...result };
+    }
+
+    // 降级策略：无描述时抓取网页内容
     // SSRF 防护：校验目标 URL 合法性
     validateUrlForSsrf(url);
 
@@ -142,39 +224,120 @@ export async function generateSeoFromUrl(url: string) {
     // 2. 初始化大模型提供者和参数
     const { provider, modelName, temperature } = await createLLMProvider();
 
-    // 3. 调用大模型结构化输出
-    const result = await generateObject({
+    // 3. 调用 generateText（兼容所有大模型，不依赖 Function Calling）
+    const { text } = await generateText({
       model: provider.chat(modelName),
-      schema: z.object({
-        seoTitle: z
-          .string()
-          .max(60)
-          .describe(
-            "高度凝练、吸引点击的网页标题，不超过 40 个中文字符，用于社交平台和搜索引擎优化。"
-          ),
-        seoDescription: z
-          .string()
-          .max(160)
-          .describe(
-            "用于展示在连接下方的摘要，概述网站/网页核心价值或内容，引人入胜，不超过 120 个中文字符。"
-          ),
-      }),
       prompt: `你是一个专业的数字营销与 SEO 专家。
-请根据以下提取到的网页文本内容，为其撰写高质量的 SEO 标题(Title)和页面摘要描述(Description)。
+请根据以下提取到的网页文本内容，为其撰写高质量的 SEO 标题(seoTitle)和页面摘要描述(seoDescription)。
 语言：必须使用中文。
 风格：吸引点击、清晰表达核心商品/内容信息。
+seoTitle 建议 40-60 个汉字，seoDescription 建议 100-160 个汉字。
+
+💡 特别要求：如果网页文本中提示了“提取码”、“取件密码”等信息，请**务必将其原样**包含在 SEO 标题或描述中。同时，如果没找到网页的主题封面图（或是解析出的图片与内容无关），请将 seoImage 设为空字符串，以便系统填充默认封面。
+
+重要：只返回一个 JSON 对象，格式如下，不要包含任何 Markdown 代码块标签：
+{"seoTitle": "...", "seoDescription": "...", "seoImage": "..."}
 
 ---网页抓取文本摘要信息---
 ${textContent}
 -----------------------`,
-      temperature, // 使用配置的温度
+      temperature,
     });
 
-    logger.info("[AI SEO] AI 分析完成", result.object);
-    return result.object;
+    // 4. 多层 JSON 提取（兼容 markdown 包裹和裸 JSON）
+    const parsed = extractJsonFromText(text);
+    if (
+      !parsed ||
+      typeof parsed.seoTitle !== "string" ||
+      typeof parsed.seoDescription !== "string"
+    ) {
+      throw new Error(
+        "AI 未能生成有效的 JSON 格式 SEO 数据，原始响应: " + text.slice(0, 200)
+      );
+    }
+
+    // 5. 业务层截断逻辑，确保入库安全
+    const finalObject = {
+      seoTitle: parsed.seoTitle.slice(0, 60),
+      seoDescription: parsed.seoDescription.slice(0, 160),
+      seoImage: parsed.seoImage || DEFAULT_SEO_IMAGE,
+    };
+
+    logger.info("[AI SEO] AI 分析完成并已自动截断", finalObject);
+    return { success: true, ...finalObject };
   } catch (error) {
     const aiError = error as { message?: string };
     logger.error("[AI SEO] 分析失败:", error);
     throw new Error(aiError.message || "智能生成 SEO 失败");
+  }
+}
+
+/**
+ * 测试 AI 连通性
+ * @param config 可选的临时配置，用于在保存前测试
+ */
+export async function testAiConnection(config?: {
+  baseUrl?: string;
+  apiKey?: string;
+  model?: string;
+}) {
+  try {
+    const dbConfigValue = await getSystemConfig("aiConfig");
+    let baseURL = config?.baseUrl || ENV.forgeApiUrl;
+    let apiKey = config?.apiKey || ENV.forgeApiKey;
+    let modelName = config?.model || "gpt-4o";
+
+    if (!config && dbConfigValue) {
+      try {
+        const dbConfig =
+          typeof dbConfigValue === "string"
+            ? JSON.parse(dbConfigValue)
+            : dbConfigValue;
+        if (dbConfig.baseUrl) baseURL = dbConfig.baseUrl;
+        if (dbConfig.apiKey) apiKey = dbConfig.apiKey;
+        if (dbConfig.model) modelName = dbConfig.model;
+      } catch (e) {
+        // 忽略解析错误，使用默认或传入值
+      }
+    }
+
+    if (!apiKey) {
+      throw new Error("API Key 未配置");
+    }
+
+    const finalBaseURL = baseURL.endsWith("/v1") ? baseURL : `${baseURL}/v1`;
+
+    const provider = createOpenAI({
+      baseURL: finalBaseURL,
+      apiKey,
+      fetch: createPatchedFetch(fetch),
+    });
+
+    const startTime = Date.now();
+    const { text } = await generateText({
+      model: provider.chat(modelName),
+      prompt: "Respond with 'pong' in 1 word.",
+    });
+    const duration = Date.now() - startTime;
+
+    return {
+      success: true,
+      message: text.trim(),
+      duration,
+      model: modelName,
+    };
+  } catch (error) {
+    const aiError = error as {
+      message?: string;
+      name?: string;
+      status?: number;
+    };
+    logger.error("[AI Test] 连通性测试失败:", error);
+    return {
+      success: false,
+      message: aiError.message || "连接超时或认证失败",
+      error: aiError.name || "UnknownError",
+      status: aiError.status,
+    };
   }
 }
