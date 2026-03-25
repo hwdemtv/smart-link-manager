@@ -90,19 +90,136 @@
   },
   "home": {
     "title": "Smarter Link Management",
-    "subtitle": "Professional platform for link shortening, tracking, and analytics.",
-    "getStarted": "Get Started",
+    "subtitle": "Professional platform for link shortening, tracking, and analytics. 2ms blazing fast redirects with global click tracking.",
+    "getStarted": "Get Started Free",
+    "learnMore": "Learn More",
+    "tryNow": "Try It Now",
+    "enterUrl": "Paste your long URL...",
+    "shortenBtn": "Shorten",
+    "tryResult": "Your short link:",
+    "saveLink": "Save This Link",
     "featuresTitle": "Powerful Features",
     "featuresSubtitle": "Everything you need to manage and share links",
+    "statsBar": {
+      "linksCreated": "Links Created",
+      "enterprisesServed": "Enterprises Served",
+      "uptime": "System Uptime"
+    },
+    "useCases": {
+      "title": "Application Scenarios",
+      "subtitle": "Professional short link solutions for different industry needs",
+      "cloudDrive": {
+        "title": "Cloud Drive Referral",
+        "desc": "Shorten Baidu, Quark, Thunder cloud links with secure verification pages to reduce blocking risks and boost conversion."
+      },
+      "offlineMarketing": {
+        "title": "Offline Marketing & QR",
+        "desc": "Generate exclusive QR codes for each offline touchpoint with geographic and device tracking for full funnel analysis."
+      },
+      "crossPlatform": {
+        "title": "Cross-Platform Deep Linking",
+        "desc": "Auto-detect visitor system: iOS redirects to App Store, Android downloads APK, PC shows guidance QR code."
+      },
+      "socialMarketing": {
+        "title": "Social & SMS Marketing",
+        "desc": "Use ultra-short suffixes to save SMS character costs; brand custom domains for higher click trust on social platforms."
+      }
+    },
     "features": {
-      "tracking": "Data Tracking",
-      "trackingDesc": "Detailed click statistics including geography, device, and source.",
-      "domains": "Custom Domains",
-      "domainsDesc": "Use your own domains to increase brand trust.",
-      "security": "Secure & Reliable",
-      "securityDesc": "Enterprise-grade encryption and access controls to keep your data safe."
+      "tracking": "Real-time Tracking",
+      "trackingDesc": "Millisecond click recording with deep analysis of geography, device and browser sources.",
+      "abTest": "A/B Testing",
+      "abTestDesc": "One entry point, multiple page splits. Optimize marketing conversion in real-time based on probability.",
+      "qrCode": "QR Code Center",
+      "qrCodeDesc": "Each short link automatically pairs with HD QR code, supporting server-side rendering for speed.",
+      "developer": "Developer Friendly",
+      "developerDesc": "Complete OpenAPI integration with SDK and Webhooks support.",
+      "mobile": "WeChat/QR Optimization",
+      "mobileDesc": "Specially optimized for mobile environments, reducing short link blocking risks on social platforms.",
+      "security": "Access Control",
+      "securityDesc": "Support password access, IP blacklist and visitor verification to protect sensitive data preview."
+    },
+    "pricing": {
+      "title": "Choose Your Plan",
+      "subtitle": "Flexible pricing for everyone from individuals to enterprises",
+      "free": {
+        "name": "Free",
+        "desc": "Free Tier",
+        "price": "$0",
+        "period": "/mo",
+        "links": "20 Links",
+        "domains": "1 Domain",
+        "apiKeys": "1 API Key",
+        "abTest": "Basic",
+        "support": "Community Support",
+        "cta": "Get Started"
+      },
+      "pro": {
+        "name": "Pro",
+        "desc": "Professional",
+        "price": "$9",
+        "period": "/mo",
+        "links": "500 Links",
+        "domains": "5 Domains",
+        "apiKeys": "5 API Keys",
+        "abTest": "Full Support",
+        "support": "Priority Support",
+        "cta": "Upgrade to Pro",
+        "badge": "Popular"
+      },
+      "business": {
+        "name": "Business",
+        "desc": "Enterprise",
+        "price": "$29",
+        "period": "/mo",
+        "links": "Unlimited Links",
+        "domains": "10 Domains",
+        "apiKeys": "10 API Keys",
+        "abTest": "Full Support",
+        "support": "24/7 Dedicated Support",
+        "cta": "Contact Sales"
+      }
+    },
+    "faq": {
+      "title": "FAQ",
+      "subtitle": "Common questions about short link services",
+      "q1": "How long do short links last?",
+      "a1": "Short links are valid indefinitely by default. You can set expiration time or manually deactivate anytime via dashboard.",
+      "q2": "Do you support custom domains?",
+      "a2": "Yes, you can bind your own independent domain to significantly boost brand click trust.",
+      "q3": "How to prevent links from being blocked on social apps?",
+      "a3": "We use adaptive device detection and secure page guidance technology to effectively improve mobile access success rate.",
+      "q4": "Can I modify the short link if the target URL changes?",
+      "a4": "Real-time modification is supported. You can update the target address anytime without changing the short code.",
+      "q5": "Do you support cloud drive referral marketing?",
+      "a5": "Perfectly supported. You can shorten various cloud drive links and use async redirect technology to improve click conversion on social platforms.",
+      "q6": "What if my cloud drive links keep getting blocked?",
+      "a6": "Enable secure verification page or QR code transfer function to effectively hide the original address and reduce platform blocking risks.",
+      "q7": "Can one short link redirect to multiple different addresses?",
+      "a7": "Absolutely. Through built-in A/B testing split function, you can set multiple target URLs with custom allocation ratios.",
+      "q8": "Why does the redirect feel faster than other platforms?",
+      "a8": "We use proprietary async decision engine and server-side rendering technology, compressing response latency to 2-3ms.",
+      "q9": "Is click data real-time?",
+      "a9": "Yes, it updates in real-time. Whenever someone clicks your link, stats sync instantly to your dashboard.",
+      "q10": "How do you protect data privacy?",
+      "a10": "We follow privacy-first principles, automatically anonymizing IPs when recording locations, with all connections SSL encrypted."
     },
     "footer": {
+      "product": "Product",
+      "productFeatures": "Features",
+      "pricing": "Pricing",
+      "changelog": "Changelog",
+      "developer": "Developer",
+      "apiDocs": "API Docs",
+      "sdk": "SDK Download",
+      "monitoring": "Monitoring",
+      "company": "Company",
+      "about": "About Us",
+      "sitemap": "Sitemap",
+      "legal": "Legal",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "security": "Security Center",
       "rights": "All rights reserved."
     }
   },

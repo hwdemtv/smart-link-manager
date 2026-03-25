@@ -79,6 +79,15 @@ export const links = mysqlTable(
     seoTitle: varchar("seoTitle", { length: 255 }),
     seoDescription: text("seoDescription"),
     seoImage: text("seoImage"),
+    // SEO 高级字段
+    seoPriority: int("seoPriority").default(80), // sitemap priority (0-100, 默认80)
+    noIndex: int("noIndex").default(0), // 1 = noindex, 不被搜索引擎索引
+    redirectType: varchar("redirectType", { length: 3 }).default("302"), // 301/302/307/308
+    seoKeywords: text("seoKeywords"), // SEO 关键词 (逗号分隔)
+    canonicalUrl: varchar("canonicalUrl", { length: 500 }), // 自定义 canonical URL
+    ogVideoUrl: text("ogVideoUrl"), // Open Graph 视频预览 URL
+    ogVideoWidth: int("ogVideoWidth").default(1200),
+    ogVideoHeight: int("ogVideoHeight").default(630),
     // A/B Testing Fields
     abTestEnabled: int("abTestEnabled").default(0).notNull(), // 1 = enabled, 0 = disabled
     abTestUrl: text("abTestUrl"), // Target URL for variant B

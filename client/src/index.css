@@ -41,85 +41,87 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Brand Colors */
-  --color-accent-blue: #3b82f6;
-  --color-powder-blue: #bfdbfe;
-  --color-accent-pink: #ec4899;
-  --color-blush-pink: #fbcfe8;
+  /* Brand Colors - Cyber-Mecha Boost */
+  --color-accent-blue: #00BFA5; /* 玉石青/极光青 */
+  --color-powder-blue: #00C2FF; /* 极光蓝 */
+  --color-accent-pink: #E8C361; /* 明亮金 */
+  --color-blush-pink: #FF6B6B;  /* 柔和红 */
 }
 
 :root {
   /* Scandinavian aesthetic - cool grays and soft pastels */
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: #a8d5f7;
-  --chart-2: #d4e4f7;
-  --chart-3: #f5d5e0;
-  --chart-4: #e8b4d0;
-  --chart-5: #b8d4e8;
-  --radius: 0.65rem;
-  /* Light theme - cool grays with Scandinavian aesthetic */
-  --background: oklch(0.98 0.001 286);
-  --foreground: oklch(0.2 0.02 280);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 280);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 280);
-  --secondary: oklch(0.95 0.002 286);
-  --secondary-foreground: oklch(0.35 0.015 280);
-  --muted: oklch(0.7 0.01 280);
-  --muted-foreground: oklch(0.55 0.015 280);
-  --accent: oklch(0.85 0.08 250);
-  --accent-foreground: oklch(0.2 0.02 280);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.003 286);
-  --input: oklch(0.98 0.001 286);
-  --ring: oklch(0.8 0.1 250);
-  --sidebar: oklch(0.98 0.001 286);
-  --sidebar-foreground: oklch(0.2 0.02 280);
-  --sidebar-accent: oklch(0.85 0.08 250);
-  --sidebar-accent-foreground: oklch(0.2 0.02 280);
-  --sidebar-border: oklch(0.92 0.003 286);
-  --sidebar-ring: oklch(0.8 0.1 250);
+  --primary: #009688; /* 沉稳青 */
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #009688;
+  --sidebar-primary-foreground: #FFFFFF;
+  --chart-1: #00BFA5;
+  --chart-2: #00C2FF;
+  --chart-3: #E8C361;
+  --chart-4: #FF6B6B;
+  --chart-5: #6B7280;
+  --radius: 0.75rem;
+
+  /* Light theme - 无菌实验室风格 (Lab-Clinic Light) */
+  --background: #F5F7FA;
+  --foreground: #1D1F23;
+  --card: #FFFFFF;
+  --card-foreground: #1D1F23;
+  --popover: #FFFFFF;
+  --popover-foreground: #1D1F23;
+  --secondary: #E5E8EB;
+  --secondary-foreground: #374151;
+  --muted: #F3F4F6;
+  --muted-foreground: #6B7280;
+  --accent: #F0FDF4;
+  --accent-foreground: #047857;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --input: #F3F4F6;
+  --ring: #00BFA5;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1D1F23;
+  --sidebar-accent: #F0FDF4;
+  --sidebar-accent-foreground: #047857;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #00BFA5;
 }
 
 .dark {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-500);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  /* Dark theme - cool grays with Scandinavian aesthetic */
-  --background: oklch(0.15 0.01 280);
-  --foreground: oklch(0.9 0.005 65);
-  --card: oklch(0.22 0.008 280);
-  --card-foreground: oklch(0.9 0.005 65);
-  --popover: oklch(0.22 0.008 280);
-  --popover-foreground: oklch(0.9 0.005 65);
-  --secondary: oklch(0.28 0.008 280);
-  --secondary-foreground: oklch(0.8 0.005 65);
-  --muted: oklch(0.35 0.008 280);
-  --muted-foreground: oklch(0.7 0.01 280);
-  --accent: oklch(0.5 0.08 250);
-  --accent-foreground: oklch(0.9 0.005 65);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.3 0.01 280);
-  --input: oklch(0.25 0.008 280);
-  --ring: oklch(0.6 0.1 250);
-  --chart-1: #a8d5f7;
-  --chart-2: #d4e4f7;
-  --chart-3: #f5d5e0;
-  --chart-4: #e8b4d0;
-  --chart-5: #b8d4e8;
-  --sidebar: oklch(0.22 0.008 280);
-  --sidebar-foreground: oklch(0.9 0.005 65);
-  --sidebar-accent: oklch(0.5 0.08 250);
-  --sidebar-accent-foreground: oklch(0.9 0.005 65);
-  --sidebar-border: oklch(0.3 0.01 280);
-  --sidebar-ring: oklch(0.6 0.1 250);
+  /* Dark theme - 赛博机甲风格 (Cyber-Mecha Dark) */
+  --primary: #00BFA5;
+  --primary-foreground: #13161A;
+  --sidebar-primary: #00BFA5;
+  --sidebar-primary-foreground: #13161A;
+
+  --background: #13161A; /* 极光暗蓝 */
+  --foreground: #F2F5F9; /* 星尘白 */
+  --card: #1C2028;       /* 深渊钢板 */
+  --card-foreground: #F2F5F9;
+  --popover: #1C2028;
+  --popover-foreground: #F2F5F9;
+  --secondary: #242A35;  /* 幽蓝灰 */
+  --secondary-foreground: #A3AAB8;
+  --muted: #1A1D23;
+  --muted-foreground: #A3AAB8;
+  --accent: rgba(0, 191, 165, 0.1);
+  --accent-foreground: #00BFA5;
+  --destructive: #EF5350;
+  --destructive-foreground: #FFFFFF;
+  --border: #242A35;
+  --input: #1A1D23;
+  --ring: #00BFA5;
+  --chart-1: #00BFA5;
+  --chart-2: #00C2FF;
+  --chart-3: #E8C361;
+  --chart-4: #EF5350;
+  --chart-5: #A3AAB8;
+  --sidebar: #1C2028;
+  --sidebar-foreground: #F2F5F9;
+  --sidebar-accent: rgba(0, 191, 165, 0.1);
+  --sidebar-accent-foreground: #00BFA5;
+  --sidebar-border: #242A35;
+  --sidebar-ring: #00BFA5;
 }
 
 @layer base {

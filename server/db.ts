@@ -340,9 +340,20 @@ const linkCoreFields = {
   abTestEnabled: links.abTestEnabled,
   abTestUrl: links.abTestUrl,
   abTestRatio: links.abTestRatio,
+  // SEO 基础字段
   seoTitle: links.seoTitle,
   seoDescription: links.seoDescription,
   seoImage: links.seoImage,
+  // SEO 高级字段 - 需要先执行 drizzle/add-seo-fields.sql
+  // 取消注释以下行以启用 SEO 高级功能：
+  // seoPriority: links.seoPriority,
+  // noIndex: links.noIndex,
+  // redirectType: links.redirectType,
+  // seoKeywords: links.seoKeywords,
+  // canonicalUrl: links.canonicalUrl,
+  // ogVideoUrl: links.ogVideoUrl,
+  // ogVideoWidth: links.ogVideoWidth,
+  // ogVideoHeight: links.ogVideoHeight,
   // passwordHash 故意在此排除
 };
 

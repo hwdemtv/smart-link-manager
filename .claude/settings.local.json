@@ -23,7 +23,17 @@
       "Bash(do echo:*)",
       "Bash(1 done:*)",
       "Read(//d/软件开发/smart-link-manager/**)",
-      "Bash(do curl:*)"
+      "Bash(do curl:*)",
+      "Bash(LOCAL=\"D:/软件开发/smart-link-manager\")",
+      "Bash(REMOTE=\"ubuntu@43.156.55.3\")",
+      "Bash(KEY=\"D:/Users/hwdem/Downloads/PC.pem\")",
+      "Bash(DEST=\"/www/wwwroot/smart-link-manager\")",
+      "Bash(__NEW_LINE_859a25513c723c0e__ echo:*)",
+      "Bash(ssh -i \"D:/Users/hwdem/Downloads/PC.pem\" ubuntu@43.156.55.3 \"sudo ps aux | grep ''node'' | grep -v grep; echo ''---''; curl -sI http://localhost:3000 | head -5\")",
+      "Bash(curl -s http://localhost:3000/robots.txt)",
+      "Bash(curl -s http://localhost:3000/sitemap.xml)",
+      "Bash(head -30 __NEW_LINE_245c2c62f41bd428__ echo \"\" echo \"3. 测试短链 SEO 预览 \\(Googlebot\\):\" curl -s -A \"Googlebot/2.1\" \"http://localhost:3000/s/0rcqaq\")",
+      "Bash(curl -s -A \"Googlebot/2.1\" \"http://localhost:3000/s/0rcqaq\")"
     ]
   }
 }

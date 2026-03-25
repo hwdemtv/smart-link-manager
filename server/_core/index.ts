@@ -16,6 +16,7 @@ import { appRouter } from "../routers/index";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { handleShortLinkRedirect } from "../redirectHandler";
+import { handleRobotsTxt, handleSitemap } from "../seoHandler";
 import { ENV, generatedPassword } from "./env";
 import * as db from "../db";
 import { scrypt, randomBytes } from "crypto";
@@ -227,6 +228,10 @@ async function startServer() {
   // 引入 REST API 路由 (OpenAPI)
   const restRouter = (await import("../restRouter")).default;
   app.use("/api/v1", restRouter);
+
+  // SEO 路由: robots.txt 和 sitemap.xml
+  app.get("/robots.txt", handleRobotsTxt);
+  app.get("/sitemap.xml", handleSitemap);
 
   // 1. 保护公开的短链跳转解析引擎 (防大量爬虫或扫描器探底)
   app.get(

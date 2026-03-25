@@ -371,6 +371,9 @@ export async function handleShortLinkRedirect(
       // 安全加固：如果设有访问密码，SEO 预览不应包含真实目标 URL，防止鉴权绕过
       const isProtected = !!link.passwordHash;
 
+      // noIndex 检查：如果设置了 noIndex 或是密码保护，则禁止索引
+      const shouldNoIndex = link.noIndex === 1 || isProtected;
+
       // 对用户可控字段进行 HTML 转义，防止 XSS
       const title = escapeHtml(link.seoTitle || "Smart Link Preview");
       const description = isProtected
@@ -385,11 +388,50 @@ export async function handleShortLinkRedirect(
         `${req.protocol}://${req.get("host")}${req.originalUrl}`
       );
 
+      // 视频预览支持
+      const ogVideo = link.ogVideoUrl ? {
+        url: escapeHtml(link.ogVideoUrl),
+        width: link.ogVideoWidth || 1200,
+        height: link.ogVideoHeight || 630,
+      } : null;
+
       // 如果受保护，则不向 Bot 展示真实 URL
       const displayUrl = isProtected
         ? currentUrl
         : escapeHtml(link.originalUrl);
       const jsonOriginalUrl = isProtected ? "" : escapeJson(link.originalUrl);
+
+      // Canonical URL：优先使用自定义 canonical，否则使用原始 URL
+      const canonicalUrl = link.canonicalUrl
+        ? escapeHtml(link.canonicalUrl)
+        : displayUrl;
+
+      // JSON-LD 结构化数据
+      const jsonLd = isProtected
+        ? JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Protected Link",
+            "description": "This link is password protected",
+            "url": currentUrl,
+            "isAccessibleForFree": false,
+          })
+        : JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": title,
+            "description": description,
+            "url": currentUrl,
+            ...(image && { image }),
+            "mainEntity": {
+              "@type": "WebPage",
+              "url": link.originalUrl,
+            },
+            "potentialAction": {
+              "@type": "ViewAction",
+              "target": link.originalUrl,
+            },
+          });
 
       return res.status(200).send(
         `
@@ -400,22 +442,37 @@ export async function handleShortLinkRedirect(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <meta name="description" content="${description}">
-  ${!isProtected ? `<link rel="canonical" href="${displayUrl}">` : ""}
+  ${!shouldNoIndex ? `<link rel="canonical" href="${canonicalUrl}">` : ""}
+  ${shouldNoIndex ? `<meta name="robots" content="noindex, nofollow">` : ""}
 
   <!-- Open Graph / Facebook / WeChat -->
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="${ogVideo ? 'video' : 'website'}">
   <meta property="og:url" content="${currentUrl}">
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${description}">
-  <meta property="og:image" content="${image}">
+  ${image ? `<meta property="og:image" content="${image}">` : ""}
   <meta property="og:site_name" content="Smart Link Manager">
+  ${ogVideo ? `
+  <meta property="og:video" content="${ogVideo.url}">
+  <meta property="og:video:width" content="${ogVideo.width}">
+  <meta property="og:video:height" content="${ogVideo.height}">
+  <meta property="og:video:type" content="video/mp4">
+  ` : ""}
 
   <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:card" content="${ogVideo ? 'player' : 'summary_large_image'}">
   <meta name="twitter:url" content="${currentUrl}">
   <meta name="twitter:title" content="${title}">
   <meta name="twitter:description" content="${description}">
-  <meta name="twitter:image" content="${image}">
+  ${image ? `<meta name="twitter:image" content="${image}">` : ""}
+  ${ogVideo ? `
+  <meta name="twitter:player" content="${ogVideo.url}">
+  <meta name="twitter:player:width" content="${ogVideo.width}">
+  <meta name="twitter:player:height" content="${ogVideo.height}">
+  ` : ""}
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">${jsonLd}</script>
 
   ${
     !isProtected
@@ -481,18 +538,24 @@ export async function handleShortLinkRedirect(
       }),
     ]).catch(err => logger.error("[统计写入失败]", err));
 
+    // 获取用户配置的重定向类型，默认 302
+    // 301/308 = 永久重定向 (SEO 权重传递)
+    // 302/307 = 临时重定向 (不传递 SEO 权重)
+    const redirectType = (link.redirectType || "302") as "301" | "302" | "307" | "308";
+    const redirectCode = parseInt(redirectType, 10) as 301 | 302 | 307 | 308;
+
     // Handle redirect based on device type
     if (
       (deviceInfo.type === "mobile" || deviceInfo.type === "tablet") &&
       !link.passwordHash
     ) {
       // Mobile/tablet and NO password: Direct redirect
-      return res.redirect(302, targetUrl);
+      return res.redirect(redirectCode, targetUrl);
     } else if (link.passwordHash) {
       // Any device with password: Show frontend verification page (needs password input)
       const visitorToken = await authService.createVisitorToken(shortCode);
       const verifyPageUrl = `/verify/${visitorToken}`;
-      return res.redirect(302, verifyPageUrl);
+      return res.redirect(302, verifyPageUrl); // 密码验证页始终使用 302
     } else {
       // Desktop without password: Server-side render QR page (FAST!)
       const baseUrl = link.customDomain

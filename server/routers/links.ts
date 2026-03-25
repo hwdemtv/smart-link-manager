@@ -6,6 +6,7 @@ import { hashPassword, verifyPassword } from "../_core/auth";
 import { ensureNullIfEmpty } from "../_core/utils";
 import { licenseService } from "../licenseService";
 import { generateSeoFromUrl } from "../aiSeoService";
+import { clearSitemapCache } from "../seoHandler";
 import { authService } from "../_core/sdk";
 import { resolveGeoIp } from "../geoIpResolver";
 import {
@@ -50,9 +51,20 @@ export const linksRouter = router({
         expiresAt: z.date().optional(),
         password: z.string().optional(),
         tags: z.array(z.string()).optional(),
+        // SEO 基础字段
         seoTitle: z.string().optional(),
         seoDescription: z.string().optional(),
         seoImage: z.string().optional(),
+        // SEO 高级字段
+        seoPriority: z.number().min(0).max(100).optional(),
+        noIndex: z.number().min(0).max(1).optional(),
+        redirectType: z.enum(["301", "302", "307", "308"]).optional(),
+        seoKeywords: z.string().optional(),
+        canonicalUrl: z.string().url().optional(),
+        ogVideoUrl: z.string().url().optional(),
+        ogVideoWidth: z.number().int().positive().optional(),
+        ogVideoHeight: z.number().int().positive().optional(),
+        // A/B 测试
         abTestEnabled: z.number().min(0).max(1).optional(),
         abTestUrl: z.string().url().optional(),
         abTestRatio: z.number().min(1).max(99).optional(),
@@ -105,9 +117,20 @@ export const linksRouter = router({
           expiresAt: input.expiresAt,
           passwordHash,
           tags: input.tags || [],
+          // SEO 基础字段
           seoTitle: input.seoTitle,
           seoDescription: input.seoDescription,
           seoImage: input.seoImage,
+          // SEO 高级字段
+          seoPriority: input.seoPriority,
+          noIndex: input.noIndex,
+          redirectType: input.redirectType,
+          seoKeywords: input.seoKeywords,
+          canonicalUrl: input.canonicalUrl,
+          ogVideoUrl: input.ogVideoUrl,
+          ogVideoWidth: input.ogVideoWidth,
+          ogVideoHeight: input.ogVideoHeight,
+          // A/B 测试
           abTestEnabled: input.abTestEnabled,
           abTestUrl: input.abTestUrl,
           abTestRatio: input.abTestRatio,
@@ -131,6 +154,9 @@ export const linksRouter = router({
         date: new Date().toISOString().split("T")[0],
         linksCreated: 1,
       });
+
+      // 清除 sitemap 缓存
+      clearSitemapCache();
 
       return {
         success: true,
@@ -227,9 +253,20 @@ export const linksRouter = router({
         expiresAt: z.date().nullable().optional(),
         password: z.string().nullable().optional(),
         tags: z.array(z.string()).nullable().optional(),
+        // SEO 基础字段
         seoTitle: z.string().nullable().optional(),
         seoDescription: z.string().nullable().optional(),
         seoImage: z.string().nullable().optional(),
+        // SEO 高级字段
+        seoPriority: z.number().min(0).max(100).nullable().optional(),
+        noIndex: z.number().min(0).max(1).nullable().optional(),
+        redirectType: z.enum(["301", "302", "307", "308"]).nullable().optional(),
+        seoKeywords: z.string().nullable().optional(),
+        canonicalUrl: z.string().url().nullable().optional(),
+        ogVideoUrl: z.string().url().nullable().optional(),
+        ogVideoWidth: z.number().int().positive().nullable().optional(),
+        ogVideoHeight: z.number().int().positive().nullable().optional(),
+        // A/B 测试
         abTestEnabled: z.number().min(0).max(1).optional(),
         abTestUrl: z.string().url().nullable().optional(),
         abTestRatio: z.number().min(1).max(99).optional(),
@@ -276,14 +313,28 @@ export const linksRouter = router({
         expiresAt: input.expiresAt,
         passwordHash,
         tags: input.tags === undefined ? undefined : input.tags || [],
+        // SEO 基础字段
         seoTitle: input.seoTitle,
         seoDescription: input.seoDescription,
         seoImage: input.seoImage,
+        // SEO 高级字段
+        seoPriority: input.seoPriority,
+        noIndex: input.noIndex,
+        redirectType: input.redirectType,
+        seoKeywords: input.seoKeywords,
+        canonicalUrl: input.canonicalUrl,
+        ogVideoUrl: input.ogVideoUrl,
+        ogVideoWidth: input.ogVideoWidth,
+        ogVideoHeight: input.ogVideoHeight,
+        // A/B 测试
         abTestEnabled: input.abTestEnabled,
         abTestUrl: input.abTestUrl,
         abTestRatio: input.abTestRatio,
         groupId: input.groupId,
       });
+
+      // 清除 sitemap 缓存
+      clearSitemapCache();
 
       return { success: true, link: updated };
     }),
