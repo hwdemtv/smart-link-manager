@@ -80,6 +80,8 @@ export const licenseService = {
         headers: {
           "Content-Type": "application/json",
         },
+        // 10s 超时时间，防止进程挂起
+        signal: AbortSignal.timeout(10000), 
         body: JSON.stringify({
           license_key: licenseKey,
           device_id: deviceId,
@@ -171,6 +173,8 @@ export const licenseService = {
         headers: {
           "Content-Type": "application/json",
         },
+        // 10s 超时时间，防止进程挂起
+        signal: AbortSignal.timeout(10000),
         body: JSON.stringify({
           license_key: licenseKey,
           device_id: deviceId,
@@ -207,15 +211,16 @@ export const licenseService = {
     maxLinks: number;
     maxDomains: number;
     maxApiKeys: number;
+    monthlyLinksCreated: number; // 每月创建上限
   } {
     switch (tier) {
       case "business":
-        return { maxLinks: -1, maxDomains: 10, maxApiKeys: 10 }; // -1 means unlimited
+        return { maxLinks: -1, maxDomains: 10, maxApiKeys: 10, monthlyLinksCreated: 5000 };
       case "pro":
-        return { maxLinks: 500, maxDomains: 5, maxApiKeys: 5 };
+        return { maxLinks: 500, maxDomains: 5, maxApiKeys: 5, monthlyLinksCreated: -1 }; // Pro 是买断，无月限制
       case "free":
       default:
-        return { maxLinks: 20, maxDomains: 1, maxApiKeys: 1 };
+        return { maxLinks: 20, maxDomains: 1, maxApiKeys: 1, monthlyLinksCreated: -1 }; // Free 也是总量限制
     }
   },
 };

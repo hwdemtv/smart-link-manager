@@ -1,4 +1,5 @@
 import { router, adminProcedure } from "../_core/trpc";
+import { randomBytes } from "crypto";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { hashPassword } from "../_core/auth";
@@ -51,7 +52,7 @@ export const adminRouter = router({
       }
 
       const passwordHash = await hashPassword(input.password);
-      const openId = `manual_${Math.random().toString(36).slice(2, 10)}`;
+      const openId = `manual_${randomBytes(4).toString("hex")}`;
 
       await upsertUser({
         openId,

@@ -1,4 +1,5 @@
 import express from "express";
+import { z } from "zod";
 import { apiKeyService } from "./apiKeyService";
 import { createLink, getLinkByShortCode, getLinksByUserId } from "./db";
 import { logger } from "./_core/logger";
@@ -11,6 +12,7 @@ const restRateStore = new Map<string, { count: number; resetTime: number }>();
 const REST_RATE_LIMIT = 60;
 const REST_WINDOW_MS = 60 * 1000;
 const REST_CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 分钟清理一次
+const MAX_RATE_STORE_SIZE = 10000; // 内存 Map 最大容量硬上限
 
 // 定期清理过期条目，防止内存泄漏
 setInterval(() => {
@@ -40,6 +42,11 @@ function restRateLimiter(
   const entry = restRateStore.get(ip);
 
   if (!entry || now > entry.resetTime) {
+    // 内存熔断防御：防止恶意海量 IP 消耗内存
+    if (!entry && restRateStore.size >= MAX_RATE_STORE_SIZE) {
+      logger.warn(`[REST RateLimiter] Store reached absolute limit (${MAX_RATE_STORE_SIZE}), dropping new IP tracking.`);
+      return next(); // 容错处理：不拦截但也不记录，防止 OOM
+    }
     restRateStore.set(ip, { count: 1, resetTime: now + REST_WINDOW_MS });
     return next();
   }
@@ -102,6 +109,27 @@ router.get("/links", async (req: any, res) => {
  * Create a new short link
  */
 router.post("/links", async (req: any, res) => {
+  // P1 修复: 实施与 tRPC 路由一致的严格校验
+  const inputSchema = z.object({
+    originalUrl: z.string().url("Invalid originalUrl format"),
+    shortCode: z.string()
+      .min(3, "shortCode must be at least 3 characters")
+      .max(20, "shortCode cannot exceed 20 characters")
+      .regex(/^[a-zA-Z0-9_-]+$/, "shortCode contains invalid characters"),
+    description: z.string().optional().nullable(),
+    expiresAt: z.string().datetime({ offset: true }).optional().nullable(),
+    password: z.string().optional().nullable(),
+    tags: z.array(z.string()).optional(),
+  });
+
+  const result = inputSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ 
+      error: "Validation failed", 
+      details: result.error.format() 
+    });
+  }
+
   const {
     originalUrl,
     shortCode,
@@ -113,12 +141,6 @@ router.post("/links", async (req: any, res) => {
     seoDescription,
     seoImage,
   } = req.body;
-
-  if (!originalUrl || !shortCode) {
-    return res
-      .status(400)
-      .json({ error: "originalUrl and shortCode are required" });
-  }
 
   try {
     // Check if exists

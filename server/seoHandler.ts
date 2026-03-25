@@ -139,7 +139,26 @@ export async function handleSitemap(req: Request, res: Response) {
     // @ts-ignore - Drizzle execute 返回格式
     const rows = activeLinks[0] || activeLinks;
 
-    // 生成 URL 列表
+    // 1. 生成静态核心页面 URL
+    const staticRows = [
+      { loc: baseUrl, priority: "1.0", changefreq: "daily" },
+      { loc: `${baseUrl}/about`, priority: "0.5", changefreq: "monthly" },
+      { loc: `${baseUrl}/terms`, priority: "0.3", changefreq: "monthly" },
+      { loc: `${baseUrl}/privacy`, priority: "0.3", changefreq: "monthly" },
+      { loc: `${baseUrl}/docs/api`, priority: "0.7", changefreq: "weekly" },
+      { loc: `${baseUrl}/docs/security`, priority: "0.7", changefreq: "weekly" },
+      { loc: `${baseUrl}/docs/changelog`, priority: "0.6", changefreq: "weekly" },
+      { loc: `${baseUrl}/docs/contact`, priority: "0.6", changefreq: "weekly" },
+    ];
+
+    const staticUrls = staticRows.map(route => `  <url>
+    <loc>${escapeXml(route.loc)}</loc>
+    <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
+    <changefreq>${route.changefreq}</changefreq>
+    <priority>${route.priority}</priority>
+  </url>`).join("\n");
+
+    // 2. 生成动态短链 URL
     const urls = (Array.isArray(rows) ? rows : [])
       .map((link: any) => {
         // 如果有自定义域名，使用自定义域名
@@ -150,7 +169,7 @@ export async function handleSitemap(req: Request, res: Response) {
         const lastmod = link.updatedAt
           ? new Date(link.updatedAt).toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0];
-        // 默认优先级 80
+        // 默认优先级 0.8
         const priority = "0.8";
 
         return `  <url>
@@ -164,6 +183,7 @@ export async function handleSitemap(req: Request, res: Response) {
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticUrls}
 ${urls}
 </urlset>
 `;

@@ -11,9 +11,10 @@ import {
   gte,
   lte,
   isNotNull,
+  SQL,
 } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
+import mysql, { type ResultSetHeader } from "mysql2/promise";
 import {
   InsertUser,
   users,
@@ -50,6 +51,28 @@ let _pool: mysql.Pool | null = null;
  */
 function escapeLikePattern(str: string): string {
   return str.replace(/[%_\\]/g, "\\$&");
+}
+
+/**
+ * 辅助工具：异步操作重试机制 (用于 P3 级高可靠要求路径)
+ */
+async function asyncRetry<T>(
+  task: () => Promise<T>,
+  retries: number = 3,
+  delay: number = 1000
+): Promise<T> {
+  let lastError: any;
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await task();
+    } catch (error) {
+      lastError = error;
+      if (i < retries - 1) {
+        await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i))); // 指数退避
+      }
+    }
+  }
+  throw lastError;
 }
 
 /**
@@ -90,7 +113,7 @@ export async function getDb() {
 
         // 关键修复 (Issue 4)：添加连接池错误处理逻辑
         // 使用 any 转换以绕过某些版本下 pool 类型的事件限制 (如：'error' vs 'enqueue')
-        (_pool as any).on("error", (err: any) => {
+        (_pool as any).on("error", (err: Error & { code?: string; fatal?: boolean }) => {
           console.error("[Database] Global pool error:", err);
           // 如果连接池发生致命错误（如连接丢失），将其置空以便下次请求时重新创建
           if (err.code === "PROTOCOL_CONNECTION_LOST" || err.fatal) {
@@ -176,7 +199,7 @@ export async function deleteUser(id: number) {
     .select({ id: links.id })
     .from(links)
     .where(eq(links.userId, id));
-  const linkIds = userLinks.map((l: any) => l.id);
+  const linkIds = userLinks.map((l: { id: number }) => l.id);
 
   // Delete link stats
   if (linkIds.length > 0) {
@@ -264,7 +287,7 @@ export async function batchDeleteUsers(userIds: number[]) {
     .select({ id: links.id })
     .from(links)
     .where(inArray(links.userId, userIds));
-  const linkIds = userLinks.map((l: any) => l.id);
+  const linkIds = userLinks.map((l: { id: number }) => l.id);
 
   if (linkIds.length > 0) {
     await db.delete(linkStats).where(inArray(linkStats.linkId, linkIds));
@@ -308,10 +331,11 @@ export async function createLink(data: InsertLink) {
 
   try {
     const [result] = await db.insert(links).values(data);
-    return { ...data, id: (result as any).insertId };
-  } catch (error: any) {
+    return { ...data, id: (result as ResultSetHeader).insertId };
+  } catch (error) {
     // 关键修复 (Issue 16)：处理短码冲突
-    if (error.code === "ER_DUP_ENTRY") {
+    const dbError = error as { code?: string; message?: string };
+    if (dbError.code === "ER_DUP_ENTRY") {
       throw new Error("SHORT_CODE_EXISTS");
     }
     throw error;
@@ -765,23 +789,33 @@ export async function checkShortCodes(shortCodes: string[]) {
     .select({ shortCode: links.shortCode })
     .from(links)
     .where(inArray(links.shortCode, shortCodes));
-  return result.map((r: any) => r.shortCode);
+  return result.map((r: { shortCode: string }) => r.shortCode);
 }
 
 // === Stats and Monitoring ===
+/**
+ * 增加点击计数 (带 P3 级重试)
+ */
 export async function updateLinkClickCount(linkId: number) {
   const db = await getDb();
   if (!db) return;
-  await db
-    .update(links)
-    .set({ clickCount: sql`clickCount + 1` })
-    .where(eq(links.id, linkId));
+  await asyncRetry(async () => {
+    await db
+      .update(links)
+      .set({ clickCount: sql`clickCount + 1` })
+      .where(eq(links.id, linkId));
+  });
 }
 
+/**
+ * 记录点击详情 (带 P3 级重试)
+ */
 export async function recordLinkStat(data: InsertLinkStat) {
   const db = await getDb();
   if (!db) return;
-  await db.insert(linkStats).values(data);
+  await asyncRetry(async () => {
+    await db.insert(linkStats).values(data);
+  });
 }
 
 export async function getLinkStats(linkId: number) {
@@ -1464,6 +1498,31 @@ export async function getUserDomainCount(userId: number) {
   return result[0]?.count || 0;
 }
 
+/**
+ * 获取用户当月创建的链接数量
+ * 用于 Business 用户每月创建限制检查
+ */
+export async function getUserMonthlyLinkCount(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  // 获取当月第一天
+  const now = new Date();
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(links)
+    .where(
+      and(
+        eq(links.userId, userId),
+        sql`${links.createdAt} >= ${firstDayOfMonth.toISOString().slice(0, 19).replace('T', ' ')}`
+      )
+    );
+
+  return result[0]?.count || 0;
+}
+
 // === Admin Quick Stats ===
 export async function getAdminQuickStats() {
   const db = await getDb();
@@ -1714,8 +1773,13 @@ export async function softDeleteLink(linkId: number, userId?: number) {
     .where(eq(links.id, linkId));
   if (!link) return;
 
-  // 生成新短码替换原短码，实现"释放"效果
-  const newShortCode = `del_${Math.random().toString(36).substring(2, 7)}`;
+  // 使用 crypto 生成安全的随机短码（替代 Math.random()）
+  const crypto = await import("node:crypto");
+  const randomSuffix = crypto
+    .randomBytes(4)
+    .toString("base64url")
+    .substring(0, 6);
+  const newShortCode = `del_${randomSuffix}`;
 
   await db
     .update(links)
@@ -1739,47 +1803,78 @@ export async function softDeleteLink(linkId: number, userId?: number) {
 
 /**
  * 从回收站恢复链接
+ * 使用 try-catch 捕获数据库唯一索引冲突，防止并发场景下的竞态条件
  * @returns { success: boolean, error?: string }
  */
 export async function restoreLink(linkId: number, userId?: number) {
   const db = await getDb();
   if (!db) return { success: false, error: "Database error" };
 
-  // 获取原始短码
-  const [link] = await db
-    .select({ originalShortCode: links.originalShortCode })
-    .from(links)
-    .where(eq(links.id, linkId));
-  if (!link || !link.originalShortCode)
-    return { success: false, error: "Link not found or no original code" };
+  try {
+    // 使用事务确保原子性
+    return await db.transaction(async (tx: typeof db) => {
+      // 1. 获取原始短码（加锁查询，防止并发修改）
+      const [link] = await tx
+        .select({
+          originalShortCode: links.originalShortCode,
+          userId: links.userId,
+        })
+        .from(links)
+        .where(eq(links.id, linkId));
 
-  // 检查原始短码是否被占用（仅检查未删除的链接）
-  const existing = await getLinkByShortCode(link.originalShortCode);
-  if (existing) {
-    return { success: false, error: "SHORT_CODE_TAKEN" };
+      if (!link || !link.originalShortCode) {
+        return { success: false, error: "Link not found or no original code" };
+      }
+
+      // 2. 检查原始短码是否被其他活跃链接占用
+      const [existing] = await tx
+        .select({ id: links.id })
+        .from(links)
+        .where(
+          and(
+            eq(links.shortCode, link.originalShortCode),
+            eq(links.isDeleted, 0),
+            sql`${links.id} != ${linkId}` // 排除自身
+          )
+        )
+        .limit(1);
+
+      if (existing) {
+        return { success: false, error: "SHORT_CODE_TAKEN" };
+      }
+
+      // 3. 恢复原始短码（事务内原子操作）
+      await tx
+        .update(links)
+        .set({
+          isDeleted: 0,
+          deletedAt: null,
+          originalShortCode: null,
+          shortCode: link.originalShortCode,
+          updatedAt: new Date(),
+        })
+        .where(eq(links.id, linkId));
+
+      // 4. 记录审计日志
+      await createAuditLog({
+        userId,
+        action: "link.restore",
+        targetType: "link",
+        targetId: linkId,
+        details: { shortCode: link.originalShortCode },
+      });
+
+      return { success: true };
+    });
+  } catch (error) {
+    // 捕获数据库唯一索引冲突（并发场景）
+    const dbError = error as { code?: string; message?: string };
+    if (dbError.code === "ER_DUP_ENTRY") {
+      return { success: false, error: "SHORT_CODE_TAKEN" };
+    }
+    console.error("[restoreLink] Error:", error);
+    return { success: false, error: "Database error" };
   }
-
-  // 恢复原始短码
-  await db
-    .update(links)
-    .set({
-      isDeleted: 0,
-      deletedAt: null,
-      originalShortCode: null,
-      shortCode: link.originalShortCode,
-    })
-    .where(eq(links.id, linkId));
-
-  // 记录审计日志
-  await createAuditLog({
-    userId,
-    action: "link.restore",
-    targetType: "link",
-    targetId: linkId,
-    details: { shortCode: link.originalShortCode },
-  });
-
-  return { success: true };
 }
 
 /**

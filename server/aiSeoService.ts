@@ -172,8 +172,9 @@ ${textContent}
 
     logger.info("[AI SEO] AI 分析完成", result.object);
     return result.object;
-  } catch (error: any) {
+  } catch (error) {
+    const aiError = error as { message?: string };
     logger.error("[AI SEO] 分析失败:", error);
-    throw new Error(error.message || "智能生成 SEO 失败");
+    throw new Error(aiError.message || "智能生成 SEO 失败");
   }
 }

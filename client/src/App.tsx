@@ -22,6 +22,7 @@ const LinkDetail = lazy(() => import("./pages/LinkDetail"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const LicenseSettings = lazy(() => import("./pages/LicenseSettings"));
 const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
+const DocPage = lazy(() => import("./pages/DocPage"));
 const ComponentsShowcase = lazy(() => import("./pages/ComponentShowcase"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -98,6 +99,18 @@ function Router() {
             <ProfileSettings />
           </DashboardLayout>
         </Route>
+
+        {/* 动态文档路由 */}
+        <Route path="/about">
+          <DocPage slug="about" />
+        </Route>
+        <Route path="/terms">
+          <DocPage slug="terms" />
+        </Route>
+        <Route path="/privacy">
+          <DocPage slug="privacy" />
+        </Route>
+        <Route path="/docs/:slug" component={DocPage} />
 
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />

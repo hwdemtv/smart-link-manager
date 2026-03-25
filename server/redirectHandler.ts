@@ -17,6 +17,24 @@ const qrCache = new Map<string, { dataUrl: string; expiresAt: number }>();
 const QR_CACHE_TTL_MS = 5 * 60 * 1000; // 5分钟缓存
 
 /**
+ * 日志脱敏工具：掩码解析 IP (例如 192.168.1.1 -> 192.168.1.*)
+ */
+function maskIp(ip: string | undefined): string {
+  if (!ip) return "0.0.0.0";
+  // 处理 IPv6 和 IPv4
+  if (ip.includes(":")) return ip.substring(0, ip.lastIndexOf(":")) + ":*";
+  return ip.substring(0, ip.lastIndexOf(".")) + ".*";
+}
+
+/**
+ * 内容截断工具：防止过长 UA 撑爆日志
+ */
+function truncateUa(ua: string | undefined, length: number = 100): string {
+  if (!ua) return "unknown";
+  return ua.length > length ? ua.substring(0, length) + "..." : ua;
+}
+
+/**
  * 生成 QR 码 Data URL（带缓存）
  */
 async function getQRDataUrl(url: string): Promise<string> {
@@ -38,6 +56,12 @@ async function getQRDataUrl(url: string): Promise<string> {
   if (qrCache.size > 1000) {
     for (const [key, value] of qrCache.entries()) {
       if (value.expiresAt < now) qrCache.delete(key);
+    }
+    
+    // 绝对上限防御：即使全部未过期，超过 2000 强制清空防止 OOM
+    if (qrCache.size > 2000) {
+      qrCache.clear();
+      logger.warn("[QR Cache] Cache size exceeded absolute limit (2000), force cleared to prevent OOM.");
     }
   }
 
@@ -359,13 +383,13 @@ export async function handleShortLinkRedirect(
     const botResult = isBot(userAgent);
 
     logger.info(
-      `[短链跳转] 执行决策: Code=${shortCode}, Type=${deviceInfo.type}, Bot=${botResult}, IP=${req.ip}, UA=${userAgent}`
+      `[短链跳转] 执行决策: Code=${shortCode}, Type=${deviceInfo.type}, Bot=${botResult}, IP=${maskIp(req.ip)}, UA=${truncateUa(userAgent)}`
     );
 
     // Handle SEO for bots
     if (botResult) {
       logger.info(
-        `[SEO] 识别为机器人: ${userAgent}。渲染深度 Meta 标签。`
+        `[SEO] 识别为机器人: ${truncateUa(userAgent)}。渲染深度 Meta 标签。`
       );
 
       // 安全加固：如果设有访问密码，SEO 预览不应包含真实目标 URL，防止鉴权绕过
@@ -494,8 +518,8 @@ export async function handleShortLinkRedirect(
       );
     }
 
-    // Get IP
-    const ipAddress = req.ip || req.connection.remoteAddress;
+    // Get IP with fallback
+    const ipAddress = (req.ip || req.connection.remoteAddress || "0.0.0.0") as string;
 
     // A/B 测试计算逻辑
     let targetUrl = link.originalUrl;

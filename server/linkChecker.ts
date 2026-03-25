@@ -39,14 +39,15 @@ async function checkBaiduLink(url: string): Promise<LinkCheckResult> {
       statusCode: response.status,
       provider: "baidu",
     };
-  } catch (error: any) {
-    const statusCode = error.response?.status;
+  } catch (error) {
+    const axiosError = error as { response?: { status: number }; message?: string };
+    const statusCode = axiosError.response?.status;
     const isValid = statusCode !== 404;
 
     return {
       isValid,
       statusCode,
-      errorMessage: error.message,
+      errorMessage: axiosError.message,
       provider: "baidu",
     };
   }
@@ -72,14 +73,15 @@ async function checkAliyunLink(url: string): Promise<LinkCheckResult> {
       statusCode: response.status,
       provider: "aliyun",
     };
-  } catch (error: any) {
-    const statusCode = error.response?.status;
+  } catch (error) {
+    const axiosError = error as { response?: { status: number }; message?: string };
+    const statusCode = axiosError.response?.status;
     const isValid = statusCode !== 404 && statusCode !== 403;
 
     return {
       isValid,
       statusCode,
-      errorMessage: error.message,
+      errorMessage: axiosError.message,
       provider: "aliyun",
     };
   }
@@ -105,14 +107,15 @@ async function checkQuarkLink(url: string): Promise<LinkCheckResult> {
       statusCode: response.status,
       provider: "quark",
     };
-  } catch (error: any) {
-    const statusCode = error.response?.status;
+  } catch (error) {
+    const axiosError = error as { response?: { status: number }; message?: string };
+    const statusCode = axiosError.response?.status;
     const isValid = statusCode !== 404 && statusCode !== 403;
 
     return {
       isValid,
       statusCode,
-      errorMessage: error.message,
+      errorMessage: axiosError.message,
       provider: "quark",
     };
   }
@@ -137,14 +140,15 @@ async function checkGenericLink(url: string): Promise<LinkCheckResult> {
       isValid,
       statusCode: response.status,
     };
-  } catch (error: any) {
-    const statusCode = error.response?.status;
+  } catch (error) {
+    const axiosError = error as { response?: { status: number }; message?: string };
+    const statusCode = axiosError.response?.status;
     const isValid = statusCode !== 404 && statusCode !== 403;
 
     return {
       isValid,
       statusCode,
-      errorMessage: error.message,
+      errorMessage: axiosError.message,
     };
   }
 }
@@ -167,10 +171,11 @@ export async function checkLinkValidity(url: string): Promise<LinkCheckResult> {
       default:
         return await checkGenericLink(url);
     }
-  } catch (error: any) {
+  } catch (error) {
+    const genericError = error as { message?: string };
     return {
       isValid: false,
-      errorMessage: error.message || "Unknown error",
+      errorMessage: genericError.message || "Unknown error",
     };
   }
 }

@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -9,6 +10,7 @@ import { generateSeoFromUrl } from "../aiSeoService";
 import { clearSitemapCache } from "../seoHandler";
 import { authService } from "../_core/sdk";
 import { resolveGeoIp } from "../geoIpResolver";
+import type { Link } from "../../drizzle/schema";
 import {
   createLink,
   getLinkByShortCode,
@@ -26,6 +28,7 @@ import {
   batchUpdateLinks,
   batchUpdateLinksTags,
   getUserLinkCount,
+  getUserMonthlyLinkCount,
   recordUsage,
   getDomainByName,
   getLinkByDomainAndCode,
@@ -35,6 +38,20 @@ import {
   permanentDeleteLink,
   emptyRecycleBin,
 } from "../db";
+
+/**
+ * 生成安全的随机短码（使用 crypto.randomBytes）
+ * 避免 Math.random() 的可预测性和冲突风险
+ */
+function generateSecureShortCode(length: number = 6): string {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const randomBytes = crypto.randomBytes(length);
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += chars[randomBytes[i] % chars.length];
+  }
+  return result;
+}
 
 export const linksRouter = router({
   create: protectedProcedure
@@ -94,11 +111,23 @@ export const linksRouter = router({
       const limits = licenseService.getTierLimits(tier);
       const currentLinks = await getUserLinkCount(ctx.user.id);
 
+      // 总量限制检查
       if (limits.maxLinks !== -1 && currentLinks >= limits.maxLinks) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: `Quota exceeded: Maximum ${limits.maxLinks} links for your current plan. Please upgrade your subscription.`,
         });
+      }
+
+      // 每月创建限制检查（仅 Business 用户）
+      if (limits.monthlyLinksCreated !== -1) {
+        const monthlyLinks = await getUserMonthlyLinkCount(ctx.user.id);
+        if (monthlyLinks >= limits.monthlyLinksCreated) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `Monthly limit exceeded: You have created ${monthlyLinks} links this month. Maximum is ${limits.monthlyLinksCreated}. Please wait for next month or contact support.`,
+          });
+        }
       }
 
       // 3. 密码哈希处理
@@ -136,13 +165,14 @@ export const linksRouter = router({
           abTestRatio: input.abTestRatio,
           groupId: input.groupId,
         });
-      } catch (error: any) {
+      } catch (error) {
         // 捕获唯一键冲突 (MySQL Error 1062)
-        if (error.code === "ER_DUP_ENTRY" || error.message?.includes("Duplicate entry")) {
+        const dbError = error as { code?: string; message?: string };
+        if (dbError.code === "ER_DUP_ENTRY" || dbError.message?.includes("Duplicate entry")) {
           throw new TRPCError({
             code: "CONFLICT",
-            message: input.customDomain 
-              ? ErrorCodes.LINK_SHORT_CODE_DOMAIN_EXISTS 
+            message: input.customDomain
+              ? ErrorCodes.LINK_SHORT_CODE_DOMAIN_EXISTS
               : ErrorCodes.LINK_SHORT_CODE_EXISTS,
           });
         }
@@ -170,7 +200,7 @@ export const linksRouter = router({
 
   list: protectedProcedure.query(async ({ ctx }) => {
     const links = await getLinksByUserId(ctx.user.id);
-    return links.map((link: any) => ({
+    return links.map((link: Link) => ({
       ...link,
       fullUrl: link.customDomain
         ? `https://${link.customDomain}/${link.shortCode}`
@@ -203,7 +233,7 @@ export const linksRouter = router({
         groupId: input.groupId,
       });
       return {
-        links: result.links.map((link: any) => ({
+        links: result.links.map((link: Link) => ({
           ...link,
           fullUrl: link.customDomain
             ? `https://${link.customDomain}/${link.shortCode}`
@@ -389,10 +419,11 @@ export const linksRouter = router({
       try {
         const seoData = await generateSeoFromUrl(input.url);
         return { success: true, ...seoData };
-      } catch (error: any) {
+      } catch (error) {
+        const err = error as { message?: string };
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error.message || "SEO generation failed",
+          message: err.message || "SEO generation failed",
         });
       }
     }),
@@ -416,10 +447,22 @@ export const linksRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const updateData: any = { ...input.data };
-      if (updateData.expiresAt !== undefined) {
-        updateData.expiresAt = ensureNullIfEmpty(updateData.expiresAt);
+      // 构建更新数据，处理 expiresAt 从 string 到 Date 的转换
+      const updateData: { isActive?: number; expiresAt?: Date | null; customDomain?: string | null } = {};
+
+      if (input.data.isActive !== undefined) {
+        updateData.isActive = input.data.isActive;
       }
+
+      if (input.data.expiresAt !== undefined) {
+        const expiresAt = ensureNullIfEmpty(input.data.expiresAt);
+        updateData.expiresAt = expiresAt ? new Date(expiresAt) : null;
+      }
+
+      if (input.data.customDomain !== undefined) {
+        updateData.customDomain = input.data.customDomain || null;
+      }
+
       await batchUpdateLinks(ctx.user.id, input.linkIds, updateData);
       return { success: true };
     }),
@@ -481,28 +524,74 @@ export const linksRouter = router({
         failed: [] as { originalUrl: string; error: string }[],
       };
 
-      for (const linkData of input.links) {
+      // 预生成所有需要的短码，避免重复生成相同的随机码
+      const usedCodes = new Set<string>();
+      const linksToCreate = input.links.map(linkData => {
+        let shortCode = linkData.shortCode;
+        if (!shortCode) {
+          // 使用 crypto 生成安全的随机短码
+          shortCode = generateSecureShortCode(6);
+          // 确保在此批次内不重复
+          while (usedCodes.has(shortCode)) {
+            shortCode = generateSecureShortCode(6);
+          }
+        }
+        usedCodes.add(shortCode);
+        return {
+          ...linkData,
+          shortCode,
+        };
+      });
+
+      // 批量检查哪些短码已存在
+      const allShortCodes = linksToCreate.map(l => l.shortCode);
+      const existingCodes = await checkShortCodes(allShortCodes);
+      const existingSet = new Set(existingCodes);
+
+      for (const linkData of linksToCreate) {
         try {
           let shortCode = linkData.shortCode;
-          if (!shortCode)
-            shortCode = Math.random().toString(36).substring(2, 8);
+          let attempts = 0;
+          const maxAttempts = 5;
 
-          const existing = await getLinkByShortCode(shortCode);
-          if (existing) shortCode = Math.random().toString(36).substring(2, 8);
+          // 如果短码已存在，尝试生成新的（最多重试5次）
+          while (existingSet.has(shortCode) && attempts < maxAttempts) {
+            shortCode = generateSecureShortCode(6);
+            // 检查新生成的短码是否在此批次或数据库中已存在
+            if (!usedCodes.has(shortCode)) {
+              const exists = await getLinkByShortCode(shortCode);
+              if (!exists) break;
+            }
+            attempts++;
+          }
 
-          await createLink({
-            userId: ctx.user.id,
-            originalUrl: linkData.originalUrl,
-            shortCode,
-            description: linkData.description,
-            tags: linkData.tags,
-            expiresAt: ensureNullIfEmpty(linkData.expiresAt) ?? undefined,
-          });
+          // 尝试创建，依赖数据库唯一索引保证原子性
+          try {
+            await createLink({
+              userId: ctx.user.id,
+              originalUrl: linkData.originalUrl,
+              shortCode,
+              description: linkData.description,
+              tags: linkData.tags,
+              expiresAt: ensureNullIfEmpty(linkData.expiresAt) ?? undefined,
+            });
 
-          results.success.push({
-            shortCode,
-            originalUrl: linkData.originalUrl,
-          });
+            results.success.push({
+              shortCode,
+              originalUrl: linkData.originalUrl,
+            });
+          } catch (error) {
+            // 捕获数据库唯一索引冲突 (ER_DUP_ENTRY)
+            const dbError = error as { code?: string; message?: string };
+            if (dbError.code === "ER_DUP_ENTRY" || dbError.message === "SHORT_CODE_EXISTS") {
+              results.failed.push({
+                originalUrl: linkData.originalUrl,
+                error: `短码 "${shortCode}" 已被占用`,
+              });
+            } else {
+              throw error;
+            }
+          }
         } catch (error) {
           results.failed.push({
             originalUrl: linkData.originalUrl,
@@ -526,7 +615,7 @@ export const linksRouter = router({
       if (input.format === "json") {
         return {
           format: "json",
-          data: links.map((link: any) => ({
+          data: links.map((link: Link) => ({
             shortCode: link.shortCode,
             originalUrl: link.originalUrl,
             customDomain: link.customDomain,
@@ -578,7 +667,7 @@ export const linksRouter = router({
       "启用状态",
       "创建时间",
     ];
-    const rows = links.map((link: any) => [
+    const rows = links.map((link: Link) => [
       link.shortCode,
       link.originalUrl,
       link.clickCount,

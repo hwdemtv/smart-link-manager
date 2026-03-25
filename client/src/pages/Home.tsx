@@ -1,6 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useEffect, useState, useRef } from "react";
 import {
   Link2,
@@ -266,7 +266,7 @@ export default function Home() {
           </div>
           <div className="bg-card/50 backdrop-blur-md border border-border/60 rounded-3xl p-8 shadow-2xl relative">
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 blur-2xl rounded-full -z-10" />
-            
+
             <div className="flex flex-col sm:flex-row gap-4">
               <input
                 type="url"
@@ -368,7 +368,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
+      <section id="pricing" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
         <div className="container relative">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tighter">{t("home.pricing.title")}</h2>
@@ -422,7 +422,10 @@ export default function Home() {
                 <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /><span className="font-semibold text-primary">{t("home.pricing.pro.abTest")}</span></li>
                 <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /><span>{t("home.pricing.pro.support")}</span></li>
               </ul>
-              <Button className="w-full rounded-xl h-12 shadow-lg shadow-primary/20" onClick={handleSignIn}>
+              <Button
+                className="w-full rounded-xl h-12 shadow-lg shadow-primary/20"
+                onClick={() => window.open("https://s.hwdemtv.com/s/pro", "_blank")}
+              >
                 {t("home.pricing.pro.cta")}
               </Button>
             </div>
@@ -439,14 +442,17 @@ export default function Home() {
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /><span className="font-semibold">{t("home.pricing.business.links")}</span></li>
+                <li className="flex items-center gap-3 text-muted-foreground"><span className="w-5 h-5" />{t("home.pricing.business.monthlyLimit")}</li>
                 <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /><span>{t("home.pricing.business.domains")}</span></li>
                 <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /><span>{t("home.pricing.business.apiKeys")}</span></li>
                 <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /><span className="font-semibold text-primary">{t("home.pricing.business.abTest")}</span></li>
                 <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /><span>{t("home.pricing.business.support")}</span></li>
               </ul>
-              <Button variant="outline" className="w-full rounded-xl h-12" onClick={handleSignIn}>
-                {t("home.pricing.business.cta")}
-              </Button>
+              <Link href="/docs/contact">
+                <Button variant="outline" className="w-full rounded-xl h-12">
+                  {t("home.pricing.business.cta")}
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -495,9 +501,9 @@ export default function Home() {
                 {t("home.footer.product")}
               </h4>
               <ul className="space-y-4 text-muted-foreground">
-                <li><a href="#features" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.productFeatures")}</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.pricing")}</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.changelog")}</a></li>
+                <li><a href="#features" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.productFeatures")}</a></li>
+                <li><a href="#pricing" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.pricing")}</a></li>
+                <li><a href="/docs/changelog" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.changelog")}</a></li>
               </ul>
             </div>
             {/* Developer */}
@@ -506,9 +512,9 @@ export default function Home() {
                 {t("home.footer.developer")}
               </h4>
               <ul className="space-y-4 text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.apiDocs")}</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.sdk")}</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.monitoring")}</a></li>
+                <li><a href="/docs/api" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.apiDocs")}</a></li>
+                <li><a href="https://github.com/hwdemtv/smart-link-manager" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.sdk")}</a></li>
+                <li><a href="/admin" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.monitoring")}</a></li>
               </ul>
             </div>
             {/* Company/Author */}
@@ -517,9 +523,8 @@ export default function Home() {
                 关于作者
               </h4>
               <ul className="space-y-4 text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.about")}</a></li>
-                <li><a href="https://www.hwdemtv.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>个人主页 ↗</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.sitemap")}</a></li>
+                <li><a href="/about" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.about")}</a></li>
+                <li><a href="https://www.hwdemtv.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />个人主页 ↗</a></li>
               </ul>
             </div>
             {/* Legal */}
@@ -528,9 +533,9 @@ export default function Home() {
                 {t("home.footer.legal")}
               </h4>
               <ul className="space-y-4 text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.terms")}</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.privacy")}</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40"/>{t("home.footer.security")}</a></li>
+                <li><a href="/terms" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.terms")}</a></li>
+                <li><a href="/privacy" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.privacy")}</a></li>
+                <li><a href="/docs/security" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.security")}</a></li>
               </ul>
             </div>
           </div>
@@ -539,7 +544,7 @@ export default function Home() {
               &copy; {new Date().getFullYear()} <span className="text-foreground font-bold">{t("common.brandName")}</span>. {t("home.footer.rights")}
             </p>
             <div className="flex items-center gap-6">
-              <span className="flex items-center gap-1.5"><div className="w-1 h-1 rounded-full bg-green-500 animate-pulse"/> 全球节点运行正常</span>
+              <span className="flex items-center gap-1.5"><div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" /> 全球节点运行正常</span>
               <span>Crafted with ❤️ by <a href="https://www.hwdemtv.com" className="text-foreground hover:text-primary transition-colors font-bold">hwdemtv</a></span>
             </div>
           </div>

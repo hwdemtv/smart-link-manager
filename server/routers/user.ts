@@ -59,7 +59,7 @@ export const userRouter = router({
       }
 
       const passwordHash = await hashPassword(input.password);
-      const openId = `manual_${Math.random().toString(36).slice(2, 10)}`;
+      const openId = `manual_${randomBytes(4).toString("hex")}`;
 
       await upsertUser({
         openId,
