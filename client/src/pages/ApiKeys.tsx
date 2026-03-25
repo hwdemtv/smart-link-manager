@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
+import { copyToClipboard as copyText } from "@/lib/clipboard";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Key, Copy, Trash2, Clock, Shield } from "lucide-react";
@@ -51,9 +52,11 @@ export default function ApiKeys() {
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success(t("apiKeys.copySuccess"));
+  const handleCopy = async (text: string) => {
+    const success = await copyText(text);
+    if (success) {
+      toast.success(t("apiKeys.copySuccess"));
+    }
   };
 
   return (
@@ -126,7 +129,7 @@ export default function ApiKeys() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => copyToClipboard(newKey.rawKey)}
+                onClick={() => handleCopy(newKey.rawKey)}
               >
                 <Copy className="w-4 h-4" />
               </Button>

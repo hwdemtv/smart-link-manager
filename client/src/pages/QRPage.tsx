@@ -7,6 +7,7 @@ import { Copy, Download, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useTranslation } from "react-i18next";
+import { copyToClipboard } from "@/lib/clipboard";
 
 export default function QRPage() {
   const { t } = useTranslation();
@@ -64,9 +65,13 @@ export default function QRPage() {
     }
   }, [shortCode, fullUrl]);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(fullUrl);
-    toast.success(t("qr.copySuccess"));
+  const handleCopyLink = async () => {
+    const success = await copyToClipboard(fullUrl);
+    if (success) {
+      toast.success(t("qr.copySuccess"));
+    } else {
+      toast.error(t("qr.copyFailed"));
+    }
   };
 
   const handleDownloadQR = () => {

@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/Users/hwdem/Downloads/**)",
+      "Read(//c/Users/hwdem/Downloads/**)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(ssh-keygen:*)",
+      "Bash(pnpm run:*)",
+      "Bash(curl -sI \"http://localhost:3000/s/test\")",
+      "Bash(curl -sI -A \"Mozilla/5.0 \\(iPhone; CPU iPhone OS 16_0 like Mac OS X\\) AppleWebKit/605.1.15 \\(KHTML, like Gecko\\) Version/16.0 Mobile/15E148 Safari/604.1\" \"http://localhost:3000/s/test\")",
+      "Bash(curl -s \"http://localhost:3000/api/trpc/health\")",
+      "Bash(curl -s \"http://localhost:3000/\")",
+      "Bash(mysql -h 192.168.31.99 -P 3306 -u smart-link-manager -p8800257 smart-link-manager -e \"SELECT id, shortCode, originalUrl, isActive, isValid FROM links LIMIT 5;\")",
+      "Bash(npx tsx --eval \":*)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(tail -50 D:/软件开发/smart-link-manager/logs/application-*.log)",
+      "Bash(for i:*)",
+      "Bash(do)",
+      "Bash(time curl:*)",
+      "Bash(done)",
+      "Bash(__NEW_LINE_ff92a3b85ee01ba9__ echo:*)",
+      "Bash(do echo:*)",
+      "Bash(1 done:*)",
+      "Read(//d/软件开发/smart-link-manager/**)",
+      "Bash(do curl:*)"
+    ]
+  }
+}

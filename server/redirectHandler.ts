@@ -5,10 +5,275 @@ import {
   recordLinkStat,
   recordUsage,
 } from "./db";
-import { detectDevice } from "./deviceDetector";
+import { detectDevice, isBot } from "./deviceDetector";
 import { logger } from "./_core/logger";
 import { resolveGeoIp } from "./geoIpResolver";
+import { authService } from "./_core/sdk";
 import { Link } from "../drizzle/schema";
+import * as QRCode from "qrcode";
+
+// QR 码缓存 - 缓存生成的 QR Data URL
+const qrCache = new Map<string, { dataUrl: string; expiresAt: number }>();
+const QR_CACHE_TTL_MS = 5 * 60 * 1000; // 5分钟缓存
+
+/**
+ * 生成 QR 码 Data URL（带缓存）
+ */
+async function getQRDataUrl(url: string): Promise<string> {
+  const now = Date.now();
+  const cached = qrCache.get(url);
+  if (cached && cached.expiresAt > now) {
+    return cached.dataUrl;
+  }
+
+  const dataUrl = await QRCode.toDataURL(url, {
+    errorCorrectionLevel: "M",
+    type: "image/png",
+    margin: 1,
+    width: 256,
+    color: { dark: "#111827", light: "#ffffff" },
+  });
+
+  // 清理过期缓存
+  if (qrCache.size > 1000) {
+    for (const [key, value] of qrCache.entries()) {
+      if (value.expiresAt < now) qrCache.delete(key);
+    }
+  }
+
+  qrCache.set(url, { dataUrl, expiresAt: now + QR_CACHE_TTL_MS });
+  return dataUrl;
+}
+
+/**
+ * 服务端渲染页面翻译字典
+ */
+const SSR_TRANSLATIONS = {
+  zh: {
+    title: "扫码安全访问",
+    subtitle: "出于安全考虑，请使用手机相机扫描二维码进行访问",
+    copyBtn: "复制地址",
+    copySuccess: "链接已复制",
+    footer: "安全验证中心 · Smart Link Manager",
+  },
+  en: {
+    title: "Scan to Visit",
+    subtitle: "For security, please scan the QR code with your phone camera",
+    copyBtn: "Copy Link",
+    copySuccess: "Link Copied",
+    footer: "Security Center · Smart Link Manager",
+  },
+};
+
+/**
+ * 服务端渲染 QR 验证页面（极速响应，跳过前端加载）
+ */
+async function renderQRPage(
+  res: Response,
+  shortCode: string,
+  fullUrl: string,
+  lng: "zh" | "en" = "zh"
+): Promise<void> {
+  const qrDataUrl = await getQRDataUrl(fullUrl);
+  const escapedUrl = escapeHtml(fullUrl);
+  const t = SSR_TRANSLATIONS[lng] || SSR_TRANSLATIONS.zh;
+
+  res.status(200).send(
+    `<!DOCTYPE html>
+<html lang="${lng === "zh" ? "zh-CN" : "en"}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${t.title} - Smart Link Manager</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+      max-width: 380px;
+      width: 100%;
+      overflow: hidden;
+    }
+    .gradient-bar {
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6);
+    }
+    .content {
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .icon-wrap {
+      width: 48px; height: 48px;
+      background: #eff6ff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .icon-wrap svg { width: 24px; height: 24px; color: #3b82f6; }
+    h1 {
+      font-size: 22px; font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 14px; color: #64748b;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .qr-wrap {
+      padding: 16px;
+      background: #f8fafc;
+      border-radius: 16px;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+    .qr-wrap img {
+      width: 200px; height: 200px;
+      border-radius: 8px;
+    }
+    .link-box {
+      background: #f1f5f9;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      word-break: break-all;
+      font-size: 13px;
+      color: #475569;
+      font-family: ui-monospace, monospace;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: #0f172a;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #1e293b; }
+    .btn svg { width: 16px; height: 16px; }
+    .footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .footer .dot {
+      width: 6px; height: 6px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #0f172a;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="gradient-bar"></div>
+    <div class="content">
+      <div class="icon-wrap">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+      </div>
+      <h1>${t.title}</h1>
+      <p class="subtitle">${t.subtitle}</p>
+
+      <div class="qr-wrap">
+        <img src="${qrDataUrl}" alt="QR Code" />
+      </div>
+
+      <div class="link-box">${escapedUrl}</div>
+
+      <button class="btn" onclick="copyLink()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+        ${t.copyBtn}
+      </button>
+
+      <div class="footer">
+        <span class="dot"></span>
+        <span>${t.footer}</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">${t.copySuccess}</div>
+
+  <script>
+    function copyLink() {
+      var url = "${escapedUrl}";
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(showToast).catch(fallbackCopy);
+      } else {
+        fallbackCopy();
+      }
+      function fallbackCopy() {
+        var ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.cssText = 'position:fixed;left:-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast();
+      }
+      function showToast() {
+        var t = document.getElementById('toast');
+        t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 2000);
+      }
+    }
+  </script>
+</body>
+</html>`
+  );
+}
 
 /**
  * HTML 转义函数 - 防止 XSS 攻击
@@ -91,12 +356,16 @@ export async function handleShortLinkRedirect(
     // Detect device type
     const userAgent = req.headers["user-agent"] || "";
     const deviceInfo = detectDevice(userAgent);
-    const { isBot } = await import("./deviceDetector");
+    const botResult = isBot(userAgent);
+
+    logger.info(
+      `[短链跳转] 执行决策: Code=${shortCode}, Type=${deviceInfo.type}, Bot=${botResult}, IP=${req.ip}, UA=${userAgent}`
+    );
 
     // Handle SEO for bots
-    if (isBot(userAgent)) {
+    if (botResult) {
       logger.info(
-        `[SEO] Bot detected: ${userAgent}. Rendering deep Meta tags.`
+        `[SEO] 识别为机器人: ${userAgent}。渲染深度 Meta 标签。`
       );
 
       // 安全加固：如果设有访问密码，SEO 预览不应包含真实目标 URL，防止鉴权绕过
@@ -168,9 +437,8 @@ export async function handleShortLinkRedirect(
       );
     }
 
-    // Resolve GeoIP if possible
+    // Get IP
     const ipAddress = req.ip || req.connection.remoteAddress;
-    const geoInfo = await resolveGeoIp(ipAddress);
 
     // A/B 测试计算逻辑
     let targetUrl = link.originalUrl;
@@ -187,21 +455,25 @@ export async function handleShortLinkRedirect(
     }
 
     // Record click statistics asynchronously (fire-and-forget)
-    // 异步执行统计更新，避免高并发时的行锁争用阻塞跳转响应
+    // 异步执行统计更新与 GeoIP 解析，避免阻塞跳转响应
     Promise.all([
       updateLinkClickCount(link.id),
-      recordLinkStat({
-        linkId: link.id,
-        userAgent,
-        deviceType: deviceInfo.type,
-        osName: deviceInfo.os,
-        browserName: deviceInfo.browser,
-        ipAddress,
-        country: geoInfo.country,
-        city: geoInfo.city,
-        referer: req.headers.referer,
-        variant: variantHit,
-      }),
+      (async () => {
+        // 在后台解析 GeoIP (不阻塞重定向)
+        const geoInfo = await resolveGeoIp(ipAddress);
+        return recordLinkStat({
+          linkId: link.id,
+          userAgent,
+          deviceType: deviceInfo.type,
+          osName: deviceInfo.os,
+          browserName: deviceInfo.browser,
+          ipAddress,
+          country: geoInfo.country,
+          city: geoInfo.city,
+          referer: (req.headers as any).referer,
+          variant: variantHit,
+        });
+      })(),
       recordUsage({
         userId: link.userId,
         date: new Date().toISOString().split("T")[0],
@@ -216,12 +488,23 @@ export async function handleShortLinkRedirect(
     ) {
       // Mobile/tablet and NO password: Direct redirect
       return res.redirect(302, targetUrl);
-    } else {
-      // Desktop OR any device with password: Show Secure Verification Center with a visitor token
-      const { authService } = await import("./_core/sdk");
+    } else if (link.passwordHash) {
+      // Any device with password: Show frontend verification page (needs password input)
       const visitorToken = await authService.createVisitorToken(shortCode);
       const verifyPageUrl = `/verify/${visitorToken}`;
       return res.redirect(302, verifyPageUrl);
+    } else {
+      // Desktop without password: Server-side render QR page (FAST!)
+      const baseUrl = link.customDomain
+        ? `https://${link.customDomain}`
+        : `${req.protocol}://${req.get("host")}`;
+      const fullUrl = `${baseUrl}/s/${shortCode}`;
+
+      // Detect language from headers
+      const acceptLanguage = req.headers["accept-language"] || "";
+      const lng = acceptLanguage.toLowerCase().includes("zh") ? "zh" : "en";
+
+      return renderQRPage(res, shortCode, fullUrl, lng as "zh" | "en");
     }
   } catch (error) {
     logger.error("[短链引擎跳转] 未知崩溃:", error);

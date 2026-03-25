@@ -85,6 +85,7 @@
     "download": "Download QR",
     "footer": "This page is for mobile guidance only and cannot be opened directly on this device",
     "copySuccess": "Link copied to clipboard!",
+    "copyFailed": "Copy failed, please copy manually",
     "downloadSuccess": "QR code saved successfully!"
   },
   "home": {
@@ -164,6 +165,8 @@
     "requiredFields": "Please fill in all required fields",
     "searchPlaceholder": "Search by code or URL...",
     "noLinksMatch": "No links matching your filter",
+    "noLinksFound": "No links matching your filter",
+    "clearFilters": "Clear all filters",
     "noLinksFirst": "No links yet. Create your first one now!",
     "selectDomain": "Select domain...",
     "addNote": "Add a note for this link",

@@ -1,5 +1,6 @@
 /**
  * Device detection utility for smart redirect functionality
+ * Optimized for speed and accuracy
  */
 
 export type DeviceType = "mobile" | "tablet" | "desktop";
@@ -11,63 +12,89 @@ export interface DeviceInfo {
   userAgent: string;
 }
 
+// Pre-compiled regex patterns for performance
+const MOBILE_PATTERN =
+  /android|webos|iphone|ipod|blackberry|windows phone|opera mini|iemobile|mobile/i;
+
+const TABLET_PATTERN =
+  /ipad|tablet|kindle|playbook|nexus\s*[79]|xoom|silk|gt-p|sch-i|touchpad|postpc/i;
+
+// Android tablet: contains "android" but NOT "mobile" (most Android tablets)
+// Exception: WeChat/Weibo mobile apps that don't include "mobile" in UA
+const ANDROID_TABLET_PATTERN = /android(?!.*mobile)(?!.*micromessenger)(?!.*weibo)/i;
+
+// Known mobile apps that may not have "mobile" in UA
+const MOBILE_APP_PATTERN = /micromessenger|weibo|qq\//i;
+
+// OS patterns
+const OS_PATTERNS: [RegExp, string][] = [
+  [/windows nt|windows phone/i, "Windows"],
+  [/macintosh|mac os x|iphone|ipad/i, "macOS"],
+  [/android/i, "Android"],
+  [/linux/i, "Linux"],
+  [/cros/i, "ChromeOS"],
+];
+
+// Browser patterns (order matters - more specific first)
+const BROWSER_PATTERNS: [RegExp, string][] = [
+  [/edg\//i, "Edge"],
+  [/edge/i, "Edge"],
+  [/opr\//i, "Opera"],
+  [/opera/i, "Opera"],
+  [/chrome/i, "Chrome"],
+  [/safari/i, "Safari"],
+  [/firefox/i, "Firefox"],
+  [/trident/i, "IE"],
+  [/msie/i, "IE"],
+];
+
 /**
  * Parse User-Agent string to detect device type
+ * Optimized for maximum speed with pre-compiled patterns
  */
 export function detectDevice(userAgent: string): DeviceInfo {
+  if (!userAgent) {
+    return { type: "desktop", userAgent: "" };
+  }
+
   const ua = userAgent.toLowerCase();
 
-  // Mobile detection patterns
-  const mobilePattern =
-    /android|webos|iphone|ipod|blackberry|windows phone|opera mini|iemobile/i;
-
-  // Tablet detection patterns
-  const tabletPatterns = [
-    /ipad/,
-    /android(?!.*mobile)/,
-    /tablet/,
-    /kindle/,
-    /playbook/,
-    /nexus 7/,
-    /nexus 10/,
-    /xoom/,
-  ];
-
+  // Fast path: check tablet first (more specific)
   let type: DeviceType = "desktop";
-  let os: string | undefined;
-  let browser: string | undefined;
 
-  // Detect OS
-  if (/windows/.test(ua)) {
-    os = "Windows";
-  } else if (/macintosh|mac os x/.test(ua)) {
-    os = "macOS";
-  } else if (/android/.test(ua)) {
-    os = "Android";
-  } else if (/iphone|ipod|ipad/.test(ua)) {
-    os = "iOS";
-  } else if (/linux/.test(ua)) {
-    os = "Linux";
-  }
-
-  // Detect browser
-  if (/chrome/.test(ua) && !/edge|edg/.test(ua)) {
-    browser = "Chrome";
-  } else if (/safari/.test(ua) && !/chrome/.test(ua)) {
-    browser = "Safari";
-  } else if (/firefox/.test(ua)) {
-    browser = "Firefox";
-  } else if (/edge|edg/.test(ua)) {
-    browser = "Edge";
-  } else if (/trident/.test(ua)) {
-    browser = "Internet Explorer";
-  }
-
-  // Detect device type
-  if (tabletPatterns.some(pattern => pattern.test(ua))) {
-    type = "tablet";
-  } else if (mobilePattern.test(ua)) {
+  // Check for known mobile apps first (WeChat, Weibo, QQ)
+  if (MOBILE_APP_PATTERN.test(ua) && !/ipad/i.test(ua)) {
     type = "mobile";
+  } else if (TABLET_PATTERN.test(ua) || ANDROID_TABLET_PATTERN.test(ua)) {
+    type = "tablet";
+  } else if (MOBILE_PATTERN.test(ua)) {
+    type = "mobile";
+  }
+  // Default remains "desktop"
+
+  // Detect OS (stop at first match)
+  let os: string | undefined;
+  for (const [pattern, name] of OS_PATTERNS) {
+    if (pattern.test(ua)) {
+      os = name;
+      break;
+    }
+  }
+
+  // Override OS for iOS devices
+  if (/iphone|ipod/i.test(ua)) {
+    os = "iOS";
+  } else if (/ipad/i.test(ua)) {
+    os = "iOS";
+  }
+
+  // Detect browser (stop at first match)
+  let browser: string | undefined;
+  for (const [pattern, name] of BROWSER_PATTERNS) {
+    if (pattern.test(ua)) {
+      browser = name;
+      break;
+    }
   }
 
   return {
@@ -110,6 +137,9 @@ export function isBot(userAgent: string): boolean {
     /SkypeShell/i,
     /TelegramBot/i,
     /Discordbot/i,
+    /Bytespider/i,
+    /Sogou/i,
+    /360Spider/i,
   ];
   return bots.some(pattern => pattern.test(userAgent));
 }

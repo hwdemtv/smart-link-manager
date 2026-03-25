@@ -85,6 +85,7 @@
     "download": "下载二维码",
     "footer": "该页面仅限扫码引导，无法在当前设备直接打开",
     "copySuccess": "链接已复制到剪贴板！",
+    "copyFailed": "复制失败，请手动复制",
     "downloadSuccess": "二维码已成功保存！"
   },
   "home": {
@@ -164,6 +165,8 @@
     "requiredFields": "请填写所有必填字段",
     "searchPlaceholder": "按短代码或 URL 搜索...",
     "noLinksMatch": "没有匹配您过滤条件的链接",
+    "noLinksFound": "没有找到匹配的链接",
+    "clearFilters": "重置所有筛选",
     "noLinksFirst": "暂无链接。立即创建您的第一个短链接吧！",
     "selectDomain": "选择域名...",
     "addNote": "为该链接添加备注",

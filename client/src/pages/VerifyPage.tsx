@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useTranslation } from "react-i18next";
+import { copyToClipboard } from "@/lib/clipboard";
 
 export default function VerifyPage() {
   const { t } = useTranslation();
@@ -101,9 +102,11 @@ export default function VerifyPage() {
     }
   };
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(fullUrl);
-    toast.success(t("verify.copySuccess"));
+  const handleCopyLink = async () => {
+    const success = await copyToClipboard(fullUrl);
+    if (success) {
+      toast.success(t("verify.copySuccess"));
+    }
   };
 
   const handleDownloadQR = () => {
