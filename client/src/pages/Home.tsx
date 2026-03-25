@@ -373,6 +373,10 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tighter">{t("home.pricing.title")}</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{t("home.pricing.subtitle")}</p>
+            <p className="text-sm text-muted-foreground mt-3 flex items-center justify-center gap-2">
+              <Zap className="w-4 h-4 text-primary" />
+              {t("home.pricing.quotaNote")}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
