@@ -408,6 +408,8 @@ export const linksRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      console.log('[batchUpdate] input:', JSON.stringify(input));
+
       // 构建更新数据，处理 expiresAt 从 string 到 Date 的转换
       const updateData: { isActive?: number; expiresAt?: Date | null; customDomain?: string | null; groupId?: number | null } = {};
 
@@ -428,8 +430,11 @@ export const linksRouter = router({
         updateData.groupId = input.data.groupId;
       }
 
+      console.log('[batchUpdate] updateData:', JSON.stringify(updateData));
+
       // 如果没有任何数据需要更新，直接返回成功
       if (Object.keys(updateData).length === 0) {
+        console.log('[batchUpdate] updateData is empty, returning success');
         return { success: true };
       }
 
