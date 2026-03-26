@@ -581,7 +581,7 @@ export default function Home() {
             "@context": "https://schema.org",
             "@type": "Organization",
             "name": "Smart Link Manager",
-            "alternateName": "SLM",
+            "alternateName": ["SLM", "智链管理"],
             "url": "https://smartlink.example.com",
             "logo": "https://smartlink.example.com/logo.png",
             "description": "专业的 2ms 极速短链接管理与全球流量数据分析平台。",
