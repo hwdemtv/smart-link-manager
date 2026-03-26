@@ -944,6 +944,8 @@
       "copyOriginal": "Copy URL",
       "visit": "Visit Directly",
       "qrCode": "Static QR Code"
-    }
+    },
+    "copyShareBtn": "Copy Share Text",
+    "copyShareSuccess": "Share text copied"
   }
 }

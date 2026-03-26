@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "wouter";
-import { Search, ArrowLeft, ExternalLink, Copy, QrCode, Calendar, MousePointer2, ShieldCheck, AlertTriangle } from "lucide-react";
+import { Search, ArrowLeft, ExternalLink, Copy, QrCode, Calendar, MousePointer2, ShieldCheck, AlertTriangle, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -175,16 +175,33 @@ export default function QueryPage() {
                 </div>
 
                 <div className="flex flex-col gap-3 pt-4">
-                   <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="w-full">
-                    <Button size="lg" className="w-full gap-2 rounded-2xl h-14 text-lg font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-                      <ExternalLink className="w-5 h-5" /> {t("query.result.visit")}
-                    </Button>
-                  </a>
-                  <Link href={`/qr/${link.shortCode}`} className="w-full">
-                    <Button variant="ghost" className="w-full gap-2 rounded-xl h-12 text-muted-foreground hover:bg-muted font-bold transition-all">
-                      <QrCode className="w-4 h-4" /> {t("query.result.qrCode")}
-                    </Button>
-                  </Link>
+                  <Button 
+                    onClick={() => {
+                      const title = link.seoTitle || t("common.brandName");
+                      const url = `${window.location.protocol}//${window.location.host}/s/${link.shortCode}`;
+                      const desc = link.description || "";
+                      const text = `【${title}】\n🔗 链接：${url}${desc ? `\n🔑 ${desc}` : ""}\n—— 来自 ${t("common.brandName")}`;
+                      navigator.clipboard.writeText(text);
+                      toast.success(t("query.copyShareSuccess"));
+                    }}
+                    size="lg" 
+                    className="w-full gap-2 rounded-2xl h-14 text-lg font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                  >
+                    <Share2 className="w-5 h-5" /> {t("query.copyShareBtn")}
+                  </Button>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="w-full">
+                      <Button variant="outline" className="w-full gap-2 rounded-xl h-12 text-muted-foreground hover:bg-muted font-bold transition-all border-border/40">
+                        <ExternalLink className="w-4 h-4" /> {t("query.result.visit")}
+                      </Button>
+                    </a>
+                    <Link href={`/qr/${link.shortCode}`} className="w-full">
+                      <Button variant="ghost" className="w-full gap-2 rounded-xl h-12 text-muted-foreground hover:bg-muted font-bold transition-all">
+                        <QrCode className="w-4 h-4" /> {t("query.result.qrCode")}
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
 
                 {/* Footer Center - matching SSR landing page */}

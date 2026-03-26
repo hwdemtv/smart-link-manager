@@ -936,6 +936,8 @@
       "copyOriginal": "复制原链",
       "visit": "直接访问",
       "qrCode": "生成静态二维码"
-    }
+    },
+    "copyShareBtn": "复制分享口令",
+    "copyShareSuccess": "分享口令已复制"
   }
 }
