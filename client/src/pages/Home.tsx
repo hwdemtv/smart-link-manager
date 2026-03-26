@@ -527,6 +527,7 @@ export default function Home() {
                 <li><Link href="/docs/how-it-works" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />技术实现原理</Link></li>
                 <li><Link href="/docs/best-practices" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />SEO 最佳实践</Link></li>
                 <li><Link href="/faq" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />常见问题解答</Link></li>
+                <li><Link href="/query" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />短码公开查询</Link></li>
               </ul>
             </div>
             {/* Legal */}

@@ -24,6 +24,7 @@ const LicenseSettings = lazy(() => import("./pages/LicenseSettings"));
 const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
 const DocPage = lazy(() => import("./pages/DocPage"));
 const FAQPage = lazy(() => import("./pages/FAQPage"));
+const QueryPage = lazy(() => import("./pages/QueryPage"));
 const ComponentsShowcase = lazy(() => import("./pages/ComponentShowcase"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -113,6 +114,7 @@ function Router() {
         </Route>
         <Route path="/docs/:slug" component={DocPage} />
         <Route path="/faq" component={FAQPage} />
+        <Route path="/query" component={QueryPage} />
 
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
