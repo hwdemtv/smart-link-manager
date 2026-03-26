@@ -5,8 +5,10 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql)
+![SEO Optimized](https://img.shields.io/badge/SEO-Optimized-success?style=flat-square&logo=google)
+![GEO Ready](https://img.shields.io/badge/GEO-Ready-blueviolet?style=flat-square&logo=openai)
 
-**Smart Link Manager (智链管理)** 是一款面向企业级应用的现代化 **SaaS 架构** 短链接管理与数据分析平台。它提供极致的跳转性能、深度的数据洞察以及全方位的开放集成能力。
+**Smart Link Manager (智链管理)** 是一款面向企业级应用的现代化 **SaaS 架构** 短链接管理与数据分析平台。深度集成 **SEO (搜索引擎优化)** 与 **GEO (生成式引擎优化)** 策略，提供极致的 2ms 跳转性能、深度的数据洞察以及全方位的 **JSON-LD** 结构化数据映射，助力您的品牌在 AI 搜索时代脱颖而出。
 
 ---
 
