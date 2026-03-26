@@ -44,6 +44,7 @@ import type {
 const PAGE_SIZE = 15;
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -562,6 +563,7 @@ export default function Dashboard() {
             isSubmitting={mutations.createLinkMutation.isPending}
             onGenerateSeo={mutations.generateSeo}
             isGeneratingSeo={mutations.generateSeoMutation.isPending}
+            subscriptionTier={user?.subscriptionTier}
           />
 
           {/* Edit Dialog */}
@@ -576,6 +578,7 @@ export default function Dashboard() {
             isSubmitting={mutations.updateLinkMutation.isPending}
             onGenerateSeo={mutations.generateSeo}
             isGeneratingSeo={mutations.generateSeoMutation.isPending}
+            subscriptionTier={user?.subscriptionTier}
           />
 
           {/* Delete Dialog */}

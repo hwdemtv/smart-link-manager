@@ -1,48 +1,87 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { Search, ArrowLeft, ExternalLink, Copy, QrCode, Calendar, MousePointer2, ShieldCheck, AlertTriangle, Share2 } from "lucide-react";
+import { Search, ArrowLeft, ShieldCheck, AlertTriangle, Share2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import SEO from "@/components/SEO";
-import { format } from "date-fns";
+import QRCode from "qrcode";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function QueryPage() {
   const { t } = useTranslation();
   const [shortCode, setShortCode] = useState("");
   const [searchKey, setSearchKey] = useState("");
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [showResult, setShowResult] = useState(false);
 
-  const { data: link, isLoading, isError, error } = trpc.links.getByShortCode.useQuery(
+  const { data: link, isLoading, isError } = trpc.links.getByShortCode.useQuery(
     { shortCode: searchKey },
-    { enabled: !!searchKey, retry: false }
+    { 
+      enabled: !!searchKey, 
+      retry: false,
+    }
   );
+
+  useEffect(() => {
+    const generateQR = async () => {
+      if (link) {
+        try {
+          const url = `${window.location.protocol}//${window.location.host}/s/${link.shortCode}`;
+          const qr = await QRCode.toDataURL(url, { 
+            margin: 2, 
+            width: 600,
+            color: {
+              dark: '#0f172a',
+              light: '#ffffff'
+            }
+          });
+          setQrDataUrl(qr);
+          setShowResult(true); // Data found, open dialog
+        } catch (err) {
+          console.error("QR Generation failed", err);
+        }
+      } else {
+        setQrDataUrl("");
+      }
+    };
+    generateQR();
+  }, [link]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (shortCode.trim()) {
-      setSearchKey(shortCode.trim());
+      setSearchKey(shortCode.trim().toLowerCase());
     }
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success(t("dashboard.copySuccess"));
-  };
-
-  const isLinkExpired = (expiresAt: string | null) => {
-    if (!expiresAt) return false;
-    return new Date(expiresAt) < new Date();
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden font-sans">
-      <SEO 
-        title={t("query.title")} 
+      <SEO
+        title={t("query.title")}
         description={t("query.subtitle")}
+        canonicalPath="/query"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": t("query.title"),
+          "description": t("query.subtitle"),
+          "url": `${window.location.origin}/query`,
+          "mainEntity": {
+            "@type": "WebApplication",
+            "name": "Short Code Lookup",
+            "applicationCategory": "UtilityApplication",
+            "operatingSystem": "Web"
+          }
+        }}
       />
       
       {/* Background Decor */}
@@ -52,7 +91,7 @@ export default function QueryPage() {
       </div>
 
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container h-20 flex items-center justify-between">
+        <div className="container h-20 flex items-center justify-between px-6">
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer group">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/30 group-hover:border-primary transition-all duration-300">
@@ -69,10 +108,10 @@ export default function QueryPage() {
         </div>
       </header>
 
-      <main className="pt-40 pb-24 container max-w-3xl relative z-10">
-        <div className="text-center mb-16 space-y-4">
+      <main className="pt-40 pb-24 container max-w-3xl relative z-10 px-6">
+        <div className="text-center mb-16 space-y-4 px-4">
           <Badge variant="outline" className="px-4 py-1 border-primary/30 text-primary bg-primary/5 animate-in fade-in zoom-in">
-            Public Lookup Tool
+            {t("query.badge")}
           </Badge>
           <h1 className="text-5xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
             {t("query.title")}
@@ -82,7 +121,7 @@ export default function QueryPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSearch} className="relative group max-w-2xl mx-auto mb-16 px-4">
+        <form onSubmit={handleSearch} className="relative group max-w-2xl mx-auto mb-16">
           <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-accent-pink/50 rounded-2xl blur opacity-25 group-focus-within:opacity-50 transition duration-500" />
           <div className="relative flex gap-3 p-2 bg-card border border-border/50 rounded-2xl shadow-2xl backdrop-blur-sm">
             <div className="flex-1 flex items-center pl-4 bg-muted/30 rounded-xl border border-transparent focus-within:border-primary/30 transition-all">
@@ -101,124 +140,81 @@ export default function QueryPage() {
         </form>
 
         {isError && (
-          <div className="p-8 rounded-3xl bg-destructive/5 border border-destructive/20 text-center animate-in fade-in slide-in-from-bottom-4">
-            <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4 opacity-50" />
-            <p className="text-destructive font-bold text-lg">{t("query.notFound")}</p>
+          <div className="p-10 rounded-[2.5rem] bg-destructive/5 border border-destructive/20 text-center animate-in fade-in slide-in-from-bottom-4 max-w-md mx-auto shadow-sm">
+            <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4 opacity-70" />
+            <p className="text-destructive font-black text-xl mb-2">{t("query.notFound")}</p>
+            <p className="text-destructive/60 text-sm">{t("query.notFoundHint")}</p>
           </div>
         )}
 
-        {link && (
-          <div className="max-w-[420px] mx-auto animate-in fade-in slide-in-from-bottom-12 duration-700">
-            <Card className="border-0 bg-card shadow-[0_30px_60px_-12px_rgba(0,0,0,0.25)] rounded-[2.5rem] overflow-hidden group">
-              {/* Gradient Top Bar - matching SSR landing page */}
-              <div className="h-2 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
-              
-              {/* Cover Image from SEO settings */}
-              {link.seoImage && (
-                <div className="w-full h-44 overflow-hidden border-b border-border/10">
-                  <img 
-                    src={link.seoImage} 
-                    alt="Link Cover" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                </div>
-              )}
-
-              <CardContent className="p-10 space-y-8 text-center">
-                {/* Branded Icon Wrap */}
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 border border-primary/20 shadow-inner">
-                  <ShieldCheck className="w-8 h-8 text-primary" />
-                </div>
-
-                <div className="space-y-3">
-                  <h2 className="text-3xl font-black tracking-tight text-foreground break-all px-2">
-                    {link.seoTitle || link.shortCode}
-                  </h2>
-                  <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[280px] mx-auto">
-                    {link.seoDescription || link.description || t("query.subtitle")}
-                  </p>
-                </div>
-
-                {/* Status Badge */}
-                <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] border border-primary/20">
-                  <span className="w-2 h-2 rounded-full bg-primary mr-2 animate-pulse" />
-                  {link.isActive && !isLinkExpired(link.expiresAt as string) ? t("query.result.active") : t("query.result.expired")}
-                </div>
-
-                <div className="space-y-4 pt-4">
-                  {/* Detailed Info Grid */}
-                  <div className="grid grid-cols-2 gap-4 bg-muted/30 p-5 rounded-3xl border border-border/40">
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{t("query.result.clicks")}</p>
-                      <p className="text-2xl font-black text-foreground">{link.clickCount || 0}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{t("query.result.createdAt")}</p>
-                      <p className="text-sm font-bold opacity-90">{link.createdAt ? format(new Date(link.createdAt), "yyyy/MM/dd") : "-"}</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 text-left">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-2">{t("query.result.originalUrl")}</p>
-                    <div className="relative group/link">
-                      <div className="bg-muted/50 p-4 rounded-2xl border border-border/50 pr-12 transition-all hover:border-primary/40">
-                        <p className="text-xs font-mono font-medium truncate opacity-70">{link.originalUrl}</p>
-                      </div>
-                      <button 
-                        onClick={() => copyToClipboard(link.originalUrl)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-background border border-border/50 text-muted-foreground hover:text-primary hover:border-primary transition-all opacity-0 group-hover/link:opacity-100 shadow-sm"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3 pt-4">
-                  <Button 
-                    onClick={() => {
-                      const title = link.seoTitle || t("common.brandName");
-                      const url = `${window.location.protocol}//${window.location.host}/s/${link.shortCode}`;
-                      const desc = link.description || "";
-                      const text = `【${title}】\n🔗 链接：${url}${desc ? `\n🔑 ${desc}` : ""}\n—— 来自 ${t("common.brandName")}`;
-                      navigator.clipboard.writeText(text);
-                      toast.success(t("query.copyShareSuccess"));
-                    }}
-                    size="lg" 
-                    className="w-full gap-2 rounded-2xl h-14 text-lg font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
-                  >
-                    <Share2 className="w-5 h-5" /> {t("query.copyShareBtn")}
-                  </Button>
+        {/* Result Dialog - Consistent across app */}
+        <Dialog open={showResult} onOpenChange={setShowResult}>
+          <DialogContent className="p-0 border-0 bg-transparent shadow-none max-w-[440px]">
+            <DialogTitle className="sr-only">{t("query.result.title")}</DialogTitle>
+            <div className="animate-in fade-in zoom-in-95 duration-500">
+              {link && (
+                <Card className="border-0 bg-card shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] rounded-[2.5rem] overflow-hidden">
+                  <div className="h-2 w-full bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600" />
                   
-                  <div className="grid grid-cols-2 gap-3">
-                    <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="w-full">
-                      <Button variant="outline" className="w-full gap-2 rounded-xl h-12 text-muted-foreground hover:bg-muted font-bold transition-all border-border/40">
-                        <ExternalLink className="w-4 h-4" /> {t("query.result.visit")}
-                      </Button>
-                    </a>
-                    <Link href={`/qr/${link.shortCode}`} className="w-full">
-                      <Button variant="ghost" className="w-full gap-2 rounded-xl h-12 text-muted-foreground hover:bg-muted font-bold transition-all">
-                        <QrCode className="w-4 h-4" /> {t("query.result.qrCode")}
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
+                  <CardContent className="p-10 text-center flex flex-col items-center">
+                    <div className="space-y-4 mb-10 pt-4">
+                      <h2 className="text-3xl font-black tracking-tight text-foreground leading-tight px-4">
+                        {link.seoTitle || link.shortCode}
+                      </h2>
+                      <p className="text-muted-foreground text-base font-medium leading-relaxed max-w-[320px] mx-auto opacity-80">
+                        {link.seoDescription || link.description || t("query.subtitle")}
+                      </p>
+                    </div>
 
-                {/* Footer Center - matching SSR landing page */}
-                <div className="pt-8 border-t border-border/30 flex items-center justify-center gap-2">
-                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                   <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">
-                     安全验证中心 · Smart Link Manager
-                   </span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+                    {qrDataUrl && (
+                      <div className="group relative">
+                        <div className="absolute -inset-4 bg-muted/20 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-700" />
+                        <div className="relative p-7 bg-muted/40 rounded-[2.5rem] border border-border/20 shadow-inner overflow-hidden mb-10">
+                          <img 
+                            src={qrDataUrl} 
+                            alt="QR Code" 
+                            className="w-64 h-64 rounded-2xl shadow-xl transition-transform duration-700 group-hover:scale-110"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="w-full">
+                      <Button 
+                        onClick={() => {
+                          const title = link.seoTitle || t("common.brandName");
+                          const url = `${window.location.protocol}//${window.location.host}/s/${link.shortCode}`;
+                          const desc = link.description || "";
+                          const textToCopy = `【${title}】\n🔗 ${t("query.result.originalUrl")}：${url}${desc ? `\n🔑 ${desc}` : ""}\n—— ${t("query.shareFrom")} ${t("common.brandName")}`;
+                          navigator.clipboard.writeText(textToCopy);
+                          toast.success(t("query.copyShareSuccess"));
+                        }}
+                        size="lg" 
+                        className="w-full gap-3 rounded-2xl h-16 text-xl font-black shadow-2xl shadow-primary/10 hover:shadow-primary/25 hover:scale-[1.03] active:scale-95 transition-all bg-[#0f172a] hover:bg-slate-900 border border-white/5"
+                      >
+                        <Share2 className="w-6 h-6" /> {t("query.copyShareBtn")}
+                      </Button>
+                    </div>
+
+                    <div className="mt-12 flex items-center justify-center gap-3">
+                       <div className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                       </div>
+                       <span className="text-[11px] font-black text-muted-foreground/50 uppercase tracking-[0.3em]">
+                         {t("query.securityCenter")}
+                       </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
 
-      <footer className="py-12 border-t border-white/5 text-center text-sm text-muted-foreground relative z-10">
-        <p>&copy; {new Date().getFullYear()} 智链管理. All rights reserved.</p>
+      <footer className="py-12 border-t border-white/5 text-center text-sm text-muted-foreground relative z-10 px-6">
+        <p>&copy; {new Date().getFullYear()} {t("common.brandName")}. {t("home.footer.rights")}</p>
       </footer>
     </div>
   );

@@ -118,11 +118,18 @@ export const linksRouter = router({
         : null;
 
       // 4. 原子化创建并捕获冲突 (修复竞态条件 TOCTOU)
+      let finalShortCode = input.shortCode;
+      
+      // 权益限制：非 Business 用户不得自定义短码，强制由系统随机生成
+      if (tier !== "business") {
+        finalShortCode = generateSecureShortCode(6);
+      }
+      
       try {
         await createLink({
           userId: ctx.user.id,
           originalUrl: input.originalUrl,
-          shortCode: input.shortCode,
+          shortCode: finalShortCode,
           customDomain: input.customDomain,
           description: input.description,
           expiresAt: input.expiresAt,
@@ -256,6 +263,14 @@ export const linksRouter = router({
       }
 
       if (input.shortCode && input.shortCode !== link.shortCode) {
+        // 权益限制：非 Business 用户不得修改现有短码
+        if (ctx.user.subscriptionTier !== "business") {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Custom shortcodes are a Business feature only.",
+          });
+        }
+
         const existing = await getLinkByShortCode(input.shortCode);
         if (existing) {
           throw new TRPCError({

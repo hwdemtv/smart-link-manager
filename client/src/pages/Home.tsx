@@ -23,6 +23,13 @@ import {
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { cn } from "@/lib/utils";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogTrigger,
+  DialogTitle 
+} from "@/components/ui/dialog";
+import { PublicLinkLookup } from "@/components/PublicLinkLookup";
 
 // 数字滚动动画组件
 function StatCounter({ end, suffix = "", duration = 2000 }: { end: number; suffix?: string; duration?: number }) {
@@ -220,16 +227,24 @@ export default function Home() {
             >
               {t("home.getStarted")}
             </Button>
-            <Link href="/query">
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full sm:w-auto text-lg px-10 h-14 rounded-xl backdrop-blur-sm border-border hover:bg-muted/50 transition-all flex items-center gap-2"
-              >
-                <Search className="w-5 h-5" />
-                {t("query.title")}
-              </Button>
-            </Link>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto text-lg px-10 h-14 rounded-xl backdrop-blur-sm border-border hover:bg-muted/50 transition-all flex items-center gap-2"
+                >
+                  <Search className="w-5 h-5" />
+                  {t("query.title")}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl bg-transparent border-0 shadow-none p-0">
+                <DialogTitle className="sr-only">{t("query.title")}</DialogTitle>
+                <div className="bg-white/80 backdrop-blur-2xl p-12 rounded-[3.5rem] border border-white/50 shadow-2xl">
+                  <PublicLinkLookup />
+                </div>
+              </DialogContent>
+            </Dialog>
             <Button
               size="lg"
               variant="outline"
