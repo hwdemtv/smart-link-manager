@@ -6,7 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql)
 
-**Smart Link Manager** 是一款面向企业级应用的现代化 **SaaS 架构** 短链接管理与数据分析平台。它提供极致的跳转性能、深度的数据洞察以及全方位的开放集成能力。
+**Smart Link Manager (智链管理)** 是一款面向企业级应用的现代化 **SaaS 架构** 短链接管理与数据分析平台。它提供极致的跳转性能、深度的数据洞察以及全方位的开放集成能力。
 
 ---
 
