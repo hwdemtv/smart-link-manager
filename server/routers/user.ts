@@ -91,7 +91,7 @@ export const userRouter = router({
           .object({
             role: z.enum(["user", "admin"]).optional(),
             isActive: z.number().optional(),
-            subscriptionTier: z.string().optional(),
+            subscriptionTier: z.enum(["free", "pro", "business", "ENTERPRISE"]).optional(),
             licenseExpiresAt: z.date().nullable().optional(),
           })
           .refine(
@@ -417,13 +417,16 @@ export const userRouter = router({
         name: z.string().optional(),
         email: z.string().email().optional(),
         role: z.enum(["user", "admin"]).optional(),
-        subscriptionTier: z.string().optional(),
+        subscriptionTier: z.enum(["free", "pro", "business", "ENTERPRISE"]).optional(),
         licenseExpiresAt: z.date().nullable().optional(),
         isActive: z.number().min(0).max(1).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const { userId, ...updates } = input;
+
+      console.log(`[user.update] >>> Admin [${ctx.user.id}] is updating User [${input.userId}]`);
+      console.log('[user.update] Payload:', JSON.stringify(updates, null, 2));
 
       const user = await getUserById(userId);
       if (!user) {
@@ -433,7 +436,13 @@ export const userRouter = router({
         });
       }
 
-      await updateUser(userId, updates);
+      console.log('[user.update] User before update:', JSON.stringify({ id: user.id, tier: user.subscriptionTier }));
+
+      await updateUser(userId, updates as Partial<import("../../drizzle/schema").InsertUser>);
+
+      // 验证更新是否成功
+      const updatedUser = await getUserById(userId);
+      console.log('[user.update] User after update:', JSON.stringify({ id: updatedUser?.id, tier: updatedUser?.subscriptionTier }));
 
       await createAuditLog({
         userId: ctx.user.id,
@@ -658,6 +667,72 @@ export const userRouter = router({
         details: { count: input.linkIds.length },
       });
       return { success: true };
+    }),
+
+  exportLinksCSV: adminProcedure
+    .input(
+      z.object({
+        search: z.string().optional(),
+        isActive: z.number().optional(),
+        isValid: z.number().optional(),
+        userId: z.number().optional(),
+        domain: z.string().optional(),
+        expiresSoon: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await createAuditLog({
+        userId: ctx.user.id,
+        action: "links_exported_csv",
+        targetType: "links",
+        details: { filters: input },
+      });
+
+      // 导出所有符合条件的链接（不分页）
+      const { links } = await searchAllLinks({
+        ...input,
+        limit: 100000, // 设置一个足够大的上限
+        offset: 0,
+      });
+
+      const headers = [
+        "ID",
+        "短代码",
+        "原始 URL",
+        "自定义域名",
+        "点击量",
+        "由于者",
+        "状态",
+        "有效性",
+        "创建时间",
+      ];
+
+      const escapeCsv = (str: string | null | undefined) => {
+        if (str === null || str === undefined) return '""';
+        return `"${String(str).replace(/"/g, '""')}"`;
+      };
+
+      let csv = headers.join(",") + "\n";
+      for (const link of links) {
+        const status = link.isActive === 1 ? "活跃" : "禁用";
+        const validity = link.isValid === 1 ? "有效" : "失效";
+        const owner = link.userUsername || link.userName || `User ${link.userId}`;
+        
+        const row = [
+          link.id,
+          escapeCsv(link.shortCode),
+          escapeCsv(link.originalUrl),
+          escapeCsv(link.customDomain),
+          link.clickCount,
+          escapeCsv(owner),
+          escapeCsv(status),
+          escapeCsv(validity),
+          escapeCsv(link.createdAt.toISOString()),
+        ];
+        csv += row.join(",") + "\n";
+      }
+
+      return csv;
     }),
 
   // === Notification Management ===

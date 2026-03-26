@@ -3,6 +3,11 @@ import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { ErrorCodes } from "@shared/errorCodes";
+import {
+  createLinkSchema,
+  updateLinkSchema,
+  searchLinksSchema,
+} from "@shared/validators/links";
 import { hashPassword, verifyPassword } from "../_core/auth";
 import { ensureNullIfEmpty } from "../_core/utils";
 import { licenseService } from "../licenseService";
@@ -37,7 +42,10 @@ import {
   restoreLink,
   permanentDeleteLink,
   emptyRecycleBin,
+  recordLinkCheck,
+  updateLinkValidity,
 } from "../db";
+import { checkLinkValidity } from "../linkChecker";
 
 /**
  * 生成安全的随机短码（使用 crypto.randomBytes）
@@ -55,39 +63,7 @@ function generateSecureShortCode(length: number = 6): string {
 
 export const linksRouter = router({
   create: protectedProcedure
-    .input(
-      z.object({
-        originalUrl: z.string().url(),
-        shortCode: z
-          .string()
-          .min(3)
-          .max(20)
-          .regex(/^[a-zA-Z0-9_-]+$/),
-        customDomain: z.string().optional(),
-        description: z.string().optional(),
-        expiresAt: z.date().optional(),
-        password: z.string().optional(),
-        tags: z.array(z.string()).optional(),
-        // SEO 基础字段
-        seoTitle: z.string().optional(),
-        seoDescription: z.string().optional(),
-        seoImage: z.string().optional(),
-        // SEO 高级字段
-        seoPriority: z.number().min(0).max(100).optional(),
-        noIndex: z.number().min(0).max(1).optional(),
-        redirectType: z.enum(["301", "302", "307", "308"]).optional(),
-        seoKeywords: z.string().optional(),
-        canonicalUrl: z.string().url().optional(),
-        ogVideoUrl: z.string().url().optional(),
-        ogVideoWidth: z.number().int().positive().optional(),
-        ogVideoHeight: z.number().int().positive().optional(),
-        // A/B 测试
-        abTestEnabled: z.number().min(0).max(1).optional(),
-        abTestUrl: z.string().url().optional(),
-        abTestRatio: z.number().min(1).max(99).optional(),
-        groupId: z.number().nullable().optional(),
-      })
-    )
+    .input(createLinkSchema)
     .mutation(async ({ ctx, input }) => {
       // 1. 自定义域名权限与校验 (从原代码逻辑迁移，保持安全性)
       if (input.customDomain) {
@@ -107,7 +83,13 @@ export const linksRouter = router({
       }
 
       // 2. 配额限制校验 (从原代码逻辑迁移，防止爆库)
-      const tier = ctx.user.subscriptionTier || "free";
+      let tier = ctx.user.subscriptionTier || "free";
+      
+      // 关键修复 (Issue 授权失效)：检查授权是否过期
+      if (tier !== "free" && !licenseService.isSubscriptionValid(ctx.user.licenseExpiresAt)) {
+        tier = "free";
+      }
+
       const limits = licenseService.getTierLimits(tier);
       const currentLinks = await getUserLinkCount(ctx.user.id);
 
@@ -164,6 +146,8 @@ export const linksRouter = router({
           abTestUrl: input.abTestUrl,
           abTestRatio: input.abTestRatio,
           groupId: input.groupId,
+          // 社交分享
+          shareSuffix: input.shareSuffix,
         });
       } catch (error) {
         // 捕获唯一键冲突 (MySQL Error 1062)
@@ -209,18 +193,7 @@ export const linksRouter = router({
   }),
 
   search: protectedProcedure
-    .input(
-      z.object({
-        query: z.string().optional(),
-        tag: z.string().optional(),
-        status: z.enum(["all", "active", "invalid"]).optional(),
-        orderBy: z.enum(["createdAt", "clickCount", "updatedAt"]).optional(),
-        order: z.enum(["asc", "desc"]).optional(),
-        limit: z.number().min(1).max(100).optional(),
-        offset: z.number().min(0).optional(),
-        groupId: z.number().nullable().optional(),
-      })
-    )
+    .input(searchLinksSchema)
     .query(async ({ ctx, input }) => {
       const result = await searchLinks(ctx.user.id, {
         search: input.query,
@@ -267,42 +240,7 @@ export const linksRouter = router({
     }),
 
   update: protectedProcedure
-    .input(
-      z.object({
-        linkId: z.number(),
-        originalUrl: z.string().url().optional(),
-        shortCode: z
-          .string()
-          .min(3)
-          .max(20)
-          .regex(/^[a-zA-Z0-9_-]+$/)
-          .optional(),
-        customDomain: z.string().nullable().optional(),
-        description: z.string().nullable().optional(),
-        isActive: z.number().min(0).max(1).optional(),
-        expiresAt: z.date().nullable().optional(),
-        password: z.string().nullable().optional(),
-        tags: z.array(z.string()).nullable().optional(),
-        // SEO 基础字段
-        seoTitle: z.string().nullable().optional(),
-        seoDescription: z.string().nullable().optional(),
-        seoImage: z.string().nullable().optional(),
-        // SEO 高级字段
-        seoPriority: z.number().min(0).max(100).nullable().optional(),
-        noIndex: z.number().min(0).max(1).nullable().optional(),
-        redirectType: z.enum(["301", "302", "307", "308"]).nullable().optional(),
-        seoKeywords: z.string().nullable().optional(),
-        canonicalUrl: z.string().url().nullable().optional(),
-        ogVideoUrl: z.string().url().nullable().optional(),
-        ogVideoWidth: z.number().int().positive().nullable().optional(),
-        ogVideoHeight: z.number().int().positive().nullable().optional(),
-        // A/B 测试
-        abTestEnabled: z.number().min(0).max(1).optional(),
-        abTestUrl: z.string().url().nullable().optional(),
-        abTestRatio: z.number().min(1).max(99).optional(),
-        groupId: z.number().nullable().optional(),
-      })
-    )
+    .input(updateLinkSchema)
     .mutation(async ({ ctx, input }) => {
       const link = await getLinkById(input.linkId);
       if (!link)
@@ -361,6 +299,8 @@ export const linksRouter = router({
         abTestUrl: input.abTestUrl,
         abTestRatio: input.abTestRatio,
         groupId: input.groupId,
+        // 社交分享
+        shareSuffix: input.shareSuffix,
       });
 
       // 清除 sitemap 缓存
@@ -423,7 +363,7 @@ export const linksRouter = router({
     .mutation(async ({ input }) => {
       try {
         const seoData = await generateSeoFromUrl(input.url, input.description);
-        return { success: true, ...seoData };
+        return { ...seoData };
       } catch (error) {
         const err = error as { message?: string };
         throw new TRPCError({
@@ -448,12 +388,13 @@ export const linksRouter = router({
           isActive: z.number().int().min(0).max(1).optional(),
           expiresAt: z.string().optional().nullable(),
           customDomain: z.string().optional(),
+          groupId: z.number().nullable().optional(),
         }),
       })
     )
     .mutation(async ({ ctx, input }) => {
       // 构建更新数据，处理 expiresAt 从 string 到 Date 的转换
-      const updateData: { isActive?: number; expiresAt?: Date | null; customDomain?: string | null } = {};
+      const updateData: { isActive?: number; expiresAt?: Date | null; customDomain?: string | null; groupId?: number | null } = {};
 
       if (input.data.isActive !== undefined) {
         updateData.isActive = input.data.isActive;
@@ -466,6 +407,10 @@ export const linksRouter = router({
 
       if (input.data.customDomain !== undefined) {
         updateData.customDomain = input.data.customDomain || null;
+      }
+
+      if (input.data.groupId !== undefined) {
+        updateData.groupId = input.data.groupId;
       }
 
       await batchUpdateLinks(ctx.user.id, input.linkIds, updateData);
@@ -488,6 +433,59 @@ export const linksRouter = router({
         input.mode
       );
       return { success: true };
+    }),
+
+  checkValidity: protectedProcedure
+    .input(z.object({ linkId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const link = await getLinkById(input.linkId);
+      if (!link || (link.userId !== ctx.user.id && ctx.user.role !== "admin")) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: ErrorCodes.LINK_NOT_FOUND,
+        });
+      }
+
+      const result = await checkLinkValidity(link.originalUrl);
+      
+      // 记录检查历史
+      await recordLinkCheck({
+        linkId: link.id,
+        isValid: result.isValid ? 1 : 0,
+        statusCode: result.statusCode,
+        errorMessage: result.errorMessage,
+      });
+
+      // 同步有效性状态
+      await updateLinkValidity(link.id, result.isValid ? 1 : 0);
+
+      return { success: true, isValid: result.isValid };
+    }),
+
+  batchCheckValidity: protectedProcedure
+    .input(z.object({ linkIds: z.array(z.number()).min(1).max(50) }))
+    .mutation(async ({ ctx, input }) => {
+      const results = [];
+      for (const linkId of input.linkIds) {
+        const link = await getLinkById(linkId);
+        if (link && (link.userId === ctx.user.id || ctx.user.role === "admin")) {
+          const res = await checkLinkValidity(link.originalUrl);
+          
+          await recordLinkCheck({
+            linkId: link.id,
+            isValid: res.isValid ? 1 : 0,
+            statusCode: res.statusCode,
+            errorMessage: res.errorMessage,
+          });
+
+          await updateLinkValidity(link.id, res.isValid ? 1 : 0);
+          results.push({ linkId, isValid: res.isValid });
+          
+          // 短暂间隔防止并发限制
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
+      return { success: true, results };
     }),
 
   batchImport: protectedProcedure
@@ -879,5 +877,15 @@ export const linksRouter = router({
   emptyRecycleBin: protectedProcedure.mutation(async ({ ctx }) => {
     await emptyRecycleBin(ctx.user.id);
     return { success: true };
+  }),
+
+  // === Count ===
+  /**
+   * 获取用户链接计数（包含分组计数）
+   * 用于侧边栏显示各分组的链接数量
+   */
+  count: protectedProcedure.query(async ({ ctx }) => {
+    const total = await getUserLinkCount(ctx.user.id);
+    return { total };
   }),
 });

@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -9,16 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Link2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { LinkTableRow } from "./LinkTableRow";
 import type { Link } from "@/types/dashboard";
-
-// 虚拟滚动阈值：超过此数量时启用虚拟列表
-const VIRTUAL_THRESHOLD = 50;
-// 每行预估高度（像素）
-const ESTIMATED_ROW_HEIGHT = 72;
 
 interface LinksTableProps {
   links: Link[];
@@ -44,6 +38,8 @@ interface LinksTableProps {
   // Filter state for empty message
   hasFilters: boolean;
   onClearFilters: () => void;
+  onCheck: (id: number) => void;
+  checkingLinkId?: number | null;
 }
 
 export function LinksTable({
@@ -66,28 +62,53 @@ export function LinksTable({
   endIndex,
   hasFilters,
   onClearFilters,
+  onCheck,
+  checkingLinkId,
 }: LinksTableProps) {
   const { t } = useTranslation();
-  const parentRef = useRef<HTMLDivElement>(null);
 
   const isAllSelected =
     links.length > 0 && links.every(l => selectedIds.has(l.id));
 
-  // 虚拟滚动：仅当链接数量超过阈值时启用
-  const shouldVirtualize = links.length > VIRTUAL_THRESHOLD;
-
-  const rowVirtualizer = useVirtualizer({
-    count: links.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => ESTIMATED_ROW_HEIGHT,
-    overscan: 5,
-  });
-
   if (isLoading) {
     return (
       <Card className="p-6">
-        <div className="text-center py-8 text-muted-foreground">
-          {t("common.loading")}
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-8 w-48" />
+        </div>
+        <div className="rounded-md border overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/30">
+              <TableRow>
+                <TableHead className="w-10">
+                  <Skeleton className="h-4 w-4" />
+                </TableHead>
+                <TableHead className="w-32"><Skeleton className="h-4 w-16" /></TableHead>
+                <TableHead><Skeleton className="h-4 w-32" /></TableHead>
+                <TableHead className="w-24"><Skeleton className="h-4 w-12" /></TableHead>
+                <TableHead className="w-24"><Skeleton className="h-4 w-12" /></TableHead>
+                <TableHead className="w-32"><Skeleton className="h-4 w-20" /></TableHead>
+                <TableHead className="w-32"><Skeleton className="h-4 w-20" /></TableHead>
+                <TableHead className="text-right w-32"><Skeleton className="h-4 w-20 ml-auto" /></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array(5)
+                .fill(null)
+                .map((_, i) => (
+                  <TableRow key={i} className="animate-pulse">
+                    <TableCell><Skeleton className="h-4 w-4" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
         </div>
       </Card>
     );
@@ -132,12 +153,12 @@ export function LinksTable({
                     </div>
                     <div className="text-muted-foreground font-medium">
                       {hasFilters
-                        ? t("dashboard.noLinksFound") || "没有找到匹配的链接"
-                        : t("dashboard.noLinks") || "还没有创建任何链接"}
+                        ? t("dashboard.noLinksFound")
+                        : t("dashboard.noLinks")}
                     </div>
                     {hasFilters && (
                       <Button variant="link" size="sm" onClick={onClearFilters}>
-                        {t("dashboard.clearFilters") || "重置所有筛选"}
+                        {t("dashboard.clearFilters")}
                       </Button>
                     )}
                     {!hasFilters && (
@@ -147,132 +168,27 @@ export function LinksTable({
                         className="mt-2"
                       >
                         <Plus className="w-4 h-4 mr-2" />
-                        {t("dashboard.createFirstLink") || "立即创建第一个链接"}
+                        {t("dashboard.createFirstLink")}
                       </Button>
                     )}
                   </div>
                 </TableCell>
               </TableRow>
-            ) : shouldVirtualize ? (
-              // 虚拟滚动渲染
-              <div
-                ref={parentRef}
-                className="overflow-auto"
-                style={{ maxHeight: "600px" }}
-              >
-                <div
-                  style={{
-                    height: `${rowVirtualizer.getTotalSize()}px`,
-                    width: "100%",
-                    position: "relative",
-                  }}
-                >
-                  {rowVirtualizer.getVirtualItems().map(virtualRow => {
-                    const link = links[virtualRow.index];
-                    return (
-                      <div
-                        key={link.id}
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          width: "100%",
-                          height: `${virtualRow.size}px`,
-                          transform: `translateY(${virtualRow.start}px)`,
-                        }}
-                      >
-                        <TableRow
-                          className="hover:bg-muted/50"
-                          data-index={virtualRow.index}
-                        >
-                          <TableCell className="w-10">
-                            <input
-                              type="checkbox"
-                              className="rounded border-gray-300 text-accent-blue focus:ring-accent-blue cursor-pointer"
-                              checked={selectedIds.has(link.id)}
-                              onChange={e => onToggleSelect(link.id)}
-                            />
-                          </TableCell>
-                          <TableCell className="font-mono font-medium">
-                            {link.shortCode}
-                          </TableCell>
-                          <TableCell className="max-w-xs truncate">
-                            <a
-                              href={link.originalUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline"
-                            >
-                              {link.originalUrl}
-                            </a>
-                          </TableCell>
-                          <TableCell>{link.clickCount}</TableCell>
-                          <TableCell>
-                            <span
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-                                link.isActive && link.isValid
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                  : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              }`}
-                            >
-                              {link.isActive && link.isValid
-                                ? t("common.active")
-                                : t("common.inactive")}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {link.expiresAt
-                              ? new Date(link.expiresAt).toLocaleDateString()
-                              : "-"}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {new Date(link.createdAt).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onCopy(link)}
-                              >
-                                {t("common.copy") || "复制"}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onEdit(link)}
-                              >
-                                {t("common.edit") || "编辑"}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onDelete(link)}
-                                className="text-destructive"
-                              >
-                                {t("common.delete") || "删除"}
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
             ) : (
-              // 传统渲染（数据量小时）
+              // 统一使用 LinkTableRow 组件渲染（服务端分页后每页数据量可控）
               links.map(link => (
                 <LinkTableRow
                   key={link.id}
                   link={link}
                   isSelected={selectedIds.has(link.id)}
-                  onSelect={checked => onTogglePage(checked)}
+                  onSelect={() => onToggleSelect(link.id)}
                   onEdit={() => onEdit(link)}
                   onDelete={() => onDelete(link)}
                   onCopy={() => onCopy(link)}
                   onTagClick={onTagClick}
                   onQrCode={() => onQrCode(link.shortCode)}
+                  onCheck={() => onCheck(link.id)}
+                  isChecking={checkingLinkId === link.id}
                 />
               ))
             )}
@@ -285,8 +201,8 @@ export function LinksTable({
         <div className="flex items-center justify-between px-2 py-4 border-t border-border">
           <div className="text-sm text-muted-foreground">
             {t("common.pagination.showing", {
-              start: startIndex + 1,
-              end: endIndex,
+              from: startIndex + 1,
+              to: endIndex,
               total: totalItems,
             })}
           </div>

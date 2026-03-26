@@ -86,6 +86,7 @@ type UserType = {
 
 export default function UserManagement() {
   const { t } = useTranslation();
+  const utils = trpc.useUtils();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -150,6 +151,8 @@ export default function UserManagement() {
       toast.success(t("admin.userMgmt.batchUpdateSuccess", "批量更新成功"));
       setSelectedUsers([]);
       refetch();
+      utils.user.invalidate();
+      utils.auth.me.invalidate();
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -173,6 +176,8 @@ export default function UserManagement() {
       setIsRoleDialogOpen(false);
       setSelectedUser(null);
       refetch();
+      utils.user.invalidate();
+      utils.auth.me.invalidate();
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -193,7 +198,7 @@ export default function UserManagement() {
 
   const deleteMutation = trpc.user.delete.useMutation({
     onSuccess: () => {
-      toast.success(t("admin.userMgmt.deleteSuccess") || "User deleted");
+      toast.success(t("admin.userMgmt.deleteSuccess"));
       refetch();
     },
     onError: (error: any) => {
@@ -203,7 +208,7 @@ export default function UserManagement() {
 
   const addUserMutation = trpc.user.create.useMutation({
     onSuccess: () => {
-      toast.success(t("admin.userMgmt.addSuccess") || "User added");
+      toast.success(t("admin.userMgmt.addSuccess"));
       setIsAddUserDialogOpen(false);
       setNewUser({ username: "", password: "", name: "", role: "user" });
       refetch();
@@ -220,6 +225,8 @@ export default function UserManagement() {
       setIsAuthDialogOpen(false);
       setSelectedUser(null);
       refetch();
+      utils.user.invalidate();
+      utils.auth.me.invalidate();
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -358,7 +365,7 @@ export default function UserManagement() {
   // 保存授权管理
   const handleAuthSave = async () => {
     if (!selectedUser) return;
-    await authUpdateMutation.mutateAsync({
+    const payload = {
       userId: selectedUser.id,
       name: authForm.name || undefined,
       email: authForm.email || undefined,
@@ -368,7 +375,9 @@ export default function UserManagement() {
         ? new Date(authForm.licenseExpiresAt)
         : null,
       isActive: authForm.isActive ? 1 : 0,
-    });
+    };
+    console.log('[handleAuthSave] Sending payload:', JSON.stringify(payload, null, 2));
+    await authUpdateMutation.mutateAsync(payload);
   };
 
   // 快捷设置过期时间
@@ -397,7 +406,7 @@ export default function UserManagement() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <User className="w-4 h-4" />
-              今日新注册
+              {t("admin.userMgmt.todayRegistrations")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -410,7 +419,7 @@ export default function UserManagement() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Shield className="w-4 h-4 text-blue-500" />
-              活跃 Pro / Business
+              {t("admin.userMgmt.activeProUsers")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -423,7 +432,7 @@ export default function UserManagement() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Clock className="w-4 h-4 text-orange-500" />
-              30天内即将到期
+              {t("admin.userMgmt.expiringSoonUsers")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -448,8 +457,8 @@ export default function UserManagement() {
             >
               <Download className="mr-2 h-4 w-4" />
               {exportCsvMutation.isPending
-                ? t("common.loading", "处理中...")
-                : "导出 CSV"}
+                ? t("common.processing")
+                : t("admin.userMgmt.exportCsv")}
             </Button>
             <Button onClick={() => setIsAddUserDialogOpen(true)}>
               <User className="mr-2 h-4 w-4" />
@@ -477,6 +486,7 @@ export default function UserManagement() {
                         aria-label="Select all"
                       />
                     </TableHead>
+                    <TableHead className="w-[80px]">ID</TableHead>
                     <TableHead>{t("admin.userMgmt.username")}</TableHead>
                     <TableHead>{t("admin.userMgmt.displayName")}</TableHead>
                     <TableHead>{t("admin.userMgmt.role")}</TableHead>
@@ -505,6 +515,9 @@ export default function UserManagement() {
                           aria-label={`Select user ${item.username}`}
                         />
                       </TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">
+                        #{item.id}
+                      </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
@@ -516,7 +529,7 @@ export default function UserManagement() {
                                 variant="destructive"
                                 className="px-1 py-0 h-4 text-[10px]"
                               >
-                                已封禁
+                                {t("admin.userMgmt.statusDisabled")}
                               </Badge>
                             )}
                           </div>
@@ -657,7 +670,7 @@ export default function UserManagement() {
       {selectedUsers.length > 0 && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-popover border border-border shadow-2xl rounded-full px-6 py-3 flex items-center gap-4 z-50 animate-in slide-in-from-bottom-5">
           <span className="text-sm font-medium whitespace-nowrap">
-            已选择 {selectedUsers.length} 项
+            {t("admin.userMgmt.selectedCount", { count: selectedUsers.length })}
           </span>
           <div className="h-4 w-px bg-border"></div>
 
@@ -779,7 +792,7 @@ export default function UserManagement() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="rounded-full">
-                状态设置
+                {t("admin.userMgmt.statusSettings")}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -791,7 +804,7 @@ export default function UserManagement() {
                   })
                 }
               >
-                <CheckCircle className="mr-2 h-4 w-4" /> 激活
+                <CheckCircle className="mr-2 h-4 w-4" /> {t("admin.userMgmt.active")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>
@@ -802,7 +815,7 @@ export default function UserManagement() {
                 }
                 className="text-destructive focus:text-destructive"
               >
-                <Ban className="mr-2 h-4 w-4" /> 封禁
+                <Ban className="mr-2 h-4 w-4" /> {t("admin.userMgmt.banned")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -814,7 +827,7 @@ export default function UserManagement() {
             onClick={() => {
               if (
                 window.confirm(
-                  "确定批量删除选中的用户吗？此操作不可逆，将删除其名下所有链接和数据！"
+                  t("admin.userMgmt.batchDeleteUsersConfirm")
                 )
               ) {
                 batchDeleteMutation.mutate({ userIds: selectedUsers });
@@ -1017,7 +1030,7 @@ export default function UserManagement() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              {t("admin.userMgmt.authManage", "授权管理")}
+              {t("admin.userMgmt.authManage")}
             </DialogTitle>
             <DialogDescription>
               {selectedUser?.username || selectedUser?.name}
@@ -1028,7 +1041,7 @@ export default function UserManagement() {
             {/* 基本信息 */}
             <div className="space-y-3">
               <h4 className="text-sm font-medium text-muted-foreground">
-                {t("admin.userMgmt.basicInfo", "基本信息")}
+                {t("admin.userMgmt.basicInfo")}
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
@@ -1060,7 +1073,7 @@ export default function UserManagement() {
             {/* 角色与套餐 */}
             <div className="space-y-3">
               <h4 className="text-sm font-medium text-muted-foreground">
-                {t("admin.userMgmt.roleAndPlan", "角色与套餐")}
+                {t("admin.userMgmt.roleAndPlan")}
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
@@ -1088,7 +1101,7 @@ export default function UserManagement() {
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>{t("admin.userMgmt.plan", "套餐")}</Label>
+                  <Label>{t("admin.userMgmt.plan")}</Label>
                   <Select
                     value={authForm.subscriptionTier}
                     onValueChange={val =>
@@ -1114,11 +1127,11 @@ export default function UserManagement() {
             {/* 有效期管理 */}
             <div className="space-y-3">
               <h4 className="text-sm font-medium text-muted-foreground">
-                {t("admin.userMgmt.expiryManagement", "有效期管理")}
+                {t("admin.userMgmt.expiryManagement")}
               </h4>
               <div className="space-y-2">
                 <Label htmlFor="auth-expires">
-                  {t("admin.userMgmt.expiresAt", "到期时间")}
+                  {t("admin.userMgmt.expiresAt")}
                 </Label>
                 <Input
                   id="auth-expires"
@@ -1138,7 +1151,7 @@ export default function UserManagement() {
                     className="flex-1"
                     onClick={() => setExpiryQuick("30d")}
                   >
-                    +30{t("admin.userMgmt.days", "天")}
+                    +30{t("admin.userMgmt.days")}
                   </Button>
                   <Button
                     variant="outline"
@@ -1146,7 +1159,7 @@ export default function UserManagement() {
                     className="flex-1"
                     onClick={() => setExpiryQuick("1y")}
                   >
-                    +1{t("admin.userMgmt.year", "年")}
+                    +1{t("admin.userMgmt.year")}
                   </Button>
                   <Button
                     variant="outline"
@@ -1154,7 +1167,7 @@ export default function UserManagement() {
                     className="flex-1"
                     onClick={() => setExpiryQuick("permanent")}
                   >
-                    {t("admin.userMgmt.permanent", "永久")}
+                    {t("admin.userMgmt.permanent")}
                   </Button>
                 </div>
               </div>
@@ -1163,7 +1176,7 @@ export default function UserManagement() {
             {/* 账号状态 */}
             <div className="space-y-3">
               <h4 className="text-sm font-medium text-muted-foreground">
-                {t("admin.userMgmt.accountStatus", "账号状态")}
+                {t("admin.userMgmt.accountStatus")}
               </h4>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -1174,8 +1187,8 @@ export default function UserManagement() {
                   )}
                   <span className="text-sm">
                     {authForm.isActive
-                      ? t("admin.userMgmt.active", "已激活")
-                      : t("admin.userMgmt.banned", "已封禁")}
+                      ? t("admin.userMgmt.active")
+                      : t("admin.userMgmt.banned")}
                   </span>
                 </div>
                 <Switch

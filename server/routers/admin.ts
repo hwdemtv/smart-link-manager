@@ -6,6 +6,7 @@ import { hashPassword } from "../_core/auth";
 import {
   getUserByUsername,
   upsertUser,
+  updateUser,
   createAuditLog,
   batchUpdateUsers,
   batchDeleteUsers,
@@ -152,6 +153,8 @@ export const adminRouter = router({
     .input(
       z.object({
         userId: z.number(),
+        name: z.string().optional(),
+        email: z.string().optional(),
         role: z.enum(["user", "admin"]).optional(),
         subscriptionTier: z.string().optional(),
         isActive: z.number().optional(),
@@ -159,6 +162,7 @@ export const adminRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // 这里的逻辑已由 trpc.ts 中的中间件处理，但手动更新自己的角色/状态仍需防护
       if (
         input.userId === ctx.user.id &&
         (input.role === "user" || input.isActive === 0)
@@ -169,9 +173,9 @@ export const adminRouter = router({
         });
       }
 
-      await upsertUser({
-        openId: "update-placeholder",
-        id: input.userId,
+      await updateUser(input.userId, {
+        name: input.name,
+        email: input.email,
         role: input.role,
         subscriptionTier: input.subscriptionTier,
         isActive: input.isActive,

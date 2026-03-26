@@ -241,7 +241,7 @@ export default function AuditLogManagement() {
               {auditLogs.totalPages > 1 && (
                 <div className="flex items-center justify-between px-2 py-4 border-t border-border">
                   <div className="text-sm text-muted-foreground">
-                    {t("admin.pagination.showing", {
+                    {t("common.pagination.showing", {
                       from: (currentPage - 1) * itemsPerPage + 1,
                       to: Math.min(currentPage * itemsPerPage, auditLogs.total),
                       total: auditLogs.total,
@@ -256,7 +256,7 @@ export default function AuditLogManagement() {
                       }
                       disabled={currentPage === 1}
                     >
-                      ← {t("admin.pagination.prev")}
+                      ← {t("common.pagination.prev")}
                     </Button>
                     <div className="flex items-center justify-center text-sm font-medium px-2">
                       {currentPage} / {auditLogs.totalPages}
@@ -271,7 +271,7 @@ export default function AuditLogManagement() {
                       }
                       disabled={currentPage === auditLogs.totalPages}
                     >
-                      {t("admin.pagination.next")} →
+                      {t("common.pagination.next")} →
                     </Button>
                   </div>
                 </div>
@@ -357,7 +357,7 @@ export default function AuditLogManagement() {
                 {selectedLog.userAgent && (
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">
-                      User Agent
+                      {t("admin.auditLog.userAgent")}
                     </label>
                     <p className="text-sm break-all">{selectedLog.userAgent}</p>
                   </div>

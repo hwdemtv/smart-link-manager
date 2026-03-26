@@ -25,7 +25,13 @@ export const domainsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Check quota
-      const tier = ctx.user.subscriptionTier || "free";
+      let tier = ctx.user.subscriptionTier || "free";
+      
+      // 关键修复 (Issue 授权失效)：检查授权是否过期
+      if (tier !== "free" && !licenseService.isSubscriptionValid(ctx.user.licenseExpiresAt)) {
+        tier = "free";
+      }
+
       const limits = licenseService.getTierLimits(tier);
 
       if (limits.maxDomains === 0) {

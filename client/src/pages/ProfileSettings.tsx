@@ -88,7 +88,7 @@ export default function ProfileSettings() {
                 {t("profile.basicInfo")}
               </CardTitle>
             </div>
-            <CardDescription>管理您的账户显示名称和联系邮箱</CardDescription>
+            <CardDescription>{t("profile.basicInfoSubtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUpdateProfile} className="space-y-4">

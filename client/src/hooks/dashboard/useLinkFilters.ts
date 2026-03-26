@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { Link, StatusFilter } from "@/types/dashboard";
 
 /**
@@ -35,17 +35,27 @@ export function useLinkFilters(
 
   // State
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [tagFilter, setTagFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
+  // 防抖处理：仅在停止输入 300ms 后更新实际过滤词
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   // Computed: filtered links
   const filteredLinks = useMemo(() => {
     return links.filter(link => {
-      // Search filter
+      // Search filter using debounced query
       const matchesSearch =
-        !searchQuery ||
-        link.shortCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        link.originalUrl.toLowerCase().includes(searchQuery.toLowerCase());
+        !debouncedSearchQuery ||
+        link.shortCode.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        link.originalUrl.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
 
       // Status filter
       const matchesStatus =

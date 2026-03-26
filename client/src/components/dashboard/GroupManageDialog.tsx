@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import { Loader2, Trash2 } from "lucide-react";
 
 // 预设颜色
@@ -43,6 +44,7 @@ export function GroupManageDialog({
   const { t } = useTranslation();
   const [name, setName] = useState("");
   const [color, setColor] = useState(PRESET_COLORS[0]);
+  const utils = trpc.useUtils();
 
   const editingGroup = groups?.find(g => g.id === editingGroupId);
 
@@ -59,21 +61,36 @@ export function GroupManageDialog({
   // 创建分组
   const createMutation = trpc.groups.create.useMutation({
     onSuccess: () => {
+      utils.groups.list.invalidate();
+      toast.success(t("groups.createSuccess"));
       onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || t("groups.createFailed"));
     },
   });
 
   // 更新分组
   const updateMutation = trpc.groups.update.useMutation({
     onSuccess: () => {
+      utils.groups.list.invalidate();
+      toast.success(t("common.success"));
       onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || t("groups.updateFailed"));
     },
   });
 
   // 删除分组
   const deleteMutation = trpc.groups.delete.useMutation({
     onSuccess: () => {
+      utils.groups.list.invalidate();
+      toast.success(t("common.success"));
       onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || t("groups.deleteFailed"));
     },
   });
 
@@ -97,12 +114,7 @@ export function GroupManageDialog({
 
   const handleDelete = () => {
     if (!editingGroupId) return;
-    if (
-      confirm(
-        t("groups.deleteConfirm") ||
-          "确定要删除此分组吗？分组内的链接不会被删除。"
-      )
-    ) {
+    if (confirm(t("groups.deleteConfirm"))) {
       deleteMutation.mutate({ groupId: editingGroupId });
     }
   };
@@ -117,32 +129,28 @@ export function GroupManageDialog({
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>
-            {editingGroupId
-              ? t("groups.editGroup") || "编辑分组"
-              : t("groups.createGroup") || "创建分组"}
+            {editingGroupId ? t("groups.editGroup") : t("groups.createGroup")}
           </DialogTitle>
           <DialogDescription>
-            {editingGroupId
-              ? t("groups.editDescription") || "修改分组名称和颜色"
-              : t("groups.createDescription") || "创建新分组来整理您的链接"}
+            {editingGroupId ? t("groups.editDescription") : t("groups.createDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">{t("groups.name") || "分组名称"}</Label>
+            <Label htmlFor="name">{t("groups.name")}</Label>
             <Input
               id="name"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder={t("groups.namePlaceholder") || "输入分组名称"}
+              placeholder={t("groups.namePlaceholder")}
               maxLength={64}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label>{t("groups.color") || "颜色"}</Label>
+            <Label>{t("groups.color")}</Label>
             <div className="flex items-center gap-2">
               {PRESET_COLORS.map(c => (
                 <button
@@ -162,7 +170,7 @@ export function GroupManageDialog({
                 value={color}
                 onChange={e => setColor(e.target.value)}
                 className="w-6 h-6 rounded cursor-pointer"
-                title={t("groups.customColor") || "自定义颜色"}
+                title={t("groups.customColor")}
               />
             </div>
           </div>
@@ -173,7 +181,7 @@ export function GroupManageDialog({
               style={{ backgroundColor: color }}
             />
             <span className="text-sm">
-              {name || t("groups.preview") || "分组预览"}
+              {name || t("groups.preview")}
             </span>
           </div>
 
@@ -187,7 +195,7 @@ export function GroupManageDialog({
                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                {t("groups.delete") || "删除"}
+                {t("groups.delete")}
               </Button>
             ) : (
               <div />
@@ -199,15 +207,15 @@ export function GroupManageDialog({
                 onClick={() => onOpenChange(false)}
                 disabled={isLoading}
               >
-                {t("common.cancel") || "取消"}
+                {t("common.cancel")}
               </Button>
               <Button type="submit" disabled={isLoading || !name.trim()}>
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : editingGroupId ? (
-                  t("common.save") || "保存"
+                  t("common.save")
                 ) : (
-                  t("groups.create") || "创建"
+                  t("groups.create")
                 )}
               </Button>
             </div>

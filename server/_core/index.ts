@@ -38,6 +38,12 @@ const securityHeadersMiddleware = (_req: express.Request, res: express.Response,
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   // 权限策略
   res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+
+  // HSTS (生产环境)
+  if (process.env.NODE_ENV === "production") {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+  }
+
   next();
 };
 

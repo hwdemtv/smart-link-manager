@@ -23,6 +23,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const LicenseSettings = lazy(() => import("./pages/LicenseSettings"));
 const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
 const DocPage = lazy(() => import("./pages/DocPage"));
+const FAQPage = lazy(() => import("./pages/FAQPage"));
 const ComponentsShowcase = lazy(() => import("./pages/ComponentShowcase"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -111,6 +112,7 @@ function Router() {
           <DocPage slug="privacy" />
         </Route>
         <Route path="/docs/:slug" component={DocPage} />
+        <Route path="/faq" component={FAQPage} />
 
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />

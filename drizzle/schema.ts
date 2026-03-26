@@ -100,6 +100,7 @@ export const links = mysqlTable(
     groupId: int("groupId").references(() => linkGroups.id, {
       onDelete: "set null",
     }), // 关联的分组 ID
+    shareSuffix: varchar("shareSuffix", { length: 255 }), // 社交分享后缀 (Phase 28)
     createdAt: timestamp("createdAt")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

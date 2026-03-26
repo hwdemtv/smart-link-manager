@@ -12,6 +12,14 @@ import apiContent from "../../../docs/api.md?raw";
 import securityContent from "../../../docs/security.md?raw";
 import changelogContent from "../../../docs/changelog.md?raw";
 import contactContent from "../../../docs/contact.md?raw";
+import whatIsContent from "../../../docs/what-is-url-shortener.md?raw";
+import howItWorksContent from "../../../docs/how-it-works.md?raw";
+import benefitsContent from "../../../docs/benefits.md?raw";
+import bestPracticesContent from "../../../docs/best-practices.md?raw";
+import apiGuideContent from "../../../docs/api-guide.md?raw";
+
+import SEO from "@/components/SEO";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const docMap: Record<string, { title: string; content: string; icon: any }> = {
   about: { title: "关于我们", content: aboutContent, icon: Info },
@@ -21,6 +29,11 @@ const docMap: Record<string, { title: string; content: string; icon: any }> = {
   security: { title: "安全中心", content: securityContent, icon: Shield },
   changelog: { title: "系统更新", content: changelogContent, icon: History },
   contact: { title: "联系销售", content: contactContent, icon: Mail },
+  "what-is-url-shortener": { title: "什么是短链接？", content: whatIsContent, icon: Info },
+  "how-it-works": { title: "短链接工作原理", content: howItWorksContent, icon: Book },
+  benefits: { title: "短链接的优势", content: benefitsContent, icon: Info },
+  "best-practices": { title: "SEO 最佳实践", content: bestPracticesContent, icon: Shield },
+  "api-guide": { title: "API 开发手册", content: apiGuideContent, icon: Book },
 };
 
 export default function DocPage({ slug: propSlug }: { slug?: string }) {
@@ -45,15 +58,33 @@ export default function DocPage({ slug: propSlug }: { slug?: string }) {
               <span className="font-black text-2xl tracking-tighter italic">Smart<span className="text-primary not-italic">Link</span></span>
             </div>
           </Link>
-          <Link href="/">
-            <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
-              <ArrowLeft className="w-4 h-4" /> 返回首页
-            </Button>
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/faq">
+              <Button variant="ghost" className="text-muted-foreground hover:text-primary rounded-xl">常见问题</Button>
+            </Link>
+            <Link href="/">
+              <Button variant="ghost" className="gap-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
+                <ArrowLeft className="w-4 h-4" /> 返回首页
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
       <main className="pt-40 pb-24 container max-w-4xl relative z-10">
+        <SEO 
+          title={doc.title} 
+          description={`${doc.title} - Smart Link Manager 权威指南与官方文档。`}
+          schema={{
+            "@context": "https://schema.org",
+            "@type": "TechArticle",
+            "headline": doc.title,
+            "author": { "@type": "Organization", "name": "Smart Link Manager" },
+            "datePublished": "2024-01-01",
+            "dateModified": new Date().toISOString().split('T')[0]
+          }}
+        />
+        <Breadcrumbs items={[{ name: "文档", href: "/docs/about" }, { name: doc.title }]} />
         <div className="flex items-center gap-5 mb-12">
           <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent border border-primary/20 shadow-inner">
             <doc.icon className="w-8 h-8 text-primary" />

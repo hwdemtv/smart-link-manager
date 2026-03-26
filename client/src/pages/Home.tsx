@@ -520,22 +520,25 @@ export default function Home() {
             {/* Company/Author */}
             <div className="space-y-6">
               <h4 className="font-bold text-lg text-foreground tracking-tight underline decoration-primary/30 decoration-2 underline-offset-8 decoration-skip-ink-none">
-                关于作者
+                学习中心
               </h4>
               <ul className="space-y-4 text-muted-foreground">
-                <li><a href="/about" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.about")}</a></li>
-                <li><a href="https://www.hwdemtv.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />个人主页 ↗</a></li>
+                <li><Link href="/docs/what-is-url-shortener" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />什么是短链接？</Link></li>
+                <li><Link href="/docs/how-it-works" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />技术实现原理</Link></li>
+                <li><Link href="/docs/best-practices" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />SEO 最佳实践</Link></li>
+                <li><Link href="/faq" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />常见问题解答</Link></li>
               </ul>
             </div>
             {/* Legal */}
             <div className="space-y-6">
               <h4 className="font-bold text-lg text-foreground tracking-tight underline decoration-primary/30 decoration-2 underline-offset-8 decoration-skip-ink-none">
-                {t("home.footer.legal")}
+                关于我们
               </h4>
               <ul className="space-y-4 text-muted-foreground">
-                <li><a href="/terms" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.terms")}</a></li>
-                <li><a href="/privacy" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.privacy")}</a></li>
-                <li><a href="/docs/security" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />{t("home.footer.security")}</a></li>
+                <li><Link href="/about" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />团队介绍</Link></li>
+                <li><a href="https://www.hwdemtv.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />个人主页 ↗</a></li>
+                <li><Link href="/terms" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />服务协议</Link></li>
+                <li><Link href="/privacy" className="hover:text-primary transition-colors flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" />隐私政策</Link></li>
               </ul>
             </div>
           </div>
@@ -566,6 +569,31 @@ export default function Home() {
                 "text": t(faq.aKey),
               },
             })),
+          }),
+        }}
+      />
+      
+      {/* Organization JSON-LD - E-E-A-T优化 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Smart Link Manager",
+            "alternateName": "SLM",
+            "url": "https://smartlink.example.com",
+            "logo": "https://smartlink.example.com/logo.png",
+            "description": "专业的 2ms 极速短链接管理与全球流量数据分析平台。",
+            "sameAs": [
+              "https://github.com/hwdemtv/smart-link-manager",
+              "https://twitter.com/SmartLinkMgr"
+            ],
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "customer service",
+              "email": "support@hwdemtv.com"
+            }
           }),
         }}
       />

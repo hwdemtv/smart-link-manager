@@ -1,6 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -19,14 +19,14 @@ import {
   BatchExpiryDialog,
 } from "@/components/dashboard";
 import { RecycleBinDialog } from "@/components/dashboard/RecycleBinDialog";
+import { MoveToGroupDialog } from "@/components/dashboard/MoveToGroupDialog";
 import { GroupSidebar } from "@/components/dashboard/GroupSidebar";
+import { AnalyticsDashboard } from "@/components/dashboard/AnalyticsDashboard";
 
 // Hooks
 import {
   useLinkMutations,
-  useLinkFilters,
   useBatchSelection,
-  useLinkPagination,
 } from "@/hooks/dashboard";
 
 // Types
@@ -40,40 +40,66 @@ import type {
   UpdateLinkInput,
 } from "@/types/dashboard";
 
+// Constants
+const PAGE_SIZE = 15;
+
 export default function Dashboard() {
   const { t } = useTranslation();
   const [, setLocation] = useLocation();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const utils = trpc.useUtils();
 
-  // Data queries
-  const linksQuery = trpc.links.list.useQuery();
+  // Filter states (now used for API params)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [tagFilter, setTagFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [selectedGroupId, setSelectedGroupId] = useState<number | null | undefined>(undefined);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setCurrentPage(1); // Reset to first page on search
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tagFilter, statusFilter, selectedGroupId]);
+
+  // Data queries - Server-side pagination
+  const linksQuery = trpc.links.search.useQuery({
+    query: debouncedSearchQuery || undefined,
+    tag: tagFilter || undefined,
+    status: statusFilter,
+    groupId: selectedGroupId,
+    limit: PAGE_SIZE,
+    offset: (currentPage - 1) * PAGE_SIZE,
+  });
+
   const domainsQuery = trpc.domains.list.useQuery();
+  const groupsQuery = trpc.groups.list.useQuery();
   const systemConfigQuery = trpc.configs.getConfig.useQuery();
-  const utils = (trpc as any).useUtils();
 
-  // Group selection state
-  // undefined = All, null = Ungrouped, number = specific
-  const [selectedGroupId, setSelectedGroupId] = useState<
-    number | null | undefined
-  >(undefined);
+  // Computed values from server response
+  const links = linksQuery.data?.links ?? [];
+  const totalItems = linksQuery.data?.total ?? 0;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const endIndex = Math.min(currentPage * PAGE_SIZE, totalItems);
 
   // Custom hooks
   const mutations = useLinkMutations({
-    onSuccess: () => linksQuery.refetch(),
-  });
-
-  const {
-    searchQuery,
-    setSearchQuery,
-    tagFilter,
-    setTagFilter,
-    statusFilter,
-    setStatusFilter,
-    filteredLinks,
-    resetFilters,
-  } = useLinkFilters({
-    links: linksQuery.data,
-    selectedGroupId,
+    onSuccess: () => {
+      utils.links.search.invalidate();
+      utils.links.count.invalidate();
+    },
   });
 
   const {
@@ -86,15 +112,6 @@ export default function Dashboard() {
     togglePage,
   } = useBatchSelection();
 
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    startIndex,
-    endIndex,
-    paginate,
-  } = useLinkPagination({ totalItems: filteredLinks.length });
-
   // Dialog states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -106,6 +123,7 @@ export default function Dashboard() {
   // Batch action states
   const [isBatchTagsOpen, setIsBatchTagsOpen] = useState(false);
   const [isBatchExpiryOpen, setIsBatchExpiryOpen] = useState(false);
+  const [isMoveToGroupOpen, setIsMoveToGroupOpen] = useState(false);
 
   // Recycle bin state
   const [isRecycleBinOpen, setIsRecycleBinOpen] = useState(false);
@@ -114,11 +132,10 @@ export default function Dashboard() {
   const [importText, setImportText] = useState("");
   const [previewLinks, setPreviewLinks] = useState<PreviewLink[]>([]);
 
-  // Reset pagination and selection when filters or group change
+  // Reset selection when page changes
   useEffect(() => {
-    setCurrentPage(1);
     deselectAll();
-  }, [searchQuery, statusFilter, tagFilter, selectedGroupId]);
+  }, [currentPage]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -172,8 +189,10 @@ export default function Dashboard() {
       abTestEnabled: formData.abTestEnabled,
       abTestUrl: formData.abTestUrl || undefined,
       abTestRatio: formData.abTestRatio,
+      groupId: formData.groupId,
     };
     await mutations.createLink(input);
+    utils.groups.list.invalidate();
     setIsCreateOpen(false);
   };
 
@@ -198,8 +217,10 @@ export default function Dashboard() {
       abTestEnabled: formData.abTestEnabled,
       abTestUrl: formData.abTestUrl || null,
       abTestRatio: formData.abTestRatio,
+      groupId: formData.groupId,
     };
     await mutations.updateLink(input);
+    utils.groups.list.invalidate();
     setIsEditOpen(false);
     setSelectedLink(null);
   };
@@ -223,6 +244,14 @@ export default function Dashboard() {
   const handleBatchExpiryConfirm = async (expiresAt: string | null) => {
     await mutations.batchUpdateExpiry(Array.from(selectedIds), expiresAt);
     setIsBatchExpiryOpen(false);
+    deselectAll();
+  };
+
+  const handleMoveToGroupConfirm = async (groupId: number | null) => {
+    await mutations.batchMoveToGroup(Array.from(selectedIds), groupId);
+    // 刷新分组列表以更新链接计数
+    utils.groups.list.invalidate();
+    setIsMoveToGroupOpen(false);
     deselectAll();
   };
 
@@ -322,19 +351,43 @@ export default function Dashboard() {
       }
     });
 
-    const allExistingLinks = linksQuery.data || [];
+    // Batch validation: check short codes and URLs against database
+    const codesToCheck = links
+      .filter(l => l.shortCode && !(codeCountMap.get(l.shortCode!)! > 1))
+      .map(l => l.shortCode!)
+      .filter((c): c is string => Boolean(c));
 
-    const linksWithInternalCheck: PreviewLink[] = links.map((link, idx) => {
+    // Cloud validation for short codes
+    let existingCodesSet = new Set<string>();
+    if (codesToCheck.length > 0) {
+      try {
+        const existingCodes = await utils.links.checkShortCodes.fetch({
+          shortCodes: codesToCheck,
+        });
+        existingCodesSet = new Set(existingCodes);
+      } catch (error) {
+        console.error("Failed to check existing short codes:", error);
+      }
+    }
+
+    const linksWithValidation: PreviewLink[] = links.map((link, idx) => {
       let hasConflict = false;
       let conflictReason = "";
       let hasWarning = false;
       let warningReason = "";
 
+      // Check for duplicate short codes in batch
       if (link.shortCode && codeCountMap.get(link.shortCode)! > 1) {
         hasConflict = true;
         conflictReason = t("dashboard.duplicateEntry");
       }
+      // Check if short code already exists in database
+      else if (link.shortCode && existingCodesSet.has(link.shortCode)) {
+        hasConflict = true;
+        conflictReason = t("dashboard.shortCodeTaken");
+      }
 
+      // Check for duplicate URLs in batch
       const internalIndices = urlInternalMap.get(link.originalUrl);
       if (internalIndices && internalIndices.length > 1) {
         hasWarning = true;
@@ -342,16 +395,6 @@ export default function Dashboard() {
         warningReason = t("dashboard.sameTargetBatch", {
           rows: otherRows.join(", "),
         });
-      } else {
-        const existing = allExistingLinks.find(
-          (l: Link) => l.originalUrl === link.originalUrl
-        );
-        if (existing) {
-          hasWarning = true;
-          warningReason = t("dashboard.sameTargetSystem", {
-            shortCode: existing.shortCode,
-          });
-        }
       }
 
       return {
@@ -363,34 +406,7 @@ export default function Dashboard() {
       };
     });
 
-    // Cloud validation
-    const codesToCheck = linksWithInternalCheck
-      .filter(l => l.shortCode && !l.hasConflict)
-      .map(l => l.shortCode!);
-
-    let finalLinks = linksWithInternalCheck;
-    if (codesToCheck.length > 0) {
-      try {
-        const existingCodes = await utils.links.checkShortCodes.fetch({
-          shortCodes: codesToCheck,
-        });
-        const existingSet = new Set(existingCodes);
-        finalLinks = linksWithInternalCheck.map(link => {
-          if (link.shortCode && existingSet.has(link.shortCode)) {
-            return {
-              ...link,
-              hasConflict: true,
-              conflictReason: t("dashboard.shortCodeTaken"),
-            };
-          }
-          return link;
-        });
-      } catch (error) {
-        console.error("Failed to check existing short codes:", error);
-      }
-    }
-
-    setPreviewLinks(finalLinks);
+    setPreviewLinks(linksWithValidation);
     setIsImportOpen(false);
     setIsImportPreviewOpen(true);
   };
@@ -406,7 +422,9 @@ export default function Dashboard() {
       setIsImportPreviewOpen(false);
       setPreviewLinks([]);
       setImportText("");
-      linksQuery.refetch();
+      utils.links.search.invalidate();
+      utils.links.count.invalidate();
+      utils.groups.list.invalidate();
     } catch (error: any) {
       toast.error(error.message || t("dashboard.failedToImport"));
     }
@@ -423,14 +441,20 @@ export default function Dashboard() {
   };
 
   // Computed
-  const paginatedLinks = paginate(filteredLinks);
-  const linkIds = paginatedLinks.map(l => l.id);
+  const linkIds = links.map((l: Link) => l.id);
   const hasFilters = Boolean(
     searchQuery || tagFilter || statusFilter !== "all"
   );
 
+  const resetFilters = useCallback(() => {
+    setSearchQuery("");
+    setTagFilter("");
+    setStatusFilter("all");
+    setSelectedGroupId(undefined);
+  }, []);
+
   return (
-    <div className="min-h-content bg-background">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Header */}
       <DashboardHeader
         onCreateClick={() => setIsCreateOpen(true)}
@@ -439,14 +463,14 @@ export default function Dashboard() {
         onRecycleBinClick={() => setIsRecycleBinOpen(true)}
       />
 
-      <div className="flex">
+      <div className="flex flex-1 overflow-hidden">
         {/* Group Sidebar */}
         <GroupSidebar
           selectedGroupId={selectedGroupId}
           onGroupSelect={setSelectedGroupId}
         />
 
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {/* Search & Filter */}
           <SearchFilterBar
             searchQuery={searchQuery}
@@ -461,7 +485,7 @@ export default function Dashboard() {
           {/* Links Table */}
           <div className="container pb-8">
             <LinksTable
-              links={paginatedLinks}
+              links={links}
               isLoading={linksQuery.isLoading}
               selectedIds={selectedIds}
               onToggleSelect={toggle}
@@ -480,11 +504,13 @@ export default function Dashboard() {
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
-              totalItems={filteredLinks.length}
+              totalItems={totalItems}
               startIndex={startIndex}
               endIndex={endIndex}
               hasFilters={hasFilters}
               onClearFilters={resetFilters}
+              onCheck={mutations.checkLinkValidity}
+              checkingLinkId={mutations.checkValidityMutation.isPending ? mutations.checkValidityMutation.variables?.linkId : null}
             />
           </div>
 
@@ -503,19 +529,25 @@ export default function Dashboard() {
               onGenerateSeo={() =>
                 mutations.batchGenerateSeo(
                   Array.from(selectedIds),
-                  linksQuery.data || []
+                  links
                 )
               }
               onExport={() =>
                 mutations.batchExport(
                   Array.from(selectedIds),
-                  linksQuery.data || []
+                  links
                 )
               }
               onDelete={() => mutations.batchDelete(Array.from(selectedIds))}
               onClear={deselectAll}
               onBatchTags={() => setIsBatchTagsOpen(true)}
               onBatchExpiry={() => setIsBatchExpiryOpen(true)}
+              onMoveToGroup={() => setIsMoveToGroupOpen(true)}
+              onCheck={() => {
+                mutations.batchCheckLinkValidity(Array.from(selectedIds));
+                deselectAll();
+              }}
+              isChecking={mutations.batchCheckValidityMutation.isPending}
             />
           )}
 
@@ -525,6 +557,7 @@ export default function Dashboard() {
             open={isCreateOpen}
             onOpenChange={setIsCreateOpen}
             domains={domainsQuery.data || []}
+            groups={groupsQuery.data || []}
             onSubmit={handleCreateLink}
             isSubmitting={mutations.createLinkMutation.isPending}
             onGenerateSeo={mutations.generateSeo}
@@ -538,6 +571,7 @@ export default function Dashboard() {
             onOpenChange={setIsEditOpen}
             initialData={selectedLink || undefined}
             domains={domainsQuery.data || []}
+            groups={groupsQuery.data || []}
             onSubmit={handleEditLink}
             isSubmitting={mutations.updateLinkMutation.isPending}
             onGenerateSeo={mutations.generateSeo}
@@ -595,11 +629,23 @@ export default function Dashboard() {
             isSubmitting={mutations.updateLinkMutation.isPending}
           />
 
+          <MoveToGroupDialog
+            open={isMoveToGroupOpen}
+            onOpenChange={setIsMoveToGroupOpen}
+            selectedCount={selectedCount}
+            groups={groupsQuery.data || []}
+            onConfirm={handleMoveToGroupConfirm}
+            isSubmitting={mutations.batchDeleteMutation.isPending}
+          />
+
           {/* Recycle Bin Dialog */}
           <RecycleBinDialog
             open={isRecycleBinOpen}
             onOpenChange={setIsRecycleBinOpen}
-            onRestored={() => linksQuery.refetch()}
+            onRestored={() => {
+              utils.links.search.invalidate();
+              utils.links.count.invalidate();
+            }}
           />
         </div>
       </div>

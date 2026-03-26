@@ -1,7 +1,7 @@
 import express from "express";
 import { z } from "zod";
 import { apiKeyService } from "./apiKeyService";
-import { createLink, getLinkByShortCode, getLinksByUserId } from "./db";
+import { createLink, getLinkByShortCode, getLinksByUserId, getLinkById, updateLink, deleteLink } from "./db";
 import { logger } from "./_core/logger";
 import { hashPassword } from "./_core/auth";
 
@@ -104,70 +104,171 @@ router.get("/links", async (req: any, res) => {
   }
 });
 
+// 通用链接输入验证 Schema
+const linkInputSchema = z.object({
+  originalUrl: z.string().url("Invalid originalUrl format").optional(),
+  shortCode: z.string()
+    .min(3, "shortCode must be at least 3 characters")
+    .max(20, "shortCode cannot exceed 20 characters")
+    .regex(/^[a-zA-Z0-9_-]+$/, "shortCode contains invalid characters")
+    .optional(),
+  description: z.string().optional().nullable(),
+  isActive: z.number().int().min(0).max(1).optional().nullable(),
+  expiresAt: z.string().datetime({ offset: true }).optional().nullable(),
+  password: z.string().optional().nullable(),
+  tags: z.array(z.string()).optional().nullable(),
+  groupId: z.number().int().optional().nullable(),
+  // SEO & 社交分享
+  shareSuffix: z.string().optional().nullable(),
+  seoTitle: z.string().optional().nullable(),
+  seoDescription: z.string().optional().nullable(),
+  seoImage: z.string().optional().nullable(),
+  seoPriority: z.number().optional().nullable(),
+  noIndex: z.number().int().optional().nullable(),
+  redirectType: z.enum(["301", "302", "307", "308"]).optional().nullable(),
+  seoKeywords: z.string().optional().nullable(),
+  canonicalUrl: z.string().url().optional().nullable(),
+  ogVideoUrl: z.string().url().optional().nullable(),
+  ogVideoWidth: z.number().optional().nullable(),
+  ogVideoHeight: z.number().optional().nullable(),
+  // A/B 测试
+  abTestEnabled: z.number().int().min(0).max(1).optional().nullable(),
+  abTestUrl: z.string().url().optional().nullable(),
+  abTestRatio: z.number().int().min(0).max(100).optional().nullable(),
+});
+
 /**
  * POST /api/v1/links
  * Create a new short link
  */
 router.post("/links", async (req: any, res) => {
-  // P1 修复: 实施与 tRPC 路由一致的严格校验
-  const inputSchema = z.object({
-    originalUrl: z.string().url("Invalid originalUrl format"),
-    shortCode: z.string()
-      .min(3, "shortCode must be at least 3 characters")
-      .max(20, "shortCode cannot exceed 20 characters")
-      .regex(/^[a-zA-Z0-9_-]+$/, "shortCode contains invalid characters"),
-    description: z.string().optional().nullable(),
-    expiresAt: z.string().datetime({ offset: true }).optional().nullable(),
-    password: z.string().optional().nullable(),
-    tags: z.array(z.string()).optional(),
+  const schemaWithRequired = linkInputSchema.extend({
+    originalUrl: z.string().url("originalUrl is required"),
+    shortCode: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_-]+$/),
   });
 
-  const result = inputSchema.safeParse(req.body);
-  if (!result.success) {
+  const parseResult = schemaWithRequired.safeParse(req.body);
+  if (!parseResult.success) {
     return res.status(400).json({ 
       error: "Validation failed", 
-      details: result.error.format() 
+      details: parseResult.error.format() 
     });
   }
 
-  const {
-    originalUrl,
-    shortCode,
-    description,
-    expiresAt,
-    password,
-    tags,
-    seoTitle,
-    seoDescription,
-    seoImage,
-  } = req.body;
+  const input = parseResult.data;
 
   try {
-    // Check if exists
-    const existing = await getLinkByShortCode(shortCode);
+    const existing = await getLinkByShortCode(input.shortCode);
     if (existing) {
       return res.status(409).json({ error: "shortCode already exists" });
     }
 
-    // 密码哈希处理 - 与 tRPC 路由保持一致
-    const passwordHash = password ? await hashPassword(password) : null;
+    const passwordHash = input.password ? await hashPassword(input.password) : null;
 
     const newLink = await createLink({
       userId: req.user.id,
-      originalUrl,
-      shortCode,
-      description: description || null,
-      expiresAt: expiresAt ? new Date(expiresAt) : null,
+      originalUrl: input.originalUrl,
+      shortCode: input.shortCode,
+      description: input.description || null,
+      expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
       passwordHash,
-      tags: tags || [],
-      seoTitle: seoTitle || null,
-      seoDescription: seoDescription || null,
-      seoImage: seoImage || null,
+      tags: input.tags || [],
+      groupId: input.groupId || null,
+      shareSuffix: input.shareSuffix || null,
+      seoTitle: input.seoTitle || null,
+      seoDescription: input.seoDescription || null,
+      seoImage: input.seoImage || null,
+      seoPriority: input.seoPriority || 0,
+      noIndex: input.noIndex || 0,
+      redirectType: input.redirectType || "302",
+      seoKeywords: input.seoKeywords || null,
+      canonicalUrl: input.canonicalUrl || null,
+      ogVideoUrl: input.ogVideoUrl || null,
+      ogVideoWidth: input.ogVideoWidth || 0,
+      ogVideoHeight: input.ogVideoHeight || 0,
+      abTestEnabled: input.abTestEnabled || 0,
+      abTestUrl: input.abTestUrl || null,
+      abTestRatio: input.abTestRatio || 50,
     });
 
     res.status(201).json(newLink);
   } catch (error) {
     logger.error("[REST API] Failed to create link:", error);
+    if (error instanceof Error && error.message === "SHORT_CODE_EXISTS") {
+      return res.status(409).json({ error: "shortCode already exists" });
+    }
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/**
+ * PATCH /api/v1/links/:id
+ * Update an existing link
+ */
+router.patch("/links/:id", async (req: any, res) => {
+  const linkId = parseInt(req.params.id);
+  if (isNaN(linkId)) {
+    return res.status(400).json({ error: "Invalid link ID" });
+  }
+
+  const parseResult = linkInputSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({ error: "Validation failed", details: parseResult.error.format() });
+  }
+
+  const input = parseResult.data;
+
+  try {
+    const link = await getLinkById(linkId);
+    if (!link || link.userId !== req.user.id) {
+      return res.status(404).json({ error: "Link not found" });
+    }
+
+    if (input.shortCode && input.shortCode !== link.shortCode) {
+      const existing = await getLinkByShortCode(input.shortCode);
+      if (existing) {
+        return res.status(409).json({ error: "shortCode already exists" });
+      }
+    }
+
+    const updateData: any = { ...input };
+    if (input.password !== undefined) {
+      updateData.passwordHash = input.password ? await hashPassword(input.password) : null;
+      delete updateData.password;
+    }
+    if (input.expiresAt !== undefined) {
+      updateData.expiresAt = input.expiresAt ? new Date(input.expiresAt) : null;
+    }
+
+    await updateLink(linkId, updateData);
+    const updatedLink = await getLinkById(linkId);
+    res.json(updatedLink);
+  } catch (error) {
+    logger.error("[REST API] Failed to update link:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+/**
+ * DELETE /api/v1/links/:id
+ * Delete a link
+ */
+router.delete("/links/:id", async (req: any, res) => {
+  const linkId = parseInt(req.params.id);
+  if (isNaN(linkId)) {
+    return res.status(400).json({ error: "Invalid link ID" });
+  }
+
+  try {
+    const link = await getLinkById(linkId);
+    if (!link || link.userId !== req.user.id) {
+      return res.status(404).json({ error: "Link not found" });
+    }
+
+    await deleteLink(linkId);
+    res.json({ success: true, message: "Link deleted successfully" });
+  } catch (error) {
+    logger.error("[REST API] Failed to delete link:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

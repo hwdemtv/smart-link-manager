@@ -377,6 +377,7 @@ const linkCoreFields = {
   ogVideoUrl: links.ogVideoUrl,
   ogVideoWidth: links.ogVideoWidth,
   ogVideoHeight: links.ogVideoHeight,
+  shareSuffix: links.shareSuffix,
   // passwordHash 故意在此排除
 };
 

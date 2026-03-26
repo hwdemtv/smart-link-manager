@@ -29,6 +29,7 @@ export default function LicenseSettings() {
   const { t } = useTranslation();
   const [licenseKey, setLicenseKey] = useState("");
 
+  const utils = trpc.useUtils();
   const {
     data: subscription,
     isLoading,
@@ -39,6 +40,7 @@ export default function LicenseSettings() {
       toast.success(t("license.activateSuccess"));
       setLicenseKey("");
       refetch();
+      utils.auth.me.invalidate(); // 强制同步全局用户信息
     },
     onError: error => {
       toast.error(error.message);
@@ -48,6 +50,7 @@ export default function LicenseSettings() {
     onSuccess: () => {
       toast.success(t("license.unbindSuccess"));
       refetch();
+      utils.auth.me.invalidate(); // 强制同步全局用户信息
     },
     onError: error => {
       toast.error(error.message);

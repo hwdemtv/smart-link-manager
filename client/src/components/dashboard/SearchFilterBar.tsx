@@ -22,9 +22,7 @@ export function SearchFilterBar({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input
             ref={searchInputRef}
-            placeholder={
-              t("dashboard.searchPlaceholder") || "搜索链接、短码..."
-            }
+            placeholder={t("dashboard.searchPlaceholder")}
             value={searchQuery}
             onChange={e => onSearchChange(e.target.value)}
             className="pl-10 pr-10 border-border/60 focus-visible:ring-primary/20"
@@ -33,7 +31,7 @@ export function SearchFilterBar({
             <button
               onClick={() => onSearchChange("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1 rounded-full hover:bg-muted"
-              title={t("common.clear") || "清空"}
+              title={t("common.clear")}
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -49,7 +47,7 @@ export function SearchFilterBar({
 
         {/* Tag Filter */}
         <Input
-          placeholder={t("dashboard.filterByTag")}
+          placeholder={t("dashboard.filterByTagPlaceholder")}
           value={tagFilter}
           onChange={e => onTagChange(e.target.value)}
           className="w-full sm:w-48"

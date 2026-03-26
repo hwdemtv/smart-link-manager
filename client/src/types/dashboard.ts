@@ -1,4 +1,12 @@
+import { z } from "zod";
+import {
+  createLinkSchema,
+  updateLinkSchema,
+} from "@shared/validators/links";
 import type { Link, Domain } from "../../../drizzle/schema";
+
+/** 重定向类型 */
+export type RedirectType = "301" | "302" | "307" | "308";
 
 /**
  * Dashboard 表单数据类型
@@ -14,48 +22,30 @@ export interface LinkFormData {
   seoTitle: string;
   seoDescription: string;
   seoImage: string;
+  shareSuffix: string;
+  seoPriority: number;
+  noIndex: number;
+  redirectType: RedirectType;
+  seoKeywords: string;
+  canonicalUrl: string;
+  ogVideoUrl: string;
+  ogVideoWidth: number;
+  ogVideoHeight: number;
   abTestEnabled: number;
   abTestUrl: string;
   abTestRatio: number;
+  groupId: number | null;
 }
 
 /**
- * 创建链接的输入类型
+ * 创建链接的输入类型 (从 Shared Schema 自动推导)
  */
-export interface CreateLinkInput {
-  originalUrl: string;
-  shortCode: string;
-  customDomain?: string;
-  description?: string;
-  expiresAt?: Date;
-  password?: string;
-  tags: string[];
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: string;
-  abTestEnabled?: number;
-  abTestUrl?: string;
-  abTestRatio?: number;
-}
+export type CreateLinkInput = z.infer<typeof createLinkSchema>;
 
 /**
- * 更新链接的输入类型
+ * 更新链接的输入类型 (从 Shared Schema 自动推导)
  */
-export interface UpdateLinkInput {
-  linkId: number;
-  originalUrl: string;
-  shortCode: string;
-  description?: string | null;
-  expiresAt?: Date | null;
-  password?: string | null;
-  tags: string[];
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  seoImage?: string | null;
-  abTestEnabled?: number;
-  abTestUrl?: string | null;
-  abTestRatio?: number;
-}
+export type UpdateLinkInput = z.infer<typeof updateLinkSchema>;
 
 /**
  * 解析后的导入链接类型
@@ -127,6 +117,9 @@ export interface BatchActionBarProps {
   onClear: () => void;
   onBatchTags?: () => void;
   onBatchExpiry?: () => void;
+  onMoveToGroup?: () => void;
+  onCheck?: () => void;
+  isChecking?: boolean;
 }
 
 /**
@@ -151,6 +144,7 @@ export interface LinkFormDialogProps {
   onOpenChange: (open: boolean) => void;
   initialData?: Link;
   domains: Domain[];
+  groups: Array<{ id: number; name: string; color: string }>;
   onSubmit: (data: LinkFormData) => Promise<void>;
   isSubmitting: boolean;
   onGenerateSeo: (url: string, description?: string) => Promise<SeoResult>;

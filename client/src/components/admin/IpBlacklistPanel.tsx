@@ -48,7 +48,7 @@ export default function IpBlacklistPanel() {
   // 添加黑名单
   const addMutation = trpc.blacklist.add.useMutation({
     onSuccess: () => {
-      toast.success(t("blacklist.addSuccess") || "已添加到黑名单");
+      toast.success(t("blacklist.addSuccess"));
       utils.blacklist.list.invalidate();
       setAddDialogOpen(false);
       setIpPattern("");
@@ -63,7 +63,7 @@ export default function IpBlacklistPanel() {
   // 移除黑名单
   const removeMutation = trpc.blacklist.remove.useMutation({
     onSuccess: () => {
-      toast.success(t("blacklist.removeSuccess") || "已从黑名单移除");
+      toast.success(t("blacklist.removeSuccess"));
       utils.blacklist.list.invalidate();
     },
     onError: error => {
@@ -73,7 +73,7 @@ export default function IpBlacklistPanel() {
 
   const handleAdd = () => {
     if (!ipPattern.trim()) {
-      toast.error(t("blacklist.ipRequired") || "请输入 IP 地址");
+      toast.error(t("blacklist.ipRequired"));
       return;
     }
 
@@ -85,7 +85,7 @@ export default function IpBlacklistPanel() {
   };
 
   const handleRemove = (id: number) => {
-    if (confirm(t("blacklist.removeConfirm") || "确定要移除此 IP 吗？")) {
+    if (confirm(t("blacklist.removeConfirm"))) {
       removeMutation.mutate({ id });
     }
   };
@@ -103,16 +103,15 @@ export default function IpBlacklistPanel() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-primary" />
-              <CardTitle>{t("blacklist.title") || "IP 黑名单"}</CardTitle>
+              <CardTitle>{t("blacklist.title")}</CardTitle>
             </div>
             <Button onClick={() => setAddDialogOpen(true)} size="sm">
               <Plus className="w-4 h-4 mr-2" />
-              {t("blacklist.add") || "添加 IP"}
+              {t("blacklist.add")}
             </Button>
           </div>
           <CardDescription>
-            {t("blacklist.description") ||
-              "被封禁的 IP 将无法访问任何短链接。支持 CIDR 格式（如 192.168.1.0/24）进行网段封禁。"}
+            {t("blacklist.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -123,7 +122,7 @@ export default function IpBlacklistPanel() {
           ) : !blacklist || blacklist.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Ban className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <p>{t("blacklist.empty") || "黑名单为空"}</p>
+              <p>{t("blacklist.empty")}</p>
             </div>
           ) : (
             <div className="border rounded-lg">
@@ -131,17 +130,17 @@ export default function IpBlacklistPanel() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>
-                      {t("blacklist.ipPattern") || "IP/网段"}
+                      {t("blacklist.ipPattern")}
                     </TableHead>
-                    <TableHead>{t("blacklist.reason") || "原因"}</TableHead>
+                    <TableHead>{t("blacklist.reason")}</TableHead>
                     <TableHead>
-                      {t("blacklist.expiresAt") || "过期时间"}
+                      {t("blacklist.expiresAt")}
                     </TableHead>
                     <TableHead>
-                      {t("blacklist.createdAt") || "添加时间"}
+                      {t("blacklist.createdAt")}
                     </TableHead>
                     <TableHead className="text-right">
-                      {t("common.actions") || "操作"}
+                      {t("common.actions")}
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -165,7 +164,7 @@ export default function IpBlacklistPanel() {
                               }
                             >
                               {expired
-                                ? t("blacklist.expired") || "已过期"
+                                ? t("blacklist.expired")
                                 : formatDistanceToNow(
                                     new Date(item.expiresAt),
                                     {
@@ -176,7 +175,7 @@ export default function IpBlacklistPanel() {
                             </span>
                           ) : (
                             <span className="text-muted-foreground">
-                              {t("blacklist.permanent") || "永久"}
+                              {t("blacklist.permanent")}
                             </span>
                           )}
                         </TableCell>
@@ -212,43 +211,42 @@ export default function IpBlacklistPanel() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {t("blacklist.addTitle") || "添加 IP 到黑名单"}
+              {t("blacklist.addTitle")}
             </DialogTitle>
             <DialogDescription>
-              {t("blacklist.addDescription") ||
-                "支持单个 IP（如 192.168.1.1）或 CIDR 网段（如 192.168.1.0/24）"}
+              {t("blacklist.addDescription")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="ip">
-                {t("blacklist.ipPattern") || "IP/网段"}
+                {t("blacklist.ipPattern")}
               </Label>
               <Input
                 id="ip"
                 value={ipPattern}
                 onChange={e => setIpPattern(e.target.value)}
-                placeholder="例如：192.168.1.1 或 192.168.1.0/24"
+                placeholder={t("blacklist.ipPlaceholder")}
                 className="font-mono"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="reason">
-                {t("blacklist.reason") || "原因"} (可选)
+                {t("blacklist.reason")} ({t("common.optional")})
               </Label>
               <Input
                 id="reason"
                 value={reason}
                 onChange={e => setReason(e.target.value)}
-                placeholder={t("blacklist.reasonPlaceholder") || "封禁原因"}
+                placeholder={t("blacklist.reasonPlaceholder")}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="expires">
-                {t("blacklist.expiresAt") || "过期时间"} (可选)
+                {t("blacklist.expiresAt")} ({t("common.optional")})
               </Label>
               <Input
                 id="expires"
@@ -257,7 +255,7 @@ export default function IpBlacklistPanel() {
                 onChange={e => setExpiresAt(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                {t("blacklist.expiresHint") || "留空表示永久封禁"}
+                {t("blacklist.expiresHint")}
               </p>
             </div>
           </div>
@@ -268,13 +266,13 @@ export default function IpBlacklistPanel() {
               onClick={() => setAddDialogOpen(false)}
               disabled={addMutation.isPending}
             >
-              {t("common.cancel") || "取消"}
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleAdd} disabled={addMutation.isPending}>
               {addMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                t("blacklist.add") || "添加"
+                t("blacklist.add")
               )}
             </Button>
           </DialogFooter>

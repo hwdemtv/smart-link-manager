@@ -105,7 +105,7 @@ export default function NotificationManagement() {
       const countText =
         result.count === -1
           ? t("admin.notify.allUsers")
-          : `${result.count} ${t("admin.notify.allUsers").includes("All") ? "users" : "位用户"}`;
+          : t("admin.notify.usersCount", { count: result.count });
       toast.success(`${t("admin.notify.sendSuccess")} ${countText}`);
       setIsSendDialogOpen(false);
       setSendForm({
@@ -179,7 +179,7 @@ export default function NotificationManagement() {
     };
     return (
       <Badge className={`${colors[type] || colors.system} capitalize`}>
-        {type}
+        {t(`admin.notify.type${type.charAt(0).toUpperCase() + type.slice(1)}`)}
       </Badge>
     );
   };
@@ -192,7 +192,7 @@ export default function NotificationManagement() {
     };
     return (
       <Badge className={`${colors[priority] || colors.normal} text-xs`}>
-        {priority}
+        {t(`admin.notify.priority${priority.charAt(0).toUpperCase() + priority.slice(1)}`)}
       </Badge>
     );
   };
@@ -317,7 +317,7 @@ export default function NotificationManagement() {
                           <div className="flex items-center gap-1">
                             <Users className="w-3 h-3" />
                             <span className="text-xs">
-                              User #{notification.userId}
+                              {t("admin.notify.userWithId", { id: notification.userId })}
                             </span>
                           </div>
                         ) : (
@@ -359,7 +359,7 @@ export default function NotificationManagement() {
               {/* Pagination */}
               <div className="flex items-center justify-between px-2 py-4 border-t border-border">
                 <div className="text-sm text-muted-foreground">
-                  {t("admin.pagination.showing", {
+                  {t("common.pagination.showing", {
                     from: (currentPage - 1) * itemsPerPage + 1,
                     to: Math.min(
                       currentPage * itemsPerPage,

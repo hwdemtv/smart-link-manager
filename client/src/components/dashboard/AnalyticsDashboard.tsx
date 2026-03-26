@@ -23,6 +23,11 @@ const {
 import { trpc } from "@/lib/trpc";
 import { useTranslation } from "react-i18next";
 import { Loader2, MapPin, Globe2, TrendingUp } from "lucide-react";
+import type { 
+  GlobalStats, 
+  NameValueItem, 
+  TimeSeriesItem 
+} from "@/types/stats";
 
 const COLORS = [
   "#3b82f6",
@@ -73,17 +78,6 @@ const TREEMAP_COLORS = [
   "#0e7490",
 ];
 
-// Chart data types
-interface TimeSeriesItem {
-  date: string;
-  clicks: number;
-}
-
-interface NameValueItem {
-  name: string;
-  value: number;
-}
-
 interface TreemapContentProps {
   x: number;
   y: number;
@@ -92,11 +86,16 @@ interface TreemapContentProps {
   name: string;
   value: number;
   index: number;
+  t: any;
 }
 
 const CustomTreemapContent = (props: TreemapContentProps) => {
-  const { x, y, width, height, name, value, index } = props;
+  const { x, y, width, height, name, value, index, t } = props;
   if (width < 30 || height < 30) return null;
+  
+  // 磁贴样式逻辑
+  const isSelected = width > 60 && height > 40;
+  
   return (
     <g>
       <rect
@@ -109,19 +108,21 @@ const CustomTreemapContent = (props: TreemapContentProps) => {
           stroke: "#fff",
           strokeWidth: 2,
           strokeOpacity: 1,
-          rx: 4,
-          ry: 4,
+          rx: 6,
+          ry: 6,
         }}
+        className="transition-all duration-300 hover:opacity-90"
       />
-      {width > 60 && height > 40 && (
+      {isSelected && (
         <>
           <text
             x={x + width / 2}
             y={y + height / 2 - 8}
             textAnchor="middle"
             fill="#fff"
-            fontSize={width > 100 ? 14 : 11}
+            fontSize={width > 120 ? 14 : 11}
             fontWeight="600"
+            style={{ pointerEvents: 'none' }}
           >
             {COUNTRY_FLAGS[name] || "🌐"} {name}
           </text>
@@ -129,10 +130,11 @@ const CustomTreemapContent = (props: TreemapContentProps) => {
             x={x + width / 2}
             y={y + height / 2 + 12}
             textAnchor="middle"
-            fill="rgba(255,255,255,0.8)"
-            fontSize={width > 100 ? 12 : 10}
+            fill="rgba(255,255,255,0.9)"
+            fontSize={width > 120 ? 12 : 10}
+            style={{ pointerEvents: 'none' }}
           >
-            {value} 次点击
+            {t("analytics.clicksCount", { count: value })}
           </text>
         </>
       )}
@@ -144,9 +146,11 @@ export function AnalyticsDashboard() {
   const { t } = useTranslation();
 
   // 拉取过去 7 天的全局大盘数据
-  const { data: stats, isLoading } = trpc.links.globalStats.useQuery({
+  const { data, isLoading } = trpc.links.globalStats.useQuery({
     days: 7,
   });
+  
+  const stats = data as GlobalStats | undefined;
 
   if (isLoading) {
     return (
@@ -173,17 +177,21 @@ export function AnalyticsDashboard() {
   // 整理折线图数据
   const timeSeriesData: TimeSeriesItem[] = Object.entries(stats.timeSeries)
     .map(([date, count]) => ({
-      date: date.substring(5),
+      date: date.substring(5).replace("-", "/"), // 转换格式如 03/21
       clicks: count as number,
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
   // 整理饼图数据
   const deviceData: NameValueItem[] = Object.entries(stats.deviceStats || {})
-    .map(([name, value]) => ({
-      name: name.charAt(0).toUpperCase() + name.slice(1),
-      value: value as number,
-    }))
+    .map(([name, value]) => {
+      const deviceKey = name.toLowerCase();
+      const displayName = t(`analytics.device.${deviceKey}`, { defaultValue: name.charAt(0).toUpperCase() + name.slice(1) });
+      return {
+        name: displayName,
+        value: value as number,
+      };
+    })
     .sort((a, b) => b.value - a.value);
 
   // 整理国家 Treemap 数据
@@ -195,9 +203,7 @@ export function AnalyticsDashboard() {
     .sort((a, b) => b.value - a.value);
 
   // 整理城市 Top 排行数据
-  const cityData: NameValueItem[] = Object.entries(
-    (stats as { cityStats?: Record<string, number> }).cityStats || {}
-  )
+  const cityData: NameValueItem[] = Object.entries(stats.cityStats || {})
     .map(([name, value]) => ({
       name,
       value: value as number,
@@ -206,9 +212,7 @@ export function AnalyticsDashboard() {
     .slice(0, 8);
 
   // 整理浏览器数据
-  const browserData: NameValueItem[] = Object.entries(
-    (stats as { browserStats?: Record<string, number> }).browserStats || {}
-  )
+  const browserData: NameValueItem[] = Object.entries(stats.browserStats || {})
     .map(([name, value]) => ({
       name,
       value: value as number,
@@ -223,7 +227,7 @@ export function AnalyticsDashboard() {
         <h3 className="text-md font-semibold mb-4 flex items-center">
           📈 {t("analytics.recentTraffic")}
         </h3>
-        <div className="h-[220px] w-full">
+        <div className="h-[240px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={timeSeriesData}
@@ -254,9 +258,10 @@ export function AnalyticsDashboard() {
               />
               <Tooltip
                 contentStyle={{
-                  borderRadius: "8px",
+                  borderRadius: "12px",
                   border: "none",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                  padding: "10px 14px",
                 }}
               />
               <Area
@@ -267,6 +272,7 @@ export function AnalyticsDashboard() {
                 strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#colorClicks)"
+                animationDuration={1000}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -275,12 +281,12 @@ export function AnalyticsDashboard() {
 
       {/* 地域分布 Treemap (占满2栏) */}
       {countryData.length > 0 && (
-        <Card className="p-4 lg:col-span-2">
+        <Card className="p-4 lg:col-span-2 overflow-hidden">
           <h3 className="text-md font-semibold mb-4 flex items-center gap-2">
             <Globe2 className="w-5 h-5 text-accent-blue" />
-            {t("analytics.countryDistribution")} · 地域热力图
+            {t("analytics.countryDistribution")} · {t("analytics.countryRegion")}
           </h3>
-          <div className="h-[260px] w-full">
+          <div className="h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <Treemap
                 data={countryData}
@@ -289,7 +295,7 @@ export function AnalyticsDashboard() {
                 aspectRatio={4 / 3}
                 stroke="#fff"
                 content={
-                  <CustomTreemapContent {...({} as TreemapContentProps)} />
+                  <CustomTreemapContent t={t} {...({} as any)} />
                 }
               />
             </ResponsiveContainer>
@@ -302,9 +308,9 @@ export function AnalyticsDashboard() {
         <Card className="p-4">
           <h3 className="text-md font-semibold mb-4 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-accent-blue" />
-            城市 Top 排行
+            {t("analytics.cityRanking")}
           </h3>
-          <div className="h-[220px] w-full">
+          <div className="h-[240px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={cityData}
@@ -332,11 +338,11 @@ export function AnalyticsDashboard() {
                 />
                 <Tooltip
                   contentStyle={{
-                    borderRadius: "8px",
+                    borderRadius: "12px",
                     border: "none",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
                   }}
-                  formatter={(value: number) => [`${value}`, "点击量"]}
+                  formatter={(value: number) => [`${value}`, t("analytics.clicks")]}
                 />
                 <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -350,7 +356,7 @@ export function AnalyticsDashboard() {
         <h3 className="text-md font-semibold mb-4 flex items-center">
           📱 {t("analytics.deviceDistribution")}
         </h3>
-        <div className="h-[220px] w-full flex items-center justify-center">
+        <div className="h-[240px] w-full flex items-center justify-center">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -358,7 +364,7 @@ export function AnalyticsDashboard() {
                 cx="50%"
                 cy="45%"
                 innerRadius={50}
-                outerRadius={70}
+                outerRadius={80}
                 paddingAngle={5}
                 dataKey="value"
                 stroke="none"
@@ -372,9 +378,9 @@ export function AnalyticsDashboard() {
               </Pie>
               <Tooltip
                 contentStyle={{
-                  borderRadius: "8px",
+                  borderRadius: "12px",
                   border: "none",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
                 }}
                 formatter={(value: number) => [
                   `${value}`,
@@ -383,7 +389,7 @@ export function AnalyticsDashboard() {
               />
               <Legend
                 verticalAlign="bottom"
-                height={30}
+                height={36}
                 iconType="circle"
                 wrapperStyle={{ fontSize: "12px" }}
               />
@@ -394,23 +400,25 @@ export function AnalyticsDashboard() {
 
       {/* 浏览器分布 + 国家列表 (占满2栏) */}
       <Card className="p-4 lg:col-span-2">
-        <h3 className="text-md font-semibold mb-4">📊 详细数据分布</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <h3 className="text-md font-semibold mb-4">📊 {t("analytics.detailedDistribution")}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* 浏览器 */}
           <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">
-              浏览器
+            <h4 className="text-sm font-medium text-muted-foreground mb-4">
+              {t("analytics.browser")}
             </h4>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {browserData.map((item, i) => {
                 const maxVal = browserData[0]?.value || 1;
                 const pct = Math.round((item.value / maxVal) * 100);
                 return (
                   <div key={item.name} className="flex items-center gap-3">
-                    <span className="text-sm w-20 truncate">{item.name}</span>
+                    <span className="text-sm w-24 truncate">
+                      {item.name === "Unknown" ? t("common.unknown") : item.name}
+                    </span>
                     <div className="flex-1 bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="h-full rounded-full transition-all duration-500"
+                        className="h-full rounded-full transition-all duration-700"
                         style={{
                           width: `${pct}%`,
                           backgroundColor: COLORS[i % COLORS.length],
@@ -427,21 +435,23 @@ export function AnalyticsDashboard() {
           </div>
           {/* 国家列表 */}
           <div>
-            <h4 className="text-sm font-medium text-muted-foreground mb-3">
-              国家 / 地区
+            <h4 className="text-sm font-medium text-muted-foreground mb-4">
+              {t("analytics.countryRegion")}
             </h4>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {countryData.slice(0, 5).map((item, i) => {
                 const maxVal = countryData[0]?.value || 1;
                 const pct = Math.round((item.value / maxVal) * 100);
                 return (
                   <div key={item.name} className="flex items-center gap-3">
-                    <span className="text-sm w-20 truncate">
-                      {COUNTRY_FLAGS[item.name] || "🌐"} {item.name}
+                    <span className="text-sm w-24 truncate">
+                      {COUNTRY_FLAGS[item.name] || "🌐"}{" "}
+                      {item.name === "Local" ? t("common.local") : 
+                       item.name === "Unknown" ? t("common.unknown") : item.name}
                     </span>
                     <div className="flex-1 bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="h-full rounded-full transition-all duration-500"
+                        className="h-full rounded-full transition-all duration-700"
                         style={{
                           width: `${pct}%`,
                           backgroundColor:

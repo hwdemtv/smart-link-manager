@@ -48,7 +48,7 @@ export function DashboardHeader({
               onClick={onRecycleBinClick}
             >
               <Trash2 className="w-4 h-4" />
-              {t("recycleBin.title") || "回收站"}
+              {t("recycleBin.title")}
             </Button>
           )}
 

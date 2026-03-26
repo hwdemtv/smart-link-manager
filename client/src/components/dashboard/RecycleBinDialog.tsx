@@ -11,7 +11,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "react-i18next";
 import { trpc } from "@/lib/trpc";
-import { Trash2, RotateCcw, ExternalLink, Loader2 } from "lucide-react";
+import { Trash2, RotateCcw, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN, enUS } from "date-fns/locale";
 
@@ -70,24 +70,14 @@ export function RecycleBinDialog({
   };
 
   const handlePermanentDelete = (linkId: number) => {
-    if (
-      confirm(
-        t("recycleBin.permanentDeleteConfirm") ||
-          "确定要永久删除此链接吗？此操作不可恢复。"
-      )
-    ) {
+    if (confirm(t("recycleBin.permanentDeleteConfirm"))) {
       setActioningId(linkId);
       permanentDeleteMutation.mutate({ linkId });
     }
   };
 
   const handleEmptyBin = () => {
-    if (
-      confirm(
-        t("recycleBin.emptyBinConfirm") ||
-          "确定要清空回收站吗？所有链接将被永久删除。"
-      )
-    ) {
+    if (confirm(t("recycleBin.emptyBinConfirm"))) {
       emptyBinMutation.mutate();
     }
   };
@@ -98,11 +88,10 @@ export function RecycleBinDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Trash2 className="w-5 h-5" />
-            {t("recycleBin.title") || "回收站"}
+            {t("recycleBin.title")}
           </DialogTitle>
           <DialogDescription>
-            {t("recycleBin.description") ||
-              "已删除的链接将保留 30 天，您可以在此期间恢复。"}
+            {t("recycleBin.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -113,7 +102,7 @@ export function RecycleBinDialog({
             </div>
           ) : !deletedLinks || deletedLinks.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              {t("recycleBin.empty") || "回收站是空的"}
+              {t("recycleBin.empty")}
             </div>
           ) : (
             <div className="space-y-2">
@@ -128,7 +117,7 @@ export function RecycleBinDialog({
                         {link.originalShortCode}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {t("recycleBin.deleted") || "删除于"}{" "}
+                        {t("recycleBin.deleted")}{" "}
                         {formatDistanceToNow(new Date(link.deletedAt), {
                           addSuffix: true,
                           locale,
@@ -152,7 +141,7 @@ export function RecycleBinDialog({
                         <RotateCcw className="w-4 h-4" />
                       )}
                       <span className="ml-1 hidden sm:inline">
-                        {t("recycleBin.restore") || "恢复"}
+                        {t("recycleBin.restore")}
                       </span>
                     </Button>
                     <Button
@@ -162,7 +151,7 @@ export function RecycleBinDialog({
                       disabled={actioningId !== null}
                       className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
-                      {t("recycleBin.permanentDelete") || "永久删除"}
+                      {t("recycleBin.permanentDelete")}
                     </Button>
                   </div>
                 </div>
@@ -183,10 +172,10 @@ export function RecycleBinDialog({
             }
             className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
-            {t("recycleBin.emptyBin") || "清空回收站"}
+            {t("recycleBin.emptyBin")}
           </Button>
           <Button variant="secondary" onClick={() => onOpenChange(false)}>
-            {t("common.close") || "关闭"}
+            {t("common.close")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -20,10 +20,10 @@ export default function Analytics() {
     <div className="min-h-content bg-background">
       <div className="container py-4">
         <h1 className="text-xl font-bold tracking-tight mb-1">
-          {t("common.analytics")}
+          {t("analytics.title")}
         </h1>
         <p className="text-xs text-muted-foreground">
-          {t("dashboard.analyticsSubtitle") || "实时追踪您的链接访问数据与趋势"}
+          {t("analytics.subtitle")}
         </p>
       </div>
 

@@ -36,7 +36,7 @@ export default function PlatformSettings() {
   const updateDomainMutation =
     trpc.configs.updateDefaultDomainConfig.useMutation({
       onSuccess: () => {
-        toast.success("系统默认域名已更新");
+        toast.success(t("admin.system.domainUpdateSuccess"));
         utils.configs.getConfig.invalidate();
       },
       onError: error => {
@@ -88,15 +88,15 @@ export default function PlatformSettings() {
           <div className="flex flex-col gap-3 p-4 border rounded-lg bg-muted/30">
             <div className="space-y-0.5">
               <Label className="text-base font-semibold">
-                系统默认生成域名
+                {t("admin.system.defaultDomainLabel")}
               </Label>
               <p className="text-sm text-muted-foreground">
-                开启此项后，所有前端未指定自有域名的短链接均默认使用该顶级域名进行拼接。留空则退回至当前面板被访问时所用的地址。
+                {t("admin.system.defaultDomainHint")}
               </p>
             </div>
             <div className="flex items-center gap-3">
               <Input
-                placeholder="例如：s.example.com"
+                placeholder={t("admin.system.defaultDomainPlaceholder")}
                 value={defaultDomain}
                 onChange={e => setDefaultDomain(e.target.value)}
                 className="max-w-md font-mono"
@@ -112,7 +112,9 @@ export default function PlatformSettings() {
                   updateDomainMutation.mutate({ domain: defaultDomain })
                 }
               >
-                {updateDomainMutation.isPending ? "保存中..." : "保存域名"}
+                {updateDomainMutation.isPending 
+                  ? t("common.saving") 
+                  : t("admin.system.saveDomain")}
               </Button>
             </div>
           </div>

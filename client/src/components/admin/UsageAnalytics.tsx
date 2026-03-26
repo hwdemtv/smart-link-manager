@@ -241,7 +241,7 @@ export default function UsageAnalytics() {
                     <TableCell className="font-medium">
                       {stat.userName ||
                         stat.userUsername ||
-                        `User ${stat.userId}`}
+                        t("admin.usage.userWithId", { id: stat.userId })}
                     </TableCell>
                     <TableCell>
                       {(stat.linksCreated || 0).toLocaleString()}

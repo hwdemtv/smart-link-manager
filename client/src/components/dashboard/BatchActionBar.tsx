@@ -7,6 +7,8 @@ import {
   Trash2,
   Tag,
   CalendarClock,
+  FolderInput,
+  RefreshCcw,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { BatchActionBarProps } from "@/types/dashboard";
@@ -21,6 +23,9 @@ export function BatchActionBar({
   onClear,
   onBatchTags,
   onBatchExpiry,
+  onMoveToGroup,
+  onCheck,
+  isChecking,
 }: BatchActionBarProps) {
   const { t } = useTranslation();
 
@@ -32,7 +37,7 @@ export function BatchActionBar({
             {selectedCount}
           </span>
           <span className="text-sm font-medium">
-            {t("dashboard.selected") || "已选中"}
+            {t("dashboard.selected")}
           </span>
         </div>
 
@@ -44,7 +49,7 @@ export function BatchActionBar({
             onClick={onEnable}
           >
             <Check className="w-4 h-4" />
-            <span className="hidden sm:inline">启用</span>
+            <span className="hidden sm:inline">{t("common.enable")}</span>
           </Button>
 
           <Button
@@ -54,7 +59,7 @@ export function BatchActionBar({
             onClick={onDisable}
           >
             <X className="w-4 h-4" />
-            <span className="hidden sm:inline">禁用</span>
+            <span className="hidden sm:inline">{t("common.disable")}</span>
           </Button>
 
           <Button
@@ -64,7 +69,7 @@ export function BatchActionBar({
             onClick={onGenerateSeo}
           >
             <Sparkles className="w-4 h-4" />
-            <span className="hidden sm:inline">AI SEO</span>
+            <span className="hidden sm:inline">{t("dashboard.aiGenerateSeo")}</span>
           </Button>
 
           <Button
@@ -74,7 +79,18 @@ export function BatchActionBar({
             onClick={onExport}
           >
             <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">导出</span>
+            <span className="hidden sm:inline">{t("common.export")}</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 px-3 rounded-full gap-2 hover:bg-accent-blue/10 hover:text-accent-blue"
+            onClick={onCheck}
+            disabled={isChecking}
+          >
+            <RefreshCcw className={`w-4 h-4 ${isChecking ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline">{t("dashboard.batchCheck")}</span>
           </Button>
 
           <Button
@@ -84,7 +100,7 @@ export function BatchActionBar({
             onClick={onBatchTags}
           >
             <Tag className="w-4 h-4" />
-            <span className="hidden sm:inline">标签</span>
+            <span className="hidden sm:inline">{t("dashboard.tagsLabel")}</span>
           </Button>
 
           <Button
@@ -94,8 +110,20 @@ export function BatchActionBar({
             onClick={onBatchExpiry}
           >
             <CalendarClock className="w-4 h-4" />
-            <span className="hidden sm:inline">有效期</span>
+            <span className="hidden sm:inline">{t("dashboard.expiresAt")}</span>
           </Button>
+
+          {onMoveToGroup && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 px-3 rounded-full gap-2 hover:bg-cyan-500/10 hover:text-cyan-500"
+              onClick={onMoveToGroup}
+            >
+              <FolderInput className="w-4 h-4" />
+              <span className="hidden sm:inline">{t("dashboard.moveToGroup")}</span>
+            </Button>
+          )}
 
           <div className="w-px h-4 bg-border mx-1" />
 
@@ -106,7 +134,7 @@ export function BatchActionBar({
             onClick={onDelete}
           >
             <Trash2 className="w-4 h-4" />
-            <span className="hidden sm:inline">删除</span>
+            <span className="hidden sm:inline">{t("common.delete")}</span>
           </Button>
 
           <Button

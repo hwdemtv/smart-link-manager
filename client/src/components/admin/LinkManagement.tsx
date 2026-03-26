@@ -41,6 +41,7 @@ import {
   CheckCircle,
   XCircle,
   Globe,
+  Download,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useTranslation } from "react-i18next";
@@ -108,6 +109,37 @@ export default function LinkManagement() {
     },
   });
 
+  const exportMutation = trpc.user.exportLinksCSV.useMutation({
+    onSuccess: (csv: string) => {
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      const date = new Date().toISOString().split("T")[0];
+      link.setAttribute("download", `links-export-${date}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(t("admin.linkMgmt.exportSuccess"));
+    },
+    onError: (err: any) => {
+      toast.error(err.message || t("dashboard.failedToExport"));
+    },
+  });
+
+  const handleExport = async () => {
+    exportMutation.mutate({
+      search: searchQuery || undefined,
+      isActive:
+        statusFilter === "all" ? undefined : statusFilter === "active" ? 1 : 0,
+      isValid:
+        validFilter === "all" ? undefined : validFilter === "valid" ? 1 : 0,
+      userId: ownerFilter === "all" ? undefined : Number(ownerFilter),
+      domain: domainFilter || undefined,
+      expiresSoon: expiresSoonFilter || undefined,
+    });
+  };
+
   const toggleStatusMutation = trpc.user.adminToggleLinkStatus.useMutation({
     onSuccess: () => {
       toast.success(t("admin.linkMgmt.statusUpdated"));
@@ -120,7 +152,7 @@ export default function LinkManagement() {
 
   const batchDeleteMutation = trpc.user.adminBatchDeleteLinks.useMutation({
     onSuccess: () => {
-      toast.success(t("admin.linkMgmt.deleteSuccess") || "批量删除成功");
+      toast.success(t("admin.linkMgmt.deleteSuccess"));
       setSelectedLinks([]);
       refetch();
     },
@@ -132,7 +164,7 @@ export default function LinkManagement() {
   const batchToggleStatusMutation =
     trpc.user.adminBatchToggleLinkStatus.useMutation({
       onSuccess: () => {
-        toast.success(t("admin.linkMgmt.statusUpdated") || "状态批量更新成功");
+        toast.success(t("admin.linkMgmt.statusUpdated"));
         setSelectedLinks([]);
         refetch();
       },
@@ -262,14 +294,12 @@ export default function LinkManagement() {
             <Select value={ownerFilter} onValueChange={setOwnerFilter}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue
-                  placeholder={
-                    t("admin.linkMgmt.filterOwner") || "Filter Owner"
-                  }
+                  placeholder={t("admin.linkMgmt.filterOwner")}
                 />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
-                  {t("admin.linkMgmt.allOwners") || "All Owners"}
+                  {t("admin.linkMgmt.allOwners")}
                 </SelectItem>
                 {users.map((u: any) => (
                   <SelectItem key={u.id} value={u.id.toString()}>
@@ -283,7 +313,7 @@ export default function LinkManagement() {
             <div className="relative w-[140px] shrink-0 border rounded-md">
               <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="指定域名"
+                placeholder={t("admin.linkMgmt.specifyDomain")}
                 value={domainFilter}
                 onChange={e => setDomainFilter(e.target.value)}
                 className="pl-9 pr-8 border-0 shadow-none focus-visible:ring-0"
@@ -313,9 +343,21 @@ export default function LinkManagement() {
                 htmlFor="expiresSoon"
                 className="text-sm font-medium cursor-pointer text-orange-600 dark:text-orange-400"
               >
-                7天内到期
+                {t("admin.linkMgmt.expiresIn7Days")}
               </label>
             </div>
+
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 h-10 px-4"
+              onClick={handleExport}
+              disabled={exportMutation.isPending}
+            >
+              <Download className="h-4 w-4" />
+              {exportMutation.isPending
+                ? t("admin.linkMgmt.exporting")
+                : t("admin.linkMgmt.export")}
+            </Button>
           </div>
         </CardHeader>
 
@@ -395,7 +437,7 @@ export default function LinkManagement() {
                               setOwnerFilter(link.userId.toString());
                               window.scrollTo({ top: 0, behavior: "smooth" });
                             }}
-                            title="点击过滤此用户的链接"
+                            title={t("admin.linkMgmt.filterByUserTitle")}
                           >
                             {link.userUsername || link.userName || "-"}
                           </button>
@@ -465,7 +507,7 @@ export default function LinkManagement() {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-2 py-4 border-t border-border mt-4">
                   <div className="text-sm text-muted-foreground">
-                    {t("admin.pagination.showing", {
+                    {t("common.pagination.showing", {
                       from: (currentPage - 1) * pageSize + 1,
                       to: Math.min(currentPage * pageSize, total),
                       total,
@@ -509,7 +551,7 @@ export default function LinkManagement() {
       {selectedLinks.length > 0 && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-popover border border-border shadow-2xl rounded-full px-6 py-3 flex items-center gap-4 z-50 animate-in slide-in-from-bottom-5">
           <span className="text-sm font-medium whitespace-nowrap">
-            已选择 {selectedLinks.length} 项
+            {t("admin.linkMgmt.selectedCount", { count: selectedLinks.length })}
           </span>
           <div className="h-4 w-px bg-border"></div>
 
@@ -524,7 +566,7 @@ export default function LinkManagement() {
               })
             }
           >
-            <CheckCircle className="w-4 h-4 text-green-600" /> 激活
+            <CheckCircle className="w-4 h-4 text-green-600" /> {t("admin.linkMgmt.activate")}
           </Button>
 
           <Button
@@ -538,7 +580,7 @@ export default function LinkManagement() {
               })
             }
           >
-            <XCircle className="w-4 h-4" /> 停用
+            <XCircle className="w-4 h-4" /> {t("admin.linkMgmt.deactivate")}
           </Button>
 
           <Button
@@ -548,7 +590,7 @@ export default function LinkManagement() {
             onClick={() => {
               if (
                 window.confirm(
-                  "确定批量删除选中的链接吗？此操作不可逆，将删除相关统计数据和访问记录！"
+                  t("admin.linkMgmt.batchDeleteConfirm")
                 )
               ) {
                 batchDeleteMutation.mutate({ linkIds: selectedLinks });

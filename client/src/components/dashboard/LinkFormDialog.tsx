@@ -11,13 +11,20 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Sparkles, GitCompare } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Sparkles, GitCompare, Settings2, Link2, Share2, Info, ChevronDown, Folder } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type {
   LinkFormData,
   LinkFormDialogProps,
   Link,
   Domain,
+  RedirectType,
 } from "@/types/dashboard";
 
 /**
@@ -34,9 +41,19 @@ const getEmptyFormData = (): LinkFormData => ({
   seoTitle: "",
   seoDescription: "",
   seoImage: "",
+  shareSuffix: "",
+  seoPriority: 0,
+  noIndex: 0,
+  redirectType: "302",
+  seoKeywords: "",
+  canonicalUrl: "",
+  ogVideoUrl: "",
+  ogVideoWidth: 0,
+  ogVideoHeight: 0,
   abTestEnabled: 0,
   abTestUrl: "",
   abTestRatio: 50,
+  groupId: null,
 });
 
 /**
@@ -55,14 +72,23 @@ const getFormDataFromLink = (link: Link): LinkFormData => ({
   seoTitle: link.seoTitle || "",
   seoDescription: link.seoDescription || "",
   seoImage: link.seoImage || "",
+  shareSuffix: link.shareSuffix || "",
+  seoPriority: link.seoPriority || 0,
+  noIndex: link.noIndex || 0,
+  redirectType: (link.redirectType as RedirectType) || "302",
+  seoKeywords: link.seoKeywords || "",
+  canonicalUrl: link.canonicalUrl || "",
+  ogVideoUrl: link.ogVideoUrl || "",
+  ogVideoWidth: link.ogVideoWidth || 0,
+  ogVideoHeight: link.ogVideoHeight || 0,
   abTestEnabled: link.abTestEnabled || 0,
   abTestUrl: link.abTestUrl || "",
   abTestRatio: link.abTestRatio || 50,
+  groupId: link.groupId ?? null,
 });
 
 /**
  * LinkFormDialog 组件
- * 合并创建和编辑链接表单，使用 mode prop 区分
  */
 export function LinkFormDialog({
   mode,
@@ -70,6 +96,7 @@ export function LinkFormDialog({
   onOpenChange,
   initialData,
   domains,
+  groups,
   onSubmit,
   isSubmitting,
   onGenerateSeo,
@@ -77,6 +104,7 @@ export function LinkFormDialog({
 }: LinkFormDialogProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<LinkFormData>(getEmptyFormData());
+  const [openSections, setOpenSections] = useState<string[]>([]);
 
   // 当打开对话框或初始数据变化时更新表单
   useEffect(() => {
@@ -86,6 +114,7 @@ export function LinkFormDialog({
       } else {
         setFormData(getEmptyFormData());
       }
+      setOpenSections([]); // 重置折叠项
     }
   }, [open, mode, initialData]);
 
@@ -107,12 +136,14 @@ export function LinkFormDialog({
         seoDescription: result.seoDescription || prev.seoDescription,
         seoImage: result.seoImage || prev.seoImage,
       }));
+      // 自动展开社交分享面板
+      setOpenSections(prev => prev.includes("social-seo") ? prev : [...prev, "social-seo"]);
     }
   };
 
   const handleInputChange = (
     field: keyof LinkFormData,
-    value: string | number
+    value: string | number | null
   ) => {
     setFormData(prev => ({ ...prev, [field]: value as any }));
   };
@@ -122,293 +153,332 @@ export function LinkFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-hidden flex flex-col bg-[#f9fafb] border-none shadow-2xl theme-transition">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle className="text-xl font-bold text-slate-800 tracking-tight">{title}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Original URL */}
-          <div>
-            <Label htmlFor="originalUrl">{t("dashboard.originalUrl")} *</Label>
-            <Input
-              id="originalUrl"
-              type="url"
-              placeholder={t("dashboard.urlPlaceholder")}
-              value={formData.originalUrl}
-              onChange={e => handleInputChange("originalUrl", e.target.value)}
-              required
-            />
-          </div>
+        
+        <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col px-6 pb-6">
+          <div className="flex-1 overflow-y-auto pr-2 space-y-5 custom-scrollbar">
+            {/* --- 1. 基础信息区域 (固定可见) --- */}
+            <div className="space-y-4">
+              {/* Original URL */}
+              <div className="space-y-2">
+                <Label htmlFor="originalUrl" className="text-[13px] font-bold text-slate-600 ml-1">
+                  {t("dashboard.originalUrl")} *
+                </Label>
+                <Input
+                  id="originalUrl"
+                  type="url"
+                  placeholder={t("dashboard.urlPlaceholder")}
+                  value={formData.originalUrl}
+                  onChange={e => handleInputChange("originalUrl", e.target.value)}
+                  className="h-11 rounded-xl border-slate-200/60 bg-white shadow-sm focus-visible:ring-[#009688]/20 focus-visible:border-[#009688]/40 transition-all text-sm"
+                  required
+                />
+              </div>
 
-          {/* Short Code */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <Label htmlFor="shortCode">{t("dashboard.shortCode")} *</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  const chars =
-                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                  let result = "";
-                  for (let i = 0; i < 6; i++) {
-                    result += chars.charAt(
-                      Math.floor(Math.random() * chars.length)
-                    );
-                  }
-                  handleInputChange("shortCode", result);
-                }}
-                className="h-6 px-2 text-[10px] flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Sparkles className="w-3 h-3" />
-                {t("dashboard.generateRandom", "随机生成")}
-              </Button>
-            </div>
-            <Input
-              id="shortCode"
-              placeholder={t("dashboard.shortCodePlaceholder")}
-              value={formData.shortCode}
-              onChange={e => handleInputChange("shortCode", e.target.value)}
-              required
-              pattern="^[a-zA-Z0-9_-]{3,20}$"
-              title={t("dashboard.shortCodePatternTip")}
-            />
-          </div>
-
-          {/* Custom Domain (Create only) */}
-          {isCreate && (
-            <div>
-              <Label htmlFor="customDomain">
-                {t("dashboard.customDomain")} ({t("common.optional")})
-              </Label>
-              <select
-                id="customDomain"
-                value={formData.customDomain}
-                onChange={e =>
-                  handleInputChange("customDomain", e.target.value)
-                }
-                className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
-              >
-                <option value="">{t("dashboard.selectDomain")}</option>
-                {domains.map((domain: Domain) => (
-                  <option key={domain.id} value={domain.domain}>
-                    {domain.domain}{" "}
-                    {domain.isVerified ? "✓" : t("dashboard.pending")}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Description */}
-          <div>
-            <Label htmlFor="description">
-              {t("dashboard.description")} ({t("common.optional")})
-            </Label>
-            <Input
-              id="description"
-              placeholder={t("dashboard.descriptionPlaceholder", "如：互为螺旋AI超级个体修行社实战课，提取码 1234")}
-              value={formData.description}
-              onChange={e => handleInputChange("description", e.target.value)}
-            />
-            <p className="text-[10px] text-muted-foreground mt-1 px-1">
-              💡 {t("dashboard.descriptionHint", "提示：输入资源描述或网盘提取码，可帮助 AI 生成更精准的 SEO 标题")}
-            </p>
-          </div>
-
-          {/* Expires At */}
-          <div>
-            <Label htmlFor="expiresAt">
-              {t("dashboard.expiresAt")} ({t("common.optional")})
-            </Label>
-            <Input
-              id="expiresAt"
-              type="datetime-local"
-              value={formData.expiresAt}
-              onChange={e => handleInputChange("expiresAt", e.target.value)}
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <Label htmlFor="password">
-              {t("dashboard.linkPassword")} ({t("common.optional")})
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder={
-                isCreate
-                  ? t("dashboard.passwordPlaceholder")
-                  : t("dashboard.passwordEditPlaceholder")
-              }
-              value={formData.password}
-              onChange={e => handleInputChange("password", e.target.value)}
-            />
-          </div>
-
-          {/* Tags */}
-          <div>
-            <Label htmlFor="tags">
-              {t("dashboard.tagsLabel")} ({t("common.optional")})
-            </Label>
-            <Input
-              id="tags"
-              placeholder={t("dashboard.tagsPlaceholder")}
-              value={formData.tagsString}
-              onChange={e => handleInputChange("tagsString", e.target.value)}
-            />
-          </div>
-
-          {/* A/B Testing Section */}
-          <div className="pt-2 border-t border-border mt-4">
-            <div className="flex items-center justify-between mb-3">
-              <Label
-                htmlFor="abTestSwitch"
-                className="flex items-center gap-2 cursor-pointer group"
-              >
-                <GitCompare className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-                <h4 className="text-sm font-medium group-hover:text-primary transition-colors">
-                  {t("dashboard.abTestSection", "A/B 智能测试 (A/B Testing)")}
-                </h4>
-              </Label>
-              <Switch
-                id="abTestSwitch"
-                checked={formData.abTestEnabled === 1}
-                onCheckedChange={checked =>
-                  handleInputChange("abTestEnabled", checked ? 1 : 0)
-                }
-              />
-            </div>
-
-            {formData.abTestEnabled === 1 && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                <div>
-                  <Label htmlFor="abTestUrl" className="text-xs">
-                    {t(
-                      "dashboard.variantBUrl",
-                      "变种 B 目标链接 (Variant B URL)"
-                    )}{" "}
-                    *
-                  </Label>
-                  <Input
-                    id="abTestUrl"
-                    type="url"
-                    placeholder={t("dashboard.urlPlaceholder")}
-                    value={formData.abTestUrl}
-                    onChange={e =>
-                      handleInputChange("abTestUrl", e.target.value)
-                    }
-                    required={formData.abTestEnabled === 1}
-                    className="h-8 text-xs mt-1"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Label className="text-xs">
-                      {t(
-                        "dashboard.trafficSplit",
-                        "流量拆分比例 (Traffic Split)"
-                      )}
+              {/* Short Code & Custom Domain */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between ml-1">
+                    <Label htmlFor="shortCode" className="text-[13px] font-bold text-slate-600">
+                      {t("dashboard.shortCode")} *
                     </Label>
-                    <span className="text-xs font-mono text-muted-foreground">
-                      A: {formData.abTestRatio}% / B:{" "}
-                      {100 - formData.abTestRatio}%
-                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                        let result = "";
+                        for (let i = 0; i < 6; i++) {
+                          result += chars.charAt(Math.floor(Math.random() * chars.length));
+                        }
+                        handleInputChange("shortCode", result);
+                      }}
+                      className="h-6 px-1.5 text-[11px] flex items-center gap-1.5 text-slate-400 hover:text-[#009688] hover:bg-[#009688]/5 transition-all rounded-lg"
+                    >
+                      {t("dashboard.generateRandom")}
+                    </Button>
                   </div>
-                  <Slider
-                    value={[formData.abTestRatio]}
-                    min={10}
-                    max={90}
-                    step={1}
-                    onValueChange={vals =>
-                      handleInputChange("abTestRatio", vals[0])
-                    }
-                    className="py-2"
+                  <Input
+                    id="shortCode"
+                    placeholder={t("dashboard.shortCodePlaceholder")}
+                    value={formData.shortCode}
+                    onChange={e => handleInputChange("shortCode", e.target.value)}
+                    className="h-11 rounded-xl border-slate-200/60 bg-white shadow-sm focus-visible:ring-[#009688]/20 transition-all text-sm"
+                    required
+                    pattern="^[a-zA-Z0-9_-]{3,20}$"
+                    title={t("dashboard.shortCodePatternTip")}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="customDomain" className="text-[13px] font-bold text-slate-600 ml-1">
+                    {t("dashboard.customDomain")}
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="customDomain"
+                      value={formData.customDomain}
+                      onChange={e => handleInputChange("customDomain", e.target.value)}
+                      className="w-full h-11 px-3.5 py-2 border border-slate-200/60 rounded-xl bg-white shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#009688]/10 transition-all appearance-none cursor-pointer text-slate-700"
+                    >
+                      <option value="">{t("dashboard.selectDomain")}</option>
+                      {domains.map((domain: Domain) => (
+                        <option key={domain.id} value={domain.domain}>
+                          {domain.domain} {domain.isVerified ? "✓" : t("dashboard.pending")}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Group & Tags (常驻) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="groupId" className="text-[13px] font-bold text-slate-600 ml-1">{t("dashboard.group")}</Label>
+                  <div className="relative">
+                    <select
+                      id="groupId"
+                      value={formData.groupId ?? ""}
+                      onChange={e => handleInputChange("groupId", e.target.value === "" ? null : Number(e.target.value))}
+                      className="w-full h-11 px-3.5 py-2 border border-slate-200/60 rounded-xl bg-white shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#009688]/10 transition-all appearance-none cursor-pointer text-slate-700"
+                    >
+                      <option value="">{t("dashboard.noGroup")}</option>
+                      {groups.map(group => (
+                        <option key={group.id} value={group.id}>
+                          {group.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tags" className="text-[13px] font-bold text-slate-600 ml-1">{t("dashboard.tagsLabel")}</Label>
+                  <Input
+                    id="tags"
+                    placeholder={t("dashboard.tagsPlaceholder")}
+                    value={formData.tagsString}
+                    onChange={e => handleInputChange("tagsString", e.target.value)}
+                    className="h-11 rounded-xl border-slate-200/60 bg-white shadow-sm focus-visible:ring-[#009688]/10 text-sm"
                   />
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* SEO Section */}
-          <div className="pt-2 border-t border-border mt-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-medium">
-                {t("dashboard.seoSection")}
-              </h4>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleGenerateSeoClick}
-                disabled={isGeneratingSeo || !formData.originalUrl}
-                className="h-7 text-xs flex items-center gap-1 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary transition-all duration-300"
-              >
-                <Sparkles
-                  className={`w-3 h-3 ${isGeneratingSeo ? "animate-pulse" : ""}`}
-                />
-                {isGeneratingSeo
-                  ? t("common.loading")
-                  : t("dashboard.aiGenerateSeo")}
-              </Button>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="seoTitle" className="text-xs">
-                  {t("dashboard.seoTitle")}
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-[13px] font-bold text-slate-600 ml-1">
+                  {t("dashboard.description")} ({t("common.optional")})
                 </Label>
                 <Input
-                  id="seoTitle"
-                  placeholder={t("dashboard.seoTitlePlaceholder")}
-                  value={formData.seoTitle}
-                  onChange={e => handleInputChange("seoTitle", e.target.value)}
-                  className="h-8 text-xs"
-                />
-              </div>
-              <div>
-                <Label htmlFor="seoDescription" className="text-xs">
-                  {t("dashboard.seoDescription")}
-                </Label>
-                <Input
-                  id="seoDescription"
-                  placeholder={t("dashboard.seoDescriptionPlaceholder")}
-                  value={formData.seoDescription}
-                  onChange={e =>
-                    handleInputChange("seoDescription", e.target.value)
-                  }
-                  className="h-8 text-xs"
-                />
-              </div>
-              <div>
-                <Label htmlFor="seoImage" className="text-xs">
-                  {t("dashboard.seoImage")}
-                </Label>
-                <Input
-                  id="seoImage"
-                  placeholder={t("dashboard.seoImagePlaceholder")}
-                  value={formData.seoImage}
-                  onChange={e => handleInputChange("seoImage", e.target.value)}
-                  className="h-8 text-xs"
+                  id="description"
+                  placeholder={t("dashboard.descriptionPlaceholder")}
+                  value={formData.description}
+                  onChange={e => handleInputChange("description", e.target.value)}
+                  className="h-11 rounded-xl border-slate-200/60 bg-white shadow-sm focus-visible:ring-[#009688]/10 text-sm"
                 />
               </div>
             </div>
+
+            {/* --- 2. 设置面板区域 (Accordion) --- */}
+            <div className="pt-2 space-y-3">
+              <Accordion type="multiple" className="w-full space-y-3" value={openSections} onValueChange={setOpenSections}>
+                {/* 社交分享与 SEO 专题 (还原) */}
+                <AccordionItem value="social-seo" className="border-none">
+                  <AccordionTrigger className="flex items-center justify-between py-3 hover:no-underline group px-3 rounded-xl hover:bg-white transition-all shadow-none hover:shadow-sm border border-transparent hover:border-slate-100 [&[data-state=open]>div>div>svg]:text-[#009688] [&[data-state=open]>div>div]:bg-[#009688]/10">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center transition-colors">
+                        <Share2 className="w-3.5 h-3.5 text-slate-500 transition-colors" />
+                      </div>
+                      <span className="text-[13.5px] font-bold text-slate-700">{t("dashboard.socialShare")}</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleGenerateSeoClick(e as any);
+                      }}
+                      disabled={isGeneratingSeo || !formData.originalUrl}
+                      className="h-7 text-[10px] font-black flex items-center gap-1.5 border-[#009688]/20 bg-[#e0f2f1]/50 text-[#009688] hover:bg-[#009688] hover:text-white transition-all rounded-lg mr-1 px-2.5 shadow-none active:scale-[0.95]"
+                    >
+                      <Sparkles className={`w-3 h-3 ${isGeneratingSeo ? "animate-pulse" : ""}`} />
+                      {isGeneratingSeo ? t("common.loading") : t("dashboard.aiGenerateSeo")}
+                    </Button>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-3 pb-4 px-4 space-y-4 bg-white/40 rounded-b-xl border-x border-b border-slate-50">
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="shareSuffix" className="text-xs font-bold text-slate-500 ml-1">
+                          {t("dashboard.shareSuffix")}
+                        </Label>
+                        <Input
+                          id="shareSuffix"
+                          placeholder={t("dashboard.shareSuffixPlaceholder")}
+                          value={formData.shareSuffix}
+                          onChange={e => handleInputChange("shareSuffix", e.target.value)}
+                          className="h-10 rounded-xl border-slate-200/60 text-sm shadow-none focus-visible:ring-[#009688]/10 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="seoTitle" className="text-xs font-bold text-slate-500 ml-1">
+                          {t("dashboard.seoTitle")}
+                        </Label>
+                        <Input
+                          id="seoTitle"
+                          placeholder={t("dashboard.seoTitlePlaceholder")}
+                          value={formData.seoTitle}
+                          onChange={e => handleInputChange("seoTitle", e.target.value)}
+                          className="h-10 rounded-xl border-slate-200/60 text-sm shadow-none focus-visible:ring-[#009688]/10 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="seoDescription" className="text-xs font-bold text-slate-500 ml-1">
+                          {t("dashboard.seoDescription")}
+                        </Label>
+                        <textarea
+                          id="seoDescription"
+                          placeholder={t("dashboard.seoDescriptionPlaceholder")}
+                          value={formData.seoDescription}
+                          onChange={e => handleInputChange("seoDescription", e.target.value)}
+                          className="flex min-h-[80px] w-full rounded-xl border border-slate-200/60 bg-white px-3 py-2 text-sm shadow-none focus-visible:ring-2 focus-visible:ring-[#009688]/10 transition-all"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="seoImage" className="text-xs font-bold text-slate-500 ml-1">
+                          {t("dashboard.seoImage")}
+                        </Label>
+                        <Input
+                          id="seoImage"
+                          placeholder={t("dashboard.seoImagePlaceholder")}
+                          value={formData.seoImage}
+                          onChange={e => handleInputChange("seoImage", e.target.value)}
+                          className="h-10 rounded-xl border-slate-200/60 text-sm shadow-none focus-visible:ring-[#009688]/10 bg-white"
+                        />
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* 访问控制与实验 */}
+                <AccordionItem value="advanced-control" className="border-none">
+                  <AccordionTrigger className="flex items-center justify-between py-3 hover:no-underline group px-3 rounded-xl hover:bg-white transition-all shadow-none hover:shadow-sm border border-transparent hover:border-slate-100">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#009688]/10 transition-colors">
+                        <Settings2 className="w-3.5 h-3.5 text-slate-500 group-hover:text-[#009688] transition-colors" />
+                      </div>
+                      <span className="text-[13.5px] font-bold text-slate-700">{t("dashboard.advancedSettings")}</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-3 pb-4 px-4 space-y-5 bg-white/40 rounded-b-xl border-x border-b border-slate-50">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="expiresAt" className="text-xs font-bold text-slate-500 ml-1">{t("dashboard.expiresAt")}</Label>
+                        <Input
+                          id="expiresAt"
+                          type="datetime-local"
+                          value={formData.expiresAt}
+                          onChange={e => handleInputChange("expiresAt", e.target.value)}
+                          className="h-9 rounded-lg border-slate-200/60 text-xs bg-white"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="password" className="text-xs font-bold text-slate-500 ml-1">{t("dashboard.linkPassword")}</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder={isCreate ? t("dashboard.passwordPlaceholder") : t("dashboard.passwordEditPlaceholder")}
+                          value={formData.password}
+                          onChange={e => handleInputChange("password", e.target.value)}
+                          className="h-9 rounded-lg border-slate-200/60 text-xs bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 mt-2">
+                      <div className="flex items-center justify-between p-2 rounded-lg hover:bg-white/60 transition-all cursor-pointer"
+                           onClick={() => handleInputChange("abTestEnabled", formData.abTestEnabled === 1 ? 0 : 1)}>
+                        <div className="flex items-center gap-2.5">
+                          <GitCompare className="w-3.5 h-3.5 text-slate-400" />
+                          <Label className="text-xs font-bold text-slate-600 cursor-pointer">{t("dashboard.abTestSection")}</Label>
+                        </div>
+                        <Switch
+                          checked={formData.abTestEnabled === 1}
+                          onCheckedChange={checked => handleInputChange("abTestEnabled", checked ? 1 : 0)}
+                          className="data-[state=checked]:bg-[#009688] scale-90"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+
+                      {formData.abTestEnabled === 1 && (
+                        <div className="mt-3 p-4 rounded-xl border border-[#009688]/10 bg-white/80 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+                          <div className="space-y-2">
+                            <Label htmlFor="abTestUrl" className="text-[11px] font-bold text-slate-500 ml-1">
+                              {t("dashboard.variantBUrl")} *
+                            </Label>
+                            <Input
+                              id="abTestUrl"
+                              type="url"
+                              placeholder={t("dashboard.urlPlaceholder")}
+                              value={formData.abTestUrl}
+                              onChange={e => handleInputChange("abTestUrl", e.target.value)}
+                              required={formData.abTestEnabled === 1}
+                              className="h-9 rounded-lg border-slate-200/60 text-xs"
+                            />
+                          </div>
+                          <div className="space-y-2.5">
+                            <div className="flex items-center justify-between px-1">
+                              <Label className="text-[11px] font-bold text-slate-500">
+                                {t("dashboard.trafficSplit")}
+                              </Label>
+                              <span className="text-[10px] font-black text-[#009688]">
+                                A: {formData.abTestRatio}% / B: {100 - formData.abTestRatio}%
+                              </span>
+                            </div>
+                            <Slider
+                              value={[formData.abTestRatio]}
+                              min={10}
+                              max={90}
+                              step={1}
+                              onValueChange={vals => handleInputChange("abTestRatio", vals[0])}
+                              className="py-1"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="mt-6 gap-3 sm:gap-2 border-t border-slate-100/50 pt-6">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="h-11 px-6 rounded-xl border-slate-100 bg-[#f1f5f9] text-slate-600 hover:bg-slate-200/80 hover:text-slate-800 font-bold transition-all border-none"
             >
               {t("common.cancel")}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="h-11 px-10 rounded-xl bg-[#009688] hover:bg-[#00897b] text-white font-black shadow-lg shadow-[#009688]/20 transition-all active:scale-[0.98] tracking-widest"
+            >
               {isSubmitting
-                ? isCreate
-                  ? t("dashboard.creating")
-                  : t("dashboard.saving")
+                ? isCreate ? t("dashboard.creating") : t("dashboard.saving")
                 : t("common.submit")}
             </Button>
           </DialogFooter>

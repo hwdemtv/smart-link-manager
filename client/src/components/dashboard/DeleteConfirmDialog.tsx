@@ -24,12 +24,11 @@ export function DeleteConfirmDialog({
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>
-            {t("dashboard.moveToRecycleBin") || "移至回收站"}
+            {t("dashboard.moveToRecycleBin")}
           </DialogTitle>
           <DialogDescription>
-            {t("dashboard.moveToRecycleBinConfirm") ||
-              "链接将被移至回收站，您可以在 30 天内恢复。确定要移除"}{" "}
-            <strong className="text-foreground">{shortCode}</strong> {"吗？"}
+            {t("dashboard.moveToRecycleBinConfirm")}{" "}
+            <strong className="text-foreground">{shortCode}</strong>？
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -43,7 +42,7 @@ export function DeleteConfirmDialog({
           >
             {isDeleting
               ? t("dashboard.deleting")
-              : t("dashboard.moveToRecycleBin") || "移至回收站"}
+              : t("dashboard.moveToRecycleBin")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -17,6 +17,13 @@ const requireUser = t.middleware(async opts => {
     throw new TRPCError({ code: "UNAUTHORIZED", message: UNAUTHED_ERR_MSG });
   }
 
+  if (ctx.user.isActive !== 1) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Account is disabled. Please contact support.",
+    });
+  }
+
   return next({
     ctx: {
       ...ctx,

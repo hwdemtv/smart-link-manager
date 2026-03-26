@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Copy, QrCode, Edit, Trash2, ExternalLink, Lock } from "lucide-react";
+import { Copy, QrCode, Edit, Trash2, ExternalLink, Lock, RefreshCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Link } from "@/types/dashboard";
 
@@ -13,6 +13,8 @@ interface LinkTableRowProps {
   onCopy: () => void;
   onTagClick: (tag: string) => void;
   onQrCode: () => void;
+  onCheck: () => void;
+  isChecking?: boolean;
 }
 
 export function LinkTableRow({
@@ -24,6 +26,8 @@ export function LinkTableRow({
   onCopy,
   onTagClick,
   onQrCode,
+  onCheck,
+  isChecking,
 }: LinkTableRowProps) {
   const { t } = useTranslation();
 
@@ -73,7 +77,7 @@ export function LinkTableRow({
                   key={i}
                   className="px-1.5 py-0.5 bg-secondary text-secondary-foreground rounded text-[10px] cursor-pointer hover:bg-muted font-medium border border-border/50"
                   onClick={() => onTagClick(tag)}
-                  title={`Filter by ${tag}`}
+                  title={t("dashboard.filterByTagTooltip", { tag })}
                 >
                   #{tag}
                 </span>
@@ -90,12 +94,18 @@ export function LinkTableRow({
       <TableCell>
         <span
           className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-            link.isValid
-              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-              : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+            !link.isActive
+              ? "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+              : link.isValid
+                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
           }`}
         >
-          {link.isValid ? t("dashboard.valid") : t("dashboard.invalid")}
+          {!link.isActive 
+            ? t("common.inactive") 
+            : link.isValid 
+              ? t("common.active") 
+              : t("dashboard.invalid")}
         </span>
       </TableCell>
 
@@ -127,6 +137,16 @@ export function LinkTableRow({
               <Lock className="w-3.5 h-3.5 text-amber-500" />
             </div>
           )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+            onClick={onCheck}
+            disabled={isChecking}
+            title={t("dashboard.checkValidity")}
+          >
+            <RefreshCcw className={`w-3.5 h-3.5 ${isChecking ? "animate-spin" : ""}`} />
+          </Button>
           <Button
             variant="ghost"
             size="sm"

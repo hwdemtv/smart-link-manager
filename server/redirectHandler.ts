@@ -416,6 +416,13 @@ export async function handleShortLinkRedirect(
       // noIndex 检查：如果设置了 noIndex 或是密码保护，则禁止索引
       const shouldNoIndex = link.noIndex === 1 || isProtected;
 
+      if (shouldNoIndex) {
+        res.setHeader("X-Robots-Tag", "noindex, nofollow");
+      }
+
+      // 短链页面缓存控制 (5分钟)
+      res.setHeader("Cache-Control", "public, max-age=300");
+
       // 对用户可控字段进行 HTML 转义，防止 XSS
       const title = escapeHtml(link.seoTitle || "Smart Link Preview");
       const description = isProtected
