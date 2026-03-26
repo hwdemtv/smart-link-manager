@@ -925,5 +925,25 @@
     "addSuccess": "Added to blacklist",
     "removeSuccess": "Removed from blacklist",
     "removeConfirm": "Are you sure you want to remove this IP?"
+  },
+  "query": {
+    "title": "Public Shortcode Lookup",
+    "subtitle": "Enter the unique shortcode to retrieve technical metadata and access analytics in real-time.",
+    "searchPlaceholder": "e.g., promo2026",
+    "searchBtn": "Lookup Now",
+    "searching": "Fetching cloud data...",
+    "notFound": "Lookup Tip: This shortcode does not exist or has been physically removed.",
+    "result": {
+      "title": "Link Analysis Results",
+      "originalUrl": "Original Target URL",
+      "clicks": "Total Impressions",
+      "createdAt": "Published At",
+      "status": "Current Status",
+      "active": "Active",
+      "expired": "Expired",
+      "copyOriginal": "Copy URL",
+      "visit": "Visit Directly",
+      "qrCode": "Static QR Code"
+    }
   }
 }

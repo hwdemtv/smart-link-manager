@@ -917,5 +917,25 @@
     "addSuccess": "已添加到黑名单",
     "removeSuccess": "已从黑名单移除",
     "removeConfirm": "确定要移除此 IP 吗？"
+  },
+  "query": {
+    "title": "短码公开查询",
+    "subtitle": "输入短链接生成的唯一标识码，即可实时查询其关联的技术元数据及访问看板。",
+    "searchPlaceholder": "例如: promo2026",
+    "searchBtn": "立即查询",
+    "searching": "正在抓取云端数据...",
+    "notFound": "查询提示：该短码在系统中不存在或已被物理移除。",
+    "result": {
+      "title": "链路解析结果",
+      "originalUrl": "原始目标地址",
+      "clicks": "累计曝光量",
+      "createdAt": "发布时间",
+      "status": "当前状态",
+      "active": "生效中",
+      "expired": "已过期",
+      "copyOriginal": "复制原链",
+      "visit": "直接访问",
+      "qrCode": "生成静态二维码"
+    }
   }
 }
