@@ -152,6 +152,12 @@ export async function upsertUser(user: InsertUser) {
   if (!db) return;
   const updateSet: any = { ...user };
   delete updateSet.openId;
+
+  // 如果 updateSet 为空（只有 openId），跳过更新操作
+  if (Object.keys(updateSet).length === 0) {
+    return;
+  }
+
   await db.insert(users).values(user).onDuplicateKeyUpdate({ set: updateSet });
 }
 
