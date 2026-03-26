@@ -619,6 +619,9 @@ export async function batchUpdateLinks(
   const db = await getDb();
   if (!db || ids.length === 0) return;
 
+  // 如果没有任何数据需要更新，直接返回
+  if (Object.keys(data).length === 0) return;
+
   // 分块处理，防止单次操作过大
   const chunkSize = 500;
   for (let i = 0; i < ids.length; i += chunkSize) {

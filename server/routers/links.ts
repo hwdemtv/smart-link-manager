@@ -428,6 +428,11 @@ export const linksRouter = router({
         updateData.groupId = input.data.groupId;
       }
 
+      // 如果没有任何数据需要更新，直接返回成功
+      if (Object.keys(updateData).length === 0) {
+        return { success: true };
+      }
+
       await batchUpdateLinks(ctx.user.id, input.linkIds, updateData);
       return { success: true };
     }),
