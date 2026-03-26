@@ -192,7 +192,7 @@ export async function getUserById(id: number) {
 
 export async function updateUser(id: number, data: Partial<InsertUser>) {
   const db = await getDb();
-  if (!db) return;
+  if (!db || Object.keys(data).length === 0) return;
   await db.update(users).set(data).where(eq(users.id, id));
 }
 
@@ -314,7 +314,7 @@ export async function batchUpdateUsers(
   data: Partial<InsertUser>
 ) {
   const db = await getDb();
-  if (!db || userIds.length === 0) return;
+  if (!db || userIds.length === 0 || Object.keys(data).length === 0) return;
   await db.update(users).set(data).where(inArray(users.id, userIds));
 }
 
@@ -585,7 +585,7 @@ export async function adminBatchUpdateLinks(
 
 export async function updateLink(id: number, data: Partial<InsertLink>) {
   const db = await getDb();
-  if (!db) return;
+  if (!db || Object.keys(data).length === 0) return;
   await db.update(links).set(data).where(eq(links.id, id));
 }
 
