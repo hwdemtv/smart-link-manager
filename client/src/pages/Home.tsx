@@ -18,6 +18,7 @@ import {
   ChevronUp,
   Zap,
   Check,
+  Search,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -219,6 +220,16 @@ export default function Home() {
             >
               {t("home.getStarted")}
             </Button>
+            <Link href="/query">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto text-lg px-10 h-14 rounded-xl backdrop-blur-sm border-border hover:bg-muted/50 transition-all flex items-center gap-2"
+              >
+                <Search className="w-5 h-5" />
+                {t("query.title")}
+              </Button>
+            </Link>
             <Button
               size="lg"
               variant="outline"
