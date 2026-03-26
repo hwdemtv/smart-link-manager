@@ -108,77 +108,95 @@ export default function QueryPage() {
         )}
 
         {link && (
-          <Card className="border-border/60 bg-card/40 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-500">
-            <CardHeader className="border-b border-border/50 p-8 bg-muted/20">
-              <div className="flex justify-between items-start">
-                <div className="space-y-1">
-                  <CardTitle className="text-2xl font-black flex items-center gap-2">
-                    <ShieldCheck className="w-6 h-6 text-primary" />
-                    {link.shortCode}
-                  </CardTitle>
-                  <CardDescription>ID: #{link.id}</CardDescription>
+          <div className="max-w-[420px] mx-auto animate-in fade-in slide-in-from-bottom-12 duration-700">
+            <Card className="border-0 bg-card shadow-[0_30px_60px_-12px_rgba(0,0,0,0.25)] rounded-[2.5rem] overflow-hidden group">
+              {/* Gradient Top Bar - matching SSR landing page */}
+              <div className="h-2 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+              
+              {/* Cover Image from SEO settings */}
+              {link.seoImage && (
+                <div className="w-full h-44 overflow-hidden border-b border-border/10">
+                  <img 
+                    src={link.seoImage} 
+                    alt="Link Cover" 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
-                <Badge 
-                  variant={link.isActive && !isLinkExpired(link.expiresAt as string) ? "outline" : "destructive"}
-                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${link.isActive && !isLinkExpired(link.expiresAt as string) ? "border-primary text-primary" : ""}`}
-                >
+              )}
+
+              <CardContent className="p-10 space-y-8 text-center">
+                {/* Branded Icon Wrap */}
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2 border border-primary/20 shadow-inner">
+                  <ShieldCheck className="w-8 h-8 text-primary" />
+                </div>
+
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-black tracking-tight text-foreground break-all px-2">
+                    {link.seoTitle || link.shortCode}
+                  </h2>
+                  <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[280px] mx-auto">
+                    {link.seoDescription || link.description || t("query.subtitle")}
+                  </p>
+                </div>
+
+                {/* Status Badge */}
+                <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] border border-primary/20">
+                  <span className="w-2 h-2 rounded-full bg-primary mr-2 animate-pulse" />
                   {link.isActive && !isLinkExpired(link.expiresAt as string) ? t("query.result.active") : t("query.result.expired")}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="p-8 space-y-8">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                      <ExternalLink className="w-3 h-3" /> {t("query.result.originalUrl")}
-                    </label>
-                    <div className="group relative">
-                      <p className="text-sm font-medium bg-muted/50 p-3 rounded-xl border border-border/50 break-all pr-12 transition-all hover:border-primary/50">
-                        {link.originalUrl}
-                      </p>
+                </div>
+
+                <div className="space-y-4 pt-4">
+                  {/* Detailed Info Grid */}
+                  <div className="grid grid-cols-2 gap-4 bg-muted/30 p-5 rounded-3xl border border-border/40">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{t("query.result.clicks")}</p>
+                      <p className="text-2xl font-black text-foreground">{link.clickCount || 0}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{t("query.result.createdAt")}</p>
+                      <p className="text-sm font-bold opacity-90">{link.createdAt ? format(new Date(link.createdAt), "yyyy/MM/dd") : "-"}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 text-left">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-2">{t("query.result.originalUrl")}</p>
+                    <div className="relative group/link">
+                      <div className="bg-muted/50 p-4 rounded-2xl border border-border/50 pr-12 transition-all hover:border-primary/40">
+                        <p className="text-xs font-mono font-medium truncate opacity-70">{link.originalUrl}</p>
+                      </div>
                       <button 
                         onClick={() => copyToClipboard(link.originalUrl)}
-                        className="absolute right-2 top-2 p-1.5 rounded-lg bg-background border border-border/50 text-muted-foreground hover:text-primary hover:border-primary transition-all opacity-0 group-hover:opacity-100"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-background border border-border/50 text-muted-foreground hover:text-primary hover:border-primary transition-all opacity-0 group-hover/link:opacity-100 shadow-sm"
                       >
                         <Copy className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4 pt-2">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                        <MousePointer2 className="w-3 h-3" /> {t("query.result.clicks")}
-                      </label>
-                      <p className="text-2xl font-black text-primary">{link.clickCount || 0}</p>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-                        <Calendar className="w-3 h-3" /> {t("query.result.createdAt")}
-                      </label>
-                      <p className="text-sm font-bold opacity-80">
-                        {link.createdAt ? format(new Date(link.createdAt), "yyyy-MM-dd") : "-"}
-                      </p>
-                    </div>
-                  </div>
                 </div>
 
-                <div className="flex flex-col justify-end gap-3">
-                  <Link href={`/qr/${link.shortCode}`}>
-                    <Button variant="outline" className="w-full gap-2 rounded-xl border-border/60 hover:bg-primary/5 hover:text-primary transition-all">
+                <div className="flex flex-col gap-3 pt-4">
+                   <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="w-full">
+                    <Button size="lg" className="w-full gap-2 rounded-2xl h-14 text-lg font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                      <ExternalLink className="w-5 h-5" /> {t("query.result.visit")}
+                    </Button>
+                  </a>
+                  <Link href={`/qr/${link.shortCode}`} className="w-full">
+                    <Button variant="ghost" className="w-full gap-2 rounded-xl h-12 text-muted-foreground hover:bg-muted font-bold transition-all">
                       <QrCode className="w-4 h-4" /> {t("query.result.qrCode")}
                     </Button>
                   </Link>
-                  <a href={link.originalUrl} target="_blank" rel="noopener noreferrer">
-                    <Button className="w-full gap-2 rounded-xl shadow-lg shadow-primary/20">
-                      <ExternalLink className="w-4 h-4" /> {t("query.result.visit")}
-                    </Button>
-                  </a>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+
+                {/* Footer Center - matching SSR landing page */}
+                <div className="pt-8 border-t border-border/30 flex items-center justify-center gap-2">
+                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                   <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">
+                     安全验证中心 · Smart Link Manager
+                   </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </main>
 
