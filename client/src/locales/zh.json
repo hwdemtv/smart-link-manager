@@ -47,7 +47,8 @@
     "inactive": "已禁用",
     "enable": "启用",
     "disable": "停用",
-    "export": "导出"
+    "export": "导出",
+    "email": "电子邮箱"
   },
   "analytics": {
     "title": "数据看板",
@@ -300,6 +301,8 @@
     "originalUrl": "原始 URL",
     "shortCode": "短代码",
     "description": "描述",
+    "descriptionPlaceholder": "如：互为螺旋AI超级个体修行社实战课，提取码 1234",
+    "advancedSettings": "访问控制与实验",
     "expiresAt": "过期时间",
     "created": "创建时间",
     "actions": "操作",
@@ -368,7 +371,7 @@
     "seoImage": "SEO 图片 URL (可选)",
     "seoTitlePlaceholder": "社交分享时显示的标题",
     "seoDescriptionPlaceholder": "简短描述，建议 50-160 字符",
-    "descriptionHint": "提示：输入资源描述或网盘提取码，可帮助 AI 生成更精准的 SEO 标题",
+    "descriptionHint": "💡 提示：输入资源描述或网盘提取码，可帮助 AI 生成更精准的 SEO 标题",
     "tagsHint": "使用逗号分隔多个标签，便于后续筛选和管理",
     "shareSuffixHint": "在分享文案末尾自动添加签名，系统会补全分隔符",
     "seoImagePlaceholder": "请提供图片链接，建议尺寸 1200x630",
@@ -502,7 +505,8 @@
       "batchDeleteUsersConfirm": "确定批量删除选中的用户吗？此操作不可逆！",
       "batchUpdateSuccess": "批量更新成功",
       "batchDeleteSuccess": "批量删除成功",
-      "authUpdateSuccess": "授权更新成功"
+      "authUpdateSuccess": "授权更新成功",
+      "expiresAt": "到期时间"
     },
     "linkMgmt": {
       "title": "链接管理",

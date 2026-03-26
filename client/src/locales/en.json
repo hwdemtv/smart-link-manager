@@ -368,7 +368,7 @@
     "seoImage": "SEO Image URL (Optional)",
     "seoTitlePlaceholder": "Custom social media title",
     "seoDescriptionPlaceholder": "Short summary for social media",
-    "descriptionHint": "Tip: Enter resource description or cloud drive code to help AI generate more accurate SEO title",
+    "descriptionHint": "💡 Tip: Enter resource description or cloud drive code to help AI generate more accurate SEO title",
     "tagsHint": "Use commas to separate multiple tags for easier filtering and management",
     "shareSuffixHint": "Custom share suffix, leave empty for default format (Optional)",
     "seoImagePlaceholder": "https://example.com/image.jpg",

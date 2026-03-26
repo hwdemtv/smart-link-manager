@@ -307,6 +307,11 @@ export function LinkFormDialog({
                   onChange={e => handleInputChange("description", e.target.value)}
                   className="h-11 rounded-xl border-slate-200/60 bg-white shadow-sm focus-visible:ring-[#009688]/10 text-sm"
                 />
+                <div className="mt-2 p-2.5 rounded-xl border border-cyan-100/50 bg-cyan-50/30 flex items-center gap-2">
+                  <p className="text-[11.5px] text-cyan-700/70 leading-relaxed font-medium">
+                    {t("dashboard.descriptionHint")}
+                  </p>
+                </div>
               </div>
             </div>
 
