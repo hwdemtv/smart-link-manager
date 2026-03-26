@@ -6,6 +6,7 @@ import {
   mysqlEnum,
   mysqlTable,
   text,
+  mediumtext,
   timestamp,
   uniqueIndex,
   varchar,
@@ -78,7 +79,7 @@ export const links = mysqlTable(
     tags: json("tags").$type<string[]>(), // JSON格式标签数组 [ "营销", "内部" ]
     seoTitle: varchar("seoTitle", { length: 255 }),
     seoDescription: text("seoDescription"),
-    seoImage: text("seoImage"),
+    seoImage: mediumtext("seoImage"),
     // SEO 高级字段
     seoPriority: int("seoPriority").default(80), // sitemap priority (0-100, 默认80)
     noIndex: int("noIndex").default(0), // 1 = noindex, 不被搜索引擎索引
