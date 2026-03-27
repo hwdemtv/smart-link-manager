@@ -321,7 +321,9 @@ export const linksRouter = router({
       // 清除 sitemap 缓存
       clearSitemapCache();
 
-      return { success: true, link: updated };
+      // 修正：重新获取更新后的数据并返回，确保前端状态同步
+      const updatedLink = await getLinkById(input.linkId);
+      return { success: true, link: updatedLink };
     }),
 
   delete: protectedProcedure
