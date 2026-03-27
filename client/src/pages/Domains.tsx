@@ -207,7 +207,7 @@ export default function Domains() {
                         <div className="mt-3 p-3 bg-secondary/50 rounded text-sm space-y-2">
                           <p className="font-semibold">
                             {t("domains.verificationInstructions", {
-                              method: domain.verificationMethod.toUpperCase(),
+                              method: (domain.verificationMethod || "CNAME").toUpperCase(),
                             })}
                           </p>
                           {domain.verificationMethod === "cname" && (

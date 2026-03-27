@@ -627,6 +627,14 @@ export const linksRouter = router({
           });
         }
       }
+      if (results.success.length > 0) {
+        await recordUsage({
+          userId: ctx.user.id,
+          date: new Date().toISOString().split("T")[0],
+          linksCreated: results.success.length,
+        });
+      }
+
       return results;
     }),
 

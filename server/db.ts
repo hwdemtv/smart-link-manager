@@ -1397,7 +1397,20 @@ export async function deleteNotification(notificationId: number) {
 export async function addDomain(data: InsertDomain) {
   const db = await getDb();
   if (!db) return;
-  await db.insert(domains).values(data);
+
+  // 为 TXT 或文件校验方式生成随机令牌
+  let verificationToken = undefined;
+  if (data.verificationMethod === "txt" || data.verificationMethod === "file") {
+    const crypto = await import("node:crypto");
+    verificationToken = crypto.randomBytes(16).toString("hex");
+  }
+
+  const [result] = await db.insert(domains).values({
+    ...data,
+    verificationToken,
+  });
+
+  return { id: result.insertId, ...data, verificationToken };
 }
 
 export async function getUserDomains(userId: number) {
@@ -1713,9 +1726,9 @@ export async function getPlatformUsageStats(days: number = 30) {
         totalClicks: number | null;
       }
     ) => ({
-      linksCreated: acc.linksCreated + (log.linksCreated || 0),
-      apiCalls: acc.apiCalls + (log.apiCalls || 0),
-      totalClicks: acc.totalClicks + (log.totalClicks || 0),
+      linksCreated: acc.linksCreated + Number(log.linksCreated || 0),
+      apiCalls: acc.apiCalls + Number(log.apiCalls || 0),
+      totalClicks: acc.totalClicks + Number(log.totalClicks || 0),
     }),
     { linksCreated: 0, apiCalls: 0, totalClicks: 0 }
   );

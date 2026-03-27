@@ -21,6 +21,7 @@ export const domainsRouter = router({
           .min(3)
           .max(255)
           .regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+        verificationMethod: z.enum(["cname", "txt", "file"]).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -61,6 +62,7 @@ export const domainsRouter = router({
         userId: ctx.user.id,
         domain: input.domain,
         isVerified: 0,
+        verificationMethod: input.verificationMethod || "cname",
       });
     }),
 

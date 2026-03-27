@@ -27,8 +27,7 @@ export function DeleteConfirmDialog({
             {t("dashboard.moveToRecycleBin")}
           </DialogTitle>
           <DialogDescription>
-            {t("dashboard.moveToRecycleBinConfirm")}{" "}
-            <strong className="text-foreground">{shortCode}</strong>？
+            {t("dashboard.moveToRecycleBinConfirm", { shortCode })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
