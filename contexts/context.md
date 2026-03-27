@@ -40,3 +40,7 @@
 - `server/licenseService.ts`: 处理与授权中心的交互。
 - `server/userRouter.ts`: 用户管理和授权相关的 API。
 - `client/src/pages/LicenseSettings.tsx`: 前端授权管理界面。
+
+## 故障排查与维护
+
+- [License 激活 404 排查总结](file:///d:/软件开发/smart-link-manager/docs/troubleshooting/license_activation_404.md): 记录了 Nginx 路径拦截、环境变量加载及服务器配置相关的典型故障案例。

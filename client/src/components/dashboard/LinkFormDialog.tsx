@@ -152,8 +152,11 @@ export function LinkFormDialog({
         seoDescription: result.seoDescription || prev.seoDescription,
         seoImage: result.seoImage || prev.seoImage,
       }));
-      // 自动展开社交分享面板
-      setOpenSections(prev => prev.includes("social-seo") ? prev : [...prev, "social-seo"]);
+      // 自动展开社交分享面板 (确保 social-seo 在列表中)
+      setOpenSections(prev => {
+        if (prev.includes("social-seo")) return prev;
+        return [...prev, "social-seo"];
+      });
     }
   };
 

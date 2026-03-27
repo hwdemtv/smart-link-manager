@@ -305,6 +305,7 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
       success: (result as any).success,
       seoTitle: (result as any).seoTitle,
       seoDescription: (result as any).seoDescription,
+      seoImage: (result as any).seoImage,
     };
   };
 
