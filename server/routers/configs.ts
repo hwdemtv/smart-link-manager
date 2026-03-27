@@ -12,11 +12,14 @@ export const configsRouter = router({
   getConfig: publicProcedure.query(async () => {
     const dbValue = await getSystemConfig("registrationDisabled");
     const defaultDomain = (await getSystemConfig("defaultDomain")) || "";
+    const defaultShareSuffix =
+      (await getSystemConfig("defaultShareSuffix")) || "";
 
     return {
       registrationDisabled:
         dbValue !== undefined ? Boolean(dbValue) : ENV.registrationDisabled,
       defaultDomain: String(defaultDomain),
+      defaultShareSuffix: String(defaultShareSuffix),
     };
   }),
 
@@ -41,6 +44,18 @@ export const configsRouter = router({
       const domainToSave = input.domain?.trim() || "";
       await updateSystemConfig("defaultDomain", domainToSave);
       return { success: true, domain: domainToSave };
+    }),
+
+  updateDefaultShareSuffixConfig: adminProcedure
+    .input(
+      z.object({
+        suffix: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const suffixToSave = input.suffix?.trim() || "";
+      await updateSystemConfig("defaultShareSuffix", suffixToSave);
+      return { success: true, suffix: suffixToSave };
     }),
 
   getAiConfig: adminProcedure.query(async () => {

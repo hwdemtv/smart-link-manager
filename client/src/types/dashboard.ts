@@ -150,6 +150,7 @@ export interface LinkFormDialogProps {
   onGenerateSeo: (url: string, description?: string) => Promise<SeoResult>;
   isGeneratingSeo: boolean;
   subscriptionTier?: string | null;
+  defaultShareSuffix?: string;
 }
 
 /**

@@ -411,6 +411,8 @@
     "batchCheck": "Batch Check",
     "batchCheckSuccess": "Batch Check Complete",
     "movedToRecycleBin": "Moved to recycle bin",
+    "moveToRecycleBin": "Move to Recycle Bin",
+    "moveToRecycleBinConfirm": "Are you sure you want to move the link {{shortCode}} to the recycle bin?",
     "confirmBatchDelete": "Are you sure you want to delete {{count}} links?",
     "filterByTagTooltip": "Filter by #{{tag}}"
   },
@@ -657,7 +659,12 @@
       "defaultDomainHint": "When enabled, short links without a specific custom domain will use this domain by default. Leave empty to fallback to the current access URL.",
       "defaultDomainPlaceholder": "e.g., s.example.com",
       "saveDomain": "Save Domain",
-      "domainUpdateSuccess": "System default domain updated"
+      "domainUpdateSuccess": "System default domain updated",
+      "defaultShareSuffixLabel": "Default Share Suffix",
+      "defaultShareSuffixHint": "Auto-filled when users create links, can be overridden at link level. Separator will be added automatically.",
+      "defaultShareSuffixPlaceholder": "e.g., from Smart Link Manager",
+      "saveShareSuffix": "Save Suffix",
+      "shareSuffixUpdateSuccess": "Default share suffix updated"
     }
   },
   "profile": {

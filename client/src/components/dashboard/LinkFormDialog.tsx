@@ -102,6 +102,7 @@ export function LinkFormDialog({
   onGenerateSeo,
   isGeneratingSeo,
   subscriptionTier,
+  defaultShareSuffix,
 }: LinkFormDialogProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<LinkFormData>(getEmptyFormData());
@@ -123,11 +124,15 @@ export function LinkFormDialog({
           }
           emptyData.shortCode = randomCode;
         }
+        // 创建模式：自动填充全局默认分享口令后缀
+        if (defaultShareSuffix) {
+          emptyData.shareSuffix = defaultShareSuffix;
+        }
         setFormData(emptyData);
       }
       setOpenSections([]); // 重置折叠项
     }
-  }, [open, mode, initialData, subscriptionTier]);
+  }, [open, mode, initialData, subscriptionTier, defaultShareSuffix]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

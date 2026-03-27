@@ -411,6 +411,8 @@
     "batchCheck": "批量检测",
     "batchCheckSuccess": "批量检测完成",
     "movedToRecycleBin": "已移至回收站",
+    "moveToRecycleBin": "移至回收站",
+    "moveToRecycleBinConfirm": "确定将链接 {{shortCode}} 移至回收站吗？",
     "confirmBatchDelete": "确定要删除选中的 {{count}} 个链接吗？",
     "filterByTagTooltip": "按 #{{tag}} 筛选"
   },
@@ -653,7 +655,12 @@
       "defaultDomainHint": "开启此项后，所有前端未指定自有域名的短链接均默认使用该顶级域名进行拼接。留空则退回至当前面板被访问时所用的地址。",
       "defaultDomainPlaceholder": "例如：s.example.com",
       "saveDomain": "保存域名",
-      "domainUpdateSuccess": "系统默认域名已更新"
+      "domainUpdateSuccess": "系统默认域名已更新",
+      "defaultShareSuffixLabel": "默认分享口令后缀",
+      "defaultShareSuffixHint": "用户创建链接时自动填充，可在链接级别覆盖。系统会自动添加分隔符。",
+      "defaultShareSuffixPlaceholder": "例如：来自 互为AI超级个体",
+      "saveShareSuffix": "保存后缀",
+      "shareSuffixUpdateSuccess": "默认分享口令后缀已更新"
     }
   },
   "profile": {

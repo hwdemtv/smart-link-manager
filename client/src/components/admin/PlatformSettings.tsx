@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Shield, RefreshCcw } from "lucide-react";
+import { Shield, RefreshCcw, Share2 } from "lucide-react";
 
 export default function PlatformSettings() {
   const { t } = useTranslation();
@@ -32,6 +32,7 @@ export default function PlatformSettings() {
 
   const [regDisabled, setRegDisabled] = useState(false);
   const [defaultDomain, setDefaultDomain] = useState("");
+  const [defaultShareSuffix, setDefaultShareSuffix] = useState("");
 
   const updateDomainMutation =
     trpc.configs.updateDefaultDomainConfig.useMutation({
@@ -44,10 +45,22 @@ export default function PlatformSettings() {
       },
     });
 
+  const updateShareSuffixMutation =
+    trpc.configs.updateDefaultShareSuffixConfig.useMutation({
+      onSuccess: () => {
+        toast.success(t("admin.system.shareSuffixUpdateSuccess"));
+        utils.configs.getConfig.invalidate();
+      },
+      onError: error => {
+        toast.error(error.message);
+      },
+    });
+
   useEffect(() => {
     if (config) {
       setRegDisabled(config.registrationDisabled);
       setDefaultDomain(config.defaultDomain || "");
+      setDefaultShareSuffix(config.defaultShareSuffix || "");
     }
   }, [config]);
 
@@ -112,9 +125,46 @@ export default function PlatformSettings() {
                   updateDomainMutation.mutate({ domain: defaultDomain })
                 }
               >
-                {updateDomainMutation.isPending 
-                  ? t("common.saving") 
+                {updateDomainMutation.isPending
+                  ? t("common.saving")
                   : t("admin.system.saveDomain")}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 p-4 border rounded-lg bg-muted/30">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-muted-foreground" />
+                <Label className="text-base font-semibold">
+                  {t("admin.system.defaultShareSuffixLabel")}
+                </Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t("admin.system.defaultShareSuffixHint")}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Input
+                placeholder={t("admin.system.defaultShareSuffixPlaceholder")}
+                value={defaultShareSuffix}
+                onChange={e => setDefaultShareSuffix(e.target.value)}
+                className="max-w-md"
+              />
+              <Button
+                variant="secondary"
+                disabled={
+                  isLoading ||
+                  updateShareSuffixMutation.isPending ||
+                  (config && defaultShareSuffix === config.defaultShareSuffix)
+                }
+                onClick={() =>
+                  updateShareSuffixMutation.mutate({ suffix: defaultShareSuffix })
+                }
+              >
+                {updateShareSuffixMutation.isPending
+                  ? t("common.saving")
+                  : t("admin.system.saveShareSuffix")}
               </Button>
             </div>
           </div>

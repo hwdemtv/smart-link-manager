@@ -564,6 +564,7 @@ export default function Dashboard() {
             onGenerateSeo={mutations.generateSeo}
             isGeneratingSeo={mutations.generateSeoMutation.isPending}
             subscriptionTier={user?.subscriptionTier}
+            defaultShareSuffix={systemConfigQuery.data?.defaultShareSuffix}
           />
 
           {/* Edit Dialog */}
