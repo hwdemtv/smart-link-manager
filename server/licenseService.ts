@@ -1,18 +1,23 @@
 import { ENV } from "./_core/env";
 
 // License server URL - required in production
-const getLicenseServerUrl = (): string => {
-  const url = ENV.licenseServerUrl;
-  if (!url) {
+const getLicenseServerUrls = (): string[] => {
+  const urls = [...ENV.licenseServerUrls];
+  if (ENV.licenseServerUrl) {
+    if (!urls.includes(ENV.licenseServerUrl)) {
+      urls.unshift(ENV.licenseServerUrl); // LICENSE_SERVER_URL 优先级更高
+    }
+  }
+
+  if (urls.length === 0) {
     if (ENV.isProduction) {
       throw new Error(
-        "LICENSE_SERVER_URL environment variable is required in production"
+        "LICENSE_SERVER_URL or LICENSE_SERVER_URLS environment variable is required in production"
       );
     }
-    // In development, return empty string to allow graceful failure
-    return "";
+    return [];
   }
-  return url;
+  return urls;
 };
 
 // Product IDs for different subscription tiers
@@ -66,88 +71,101 @@ export const licenseService = {
     deviceId: string,
     deviceName?: string
   ): Promise<LicenseActivationResult> {
-    try {
-      const licenseServerUrl = getLicenseServerUrl();
-      if (!licenseServerUrl) {
-        return {
-          success: false,
-          message: "License server not configured",
-        };
-      }
-
-      const response = await fetch(`${licenseServerUrl}/api/v1/auth/verify`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // 10s 超时时间，防止进程挂起
-        signal: AbortSignal.timeout(10000), 
-        body: JSON.stringify({
-          license_key: licenseKey,
-          device_id: deviceId,
-          device_name: deviceName,
-        }),
-      });
-
-      const data: LicenseVerifyResponse = await response.json();
-
-      if (!data.success) {
-        return {
-          success: false,
-          message: data.msg || "License verification failed",
-        };
-      }
-
-      // Find matching product for Smart Link Manager
-      let matchedProduct: {
-        product_id: string;
-        status: string;
-        expires_at: string | null;
-      } | null = null;
-
-      if (data.products && data.products.length > 0) {
-        // First try to find business tier
-        matchedProduct =
-          data.products.find(
-            p => p.product_id === PRODUCT_IDS.BUSINESS && p.status === "active"
-          ) || null;
-
-        // If no business, try pro tier
-        if (!matchedProduct) {
-          matchedProduct =
-            data.products.find(
-              p => p.product_id === PRODUCT_IDS.PRO && p.status === "active"
-            ) || null;
-        }
-      }
-
-      if (!matchedProduct) {
-        return {
-          success: false,
-          message:
-            "No valid Smart Link Manager subscription found in this license",
-        };
-      }
-
-      const tier = TIER_MAP[matchedProduct.product_id] || "free";
-      const expiresAt = matchedProduct.expires_at
-        ? new Date(matchedProduct.expires_at)
-        : null;
-
-      return {
-        success: true,
-        message: "License activated successfully",
-        tier,
-        expiresAt,
-        token: data.token,
-      };
-    } catch (error) {
-      console.error("[LicenseService] Verification error:", error);
+    const urls = getLicenseServerUrls();
+    if (urls.length === 0) {
       return {
         success: false,
-        message: "Failed to connect to license server",
+        message: "License server not configured",
       };
     }
+
+    let lastError: any = null;
+
+    for (const baseUrl of urls) {
+      try {
+        console.log(`[LicenseService] Trying to verify with ${baseUrl}...`);
+        const response = await fetch(`${baseUrl}/api/v1/auth/verify`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          signal: AbortSignal.timeout(10000),
+          body: JSON.stringify({
+            license_key: licenseKey,
+            device_id: deviceId,
+            device_name: deviceName,
+          }),
+        });
+
+        if (!response.ok) {
+           const errorText = await response.text();
+           console.warn(`[LicenseService] Server ${baseUrl} returned ${response.status}: ${errorText.substring(0, 100)}`);
+           continue; // 尝试下一个地址
+        }
+
+        const data: LicenseVerifyResponse = await response.json();
+
+        if (!data.success) {
+          return {
+            success: false,
+            message: data.msg || "License verification failed",
+          };
+        }
+
+        // Find matching product for Smart Link Manager
+        let matchedProduct: {
+          product_id: string;
+          status: string;
+          expires_at: string | null;
+        } | null = null;
+
+        if (data.products && data.products.length > 0) {
+          // First try to find business tier
+          matchedProduct =
+            data.products.find(
+              p => p.product_id === PRODUCT_IDS.BUSINESS && p.status === "active"
+            ) || null;
+
+          // If no business, try pro tier
+          if (!matchedProduct) {
+            matchedProduct =
+              data.products.find(
+                p => p.product_id === PRODUCT_IDS.PRO && p.status === "active"
+              ) || null;
+          }
+        }
+
+        if (!matchedProduct) {
+          return {
+            success: false,
+            message:
+              "No valid Smart Link Manager subscription found in this license",
+          };
+        }
+
+        const tier = TIER_MAP[matchedProduct.product_id] || "free";
+        const expiresAt = matchedProduct.expires_at
+          ? new Date(matchedProduct.expires_at)
+          : null;
+
+        return {
+          success: true,
+          message: "License activated successfully",
+          tier,
+          expiresAt,
+          token: data.token,
+        };
+      } catch (error) {
+        lastError = error;
+        console.error(`[LicenseService] Error with ${baseUrl}:`, error);
+        // Continue to next URL
+      }
+    }
+
+    return {
+      success: false,
+      message: lastError?.message || "Failed to reach any license server",
+    };
   },
 
   /**
@@ -159,41 +177,48 @@ export const licenseService = {
     licenseKey: string,
     deviceId: string
   ): Promise<{ success: boolean; message: string }> {
-    try {
-      const licenseServerUrl = getLicenseServerUrl();
-      if (!licenseServerUrl) {
-        return {
-          success: false,
-          message: "License server not configured",
-        };
-      }
-
-      const response = await fetch(`${licenseServerUrl}/api/v1/auth/unbind`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // 10s 超时时间，防止进程挂起
-        signal: AbortSignal.timeout(10000),
-        body: JSON.stringify({
-          license_key: licenseKey,
-          device_id: deviceId,
-        }),
-      });
-
-      const data: LicenseUnbindResponse = await response.json();
-
-      return {
-        success: data.success,
-        message: data.msg,
-      };
-    } catch (error) {
-      console.error("[LicenseService] Unbind error:", error);
+    const urls = getLicenseServerUrls();
+    if (urls.length === 0) {
       return {
         success: false,
-        message: "Failed to connect to license server",
+        message: "License server not configured",
       };
     }
+
+    let lastError: any = null;
+
+    for (const baseUrl of urls) {
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/auth/unbind`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          signal: AbortSignal.timeout(10000),
+          body: JSON.stringify({
+            license_key: licenseKey,
+            device_id: deviceId,
+          }),
+        });
+
+        if (!response.ok) continue;
+
+        const data: LicenseUnbindResponse = await response.json();
+
+        return {
+          success: data.success,
+          message: data.msg,
+        };
+      } catch (error) {
+        lastError = error;
+        console.error(`[LicenseService] Unbind error with ${baseUrl}:`, error);
+      }
+    }
+
+    return {
+      success: false,
+      message: lastError?.message || "Failed to reach any license server to unbind",
+    };
   },
 
   /**

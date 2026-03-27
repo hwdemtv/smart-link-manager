@@ -47,6 +47,7 @@ const envSchema = z.object({
 
   // === License 服务配置（可选） ===
   LICENSE_SERVER_URL: z.string().optional(),
+  LICENSE_SERVER_URLS: z.string().optional(),
 
   // === 管理员配置 ===
   DEFAULT_ADMIN_USERNAME: z.string().default("admin"),
@@ -73,6 +74,7 @@ interface ExtendedEnv extends EnvSchema {
   forgeApiUrl: string;
   forgeApiKey: string;
   licenseServerUrl: string;
+  licenseServerUrls: string[];
   registrationDisabled: boolean;
 }
 
@@ -92,6 +94,7 @@ function parseEnv(): ExtendedEnv {
     BUILT_IN_FORGE_API_URL: process.env.BUILT_IN_FORGE_API_URL,
     BUILT_IN_FORGE_API_KEY: process.env.BUILT_IN_FORGE_API_KEY,
     LICENSE_SERVER_URL: process.env.LICENSE_SERVER_URL,
+    LICENSE_SERVER_URLS: process.env.LICENSE_SERVER_URLS,
     DEFAULT_ADMIN_USERNAME: process.env.DEFAULT_ADMIN_USERNAME,
     DEFAULT_ADMIN_PASSWORD: process.env.DEFAULT_ADMIN_PASSWORD,
     REGISTRATION_DISABLED: process.env.REGISTRATION_DISABLED,
@@ -147,6 +150,9 @@ function parseEnv(): ExtendedEnv {
     forgeApiUrl: parsed.BUILT_IN_FORGE_API_URL || "",
     forgeApiKey: parsed.BUILT_IN_FORGE_API_KEY || "",
     licenseServerUrl: parsed.LICENSE_SERVER_URL || "",
+    licenseServerUrls: parsed.LICENSE_SERVER_URLS
+      ? parsed.LICENSE_SERVER_URLS.split(",").map(url => url.trim()).filter(Boolean)
+      : [],
     registrationDisabled: parsed.REGISTRATION_DISABLED,
   };
 }
