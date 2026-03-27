@@ -842,8 +842,16 @@
     "queryLink": "查询短链",
     "revokeSuccess": "API 密钥已撤销",
     "revokeFailed": "撤销失败",
+    "restoreSuccess": "API 密钥已恢复",
+    "restoreFailed": "恢复失败",
+    "deleteSuccess": "API 密钥已永久删除",
+    "deleteFailed": "删除失败",
     "createFailed": "创建失败",
-    "copySuccess": "已复制到剪贴板"
+    "copySuccess": "已复制到剪贴板",
+    "showRevoked": "显示已撤销密钥",
+    "restore": "恢复",
+    "delete": "彻底删除",
+    "deleteConfirm": "确定要永久删除此 API 密钥吗？此操作不可逆。"
   },
   "aiSettings": {
     "title": "大模型设置",

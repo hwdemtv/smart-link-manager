@@ -14,7 +14,7 @@ export function useAuth() {
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
       utils.auth.me.setData(undefined, null);
-      setLocation("/login");
+      setLocation("/");
     },
   });
 
@@ -26,7 +26,7 @@ export function useAuth() {
     } finally {
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
-      setLocation("/login");
+      setLocation("/");
     }
   }, [logoutMutation, utils, setLocation]);
 

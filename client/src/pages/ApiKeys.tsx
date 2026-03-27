@@ -13,19 +13,33 @@ import { trpc } from "@/lib/trpc";
 import { copyToClipboard as copyText } from "@/lib/clipboard";
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Key, Copy, Trash2, Clock, Shield } from "lucide-react";
+import { Plus, Key, Copy, Trash2, Clock, Shield, RefreshCcw, Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function ApiKeys() {
   const { t } = useTranslation();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [keyName, setKeyName] = useState("");
   const [newKey, setNewKey] = useState<any>(null);
+  const [showRevoked, setShowRevoked] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
   const keysQuery = (trpc.apiKeys.list as any).useQuery();
   const createKeyMutation = (trpc.apiKeys.create as any).useMutation();
   const revokeKeyMutation = (trpc.apiKeys.revoke as any).useMutation();
+  const restoreKeyMutation = (trpc.apiKeys.restore as any).useMutation();
+  const deleteKeyMutation = (trpc.apiKeys.delete as any).useMutation();
 
   const handleCreateKey = async (e: any) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -52,12 +66,37 @@ export default function ApiKeys() {
     }
   };
 
+  const handleRestoreKey = async (id: number) => {
+    try {
+      await restoreKeyMutation.mutateAsync({ id });
+      toast.success(t("apiKeys.restoreSuccess"));
+      (utils.apiKeys.list as any).invalidate();
+    } catch (error: any) {
+      toast.error(error.message || t("apiKeys.restoreFailed"));
+    }
+  };
+
+  const handleDeleteKey = async (id: number) => {
+    try {
+      await deleteKeyMutation.mutateAsync({ id });
+      toast.success(t("apiKeys.deleteSuccess"));
+      (utils.apiKeys.list as any).invalidate();
+      setDeleteConfirmId(null);
+    } catch (error: any) {
+      toast.error(error.message || t("apiKeys.deleteFailed"));
+    }
+  };
+
   const handleCopy = async (text: string) => {
     const success = await copyText(text);
     if (success) {
       toast.success(t("apiKeys.copySuccess"));
     }
   };
+
+  const keys = (keysQuery.data as any) || [];
+  const filteredKeys = showRevoked ? keys : keys.filter((k: any) => k.isActive);
+  const hasRevoked = keys.some((k: any) => !k.isActive);
 
   return (
     <div className="min-h-content bg-background">
@@ -148,28 +187,49 @@ export default function ApiKeys() {
         )}
 
         <Card className="p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Key className="w-5 h-5 text-muted-foreground" />
-            <h2 className="text-xl font-semibold">
-              {t("apiKeys.existingKeys")}
-            </h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Key className="w-5 h-5 text-muted-foreground" />
+              <h2 className="text-xl font-semibold">
+                {t("apiKeys.existingKeys")}
+              </h2>
+            </div>
+            {hasRevoked && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs gap-1.5 h-8"
+                onClick={() => setShowRevoked(!showRevoked)}
+              >
+                {showRevoked ? (
+                  <EyeOff className="w-3.5 h-3.5" />
+                ) : (
+                  <Eye className="w-3.5 h-3.5" />
+                )}
+                {t("apiKeys.showRevoked")}
+              </Button>
+            )}
           </div>
 
           {keysQuery.isLoading ? (
             <div className="text-center py-12 text-muted-foreground">
               {t("apiKeys.loading")}
             </div>
-          ) : (keysQuery.data as any)?.length === 0 ? (
+          ) : filteredKeys.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground border-2 border-dashed border-border rounded-xl">
               <Key className="w-12 h-12 mx-auto mb-3 opacity-20" />
               <p>{t("apiKeys.noKeys")}</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {(keysQuery.data as any)?.map((key: any) => (
+              {filteredKeys.map((key: any) => (
                 <div
                   key={key.id}
-                  className="group p-4 border border-border rounded-xl hover:border-accent-blue/50 hover:bg-secondary/30 transition-all"
+                  className={`group p-4 border border-border rounded-xl transition-all ${
+                    key.isActive 
+                      ? "hover:border-accent-blue/50 hover:bg-secondary/30" 
+                      : "opacity-60 bg-secondary/10"
+                  }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
@@ -199,22 +259,72 @@ export default function ApiKeys() {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={!key.isActive}
-                      className="text-destructive hover:bg-destructive/10"
-                      onClick={() => handleRevokeKey(key.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      {t("apiKeys.revoke")}
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      {key.isActive ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title={t("apiKeys.revoke")}
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() => handleRevokeKey(key.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span className="sr-only">{t("apiKeys.revoke")}</span>
+                        </Button>
+                      ) : (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title={t("apiKeys.restore")}
+                            className="text-primary hover:bg-primary/10"
+                            onClick={() => handleRestoreKey(key.id)}
+                          >
+                            <RefreshCcw className="w-4 h-4" />
+                            <span className="sr-only">{t("apiKeys.restore")}</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title={t("apiKeys.delete")}
+                            className="text-destructive hover:bg-destructive/10"
+                            onClick={() => setDeleteConfirmId(key.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span className="sr-only">{t("apiKeys.delete")}</span>
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </Card>
+
+        <AlertDialog
+          open={deleteConfirmId !== null}
+          onOpenChange={(open: any) => !open && setDeleteConfirmId(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("apiKeys.delete")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("apiKeys.deleteConfirm")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteConfirmId && handleDeleteKey(deleteConfirmId)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {t("common.confirm")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Documentation Section */}
         <Card className="p-8 bg-card/50 overflow-hidden relative">

@@ -33,4 +33,16 @@ export const apiKeysRouter = router({
     .mutation(async ({ ctx, input }) => {
       return apiKeyService.revokeKey(input.id, ctx.user.id);
     }),
+
+  restore: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      return apiKeyService.restoreKey(input.id, ctx.user.id);
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      return apiKeyService.deleteKey(input.id, ctx.user.id);
+    }),
 });

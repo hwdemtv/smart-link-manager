@@ -81,4 +81,25 @@ export const apiKeyService = {
       .set({ isActive: 0 })
       .where(and(eq(apiKeys.id, keyId), eq(apiKeys.userId, userId)));
   },
+  /**
+   * Restore a revoked key
+   */
+  async restoreKey(keyId: number, userId: number) {
+    const db = await getDb();
+    if (!db) return;
+    return db
+      .update(apiKeys)
+      .set({ isActive: 1 })
+      .where(and(eq(apiKeys.id, keyId), eq(apiKeys.userId, userId)));
+  },
+  /**
+   * Permanently delete a key
+   */
+  async deleteKey(keyId: number, userId: number) {
+    const db = await getDb();
+    if (!db) return;
+    return db
+      .delete(apiKeys)
+      .where(and(eq(apiKeys.id, keyId), eq(apiKeys.userId, userId)));
+  },
 };
