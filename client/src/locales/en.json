@@ -339,6 +339,7 @@
     "exportSuccess": "Export completed",
     "failedToExport": "Failed to export links",
     "copySuccess": "Link copied to clipboard",
+    "copyShareSuccess": "Social share token copied to clipboard",
     "pending": "(Pending)",
     "shortCodePatternTip": "3-20 characters, letters, numbers, hyphens or underscores only",
     "linkPassword": "Link Password",

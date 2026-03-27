@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Copy, QrCode, Edit, Trash2, ExternalLink, Lock, RefreshCcw } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Copy, QrCode, Edit, Trash2, ExternalLink, Lock, RefreshCcw, Share2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Link } from "@/types/dashboard";
 
@@ -8,11 +9,12 @@ interface LinkTableRowProps {
   link: Link;
   isSelected: boolean;
   onSelect: (checked: boolean) => void;
-  onEdit: () => void;
+  onEdit: (link: Link) => void;
   onDelete: () => void;
   onCopy: () => void;
   onTagClick: (tag: string) => void;
-  onQrCode: () => void;
+  onQrCode: (shortCode: string) => void;
+  onShare: (link: Link) => void;
   onCheck: () => void;
   isChecking?: boolean;
 }
@@ -26,6 +28,7 @@ export function LinkTableRow({
   onCopy,
   onTagClick,
   onQrCode,
+  onShare,
   onCheck,
   isChecking,
 }: LinkTableRowProps) {
@@ -156,20 +159,44 @@ export function LinkTableRow({
           >
             <Copy className="w-3.5 h-3.5" />
           </Button>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onShare(link)}
+                className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors rounded-lg"
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs font-medium">{t("dashboard.socialShare")}</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onQrCode(link.shortCode)}
+                className="h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors rounded-lg"
+              >
+                <QrCode className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs font-medium">{t("dashboard.qrCode")}</p>
+            </TooltipContent>
+          </Tooltip>
+
           <Button
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
-            onClick={onQrCode}
-            title={t("dashboard.qrCode")}
-          >
-            <QrCode className="w-3.5 h-3.5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
-            onClick={onEdit}
+            onClick={() => onEdit(link)}
             title={t("dashboard.editLinkTitle")}
           >
             <Edit className="w-3.5 h-3.5" />

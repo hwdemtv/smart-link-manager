@@ -502,7 +502,8 @@ export default function Dashboard() {
                 )
               }
               onTagClick={setTagFilter}
-              onQrCode={shortCode => setLocation(`/qr/${shortCode}`)}
+              onQrCode={(code) => setLocation(`/qr/${code}`)}
+              onShare={(link) => mutations.copyShareText(link, systemConfigQuery.data?.defaultDomain, systemConfigQuery.data?.defaultShareSuffix)}
               onCreateClick={() => setIsCreateOpen(true)}
               currentPage={currentPage}
               totalPages={totalPages}

@@ -427,6 +427,34 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
       toast.error(t("dashboard.copyFailed", "复制失败，请手动复制"));
     }
   };
+  
+  const copyShareText = async (
+    link: Link,
+    defaultDomain?: string,
+    globalDefaultSuffix?: string
+  ) => {
+    let baseDomain =
+      link.customDomain || defaultDomain || window.location.origin;
+    if (!baseDomain.startsWith("http")) {
+      baseDomain = `${window.location.protocol}//${baseDomain}`;
+    }
+    const cleanBaseDomain = baseDomain.replace(/\/+$/, "");
+    const fullUrl = `${cleanBaseDomain}/s/${link.shortCode}`;
+
+    const title = link.seoTitle || link.shortCode;
+    const desc = link.description || "";
+    const suffix = link.shareSuffix || globalDefaultSuffix || "";
+
+    // 组装分享文案
+    const textToCopy = `【${title}】\n🔗 链接：${fullUrl}${desc ? `\n🔑 备注：${desc}` : ""}${suffix ? `\n—— ${suffix}` : ""}`;
+    
+    const success = await copyText(textToCopy);
+    if (success) {
+      toast.success(t("dashboard.copyShareSuccess") || "社交分享口令已复制到剪贴板");
+    } else {
+      toast.error(t("dashboard.copyFailed", "复制失败，请手动复制"));
+    }
+  };
 
   return {
     // Mutations (for pending state)
@@ -453,6 +481,7 @@ export function useLinkMutations(options: UseLinkMutationsOptions = {}) {
     generateSeo,
     exportLinks,
     copyToClipboard,
+    copyShareText,
     checkLinkValidity,
     batchCheckLinkValidity,
 

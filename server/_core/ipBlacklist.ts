@@ -100,6 +100,10 @@ export function redirectBlacklistMiddleware(
   const blockInfo = checkIpBlocked(clientIp);
 
   if (blockInfo.blocked) {
+    // 关键修复：防止重定向循环。如果已经是 /error 路径，则不再次重定向
+    if (req.path === "/error") {
+      return next();
+    }
     // 短链接访问被拦截，返回简单的错误页面
     return res.redirect(
       302,

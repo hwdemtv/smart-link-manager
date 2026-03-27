@@ -256,12 +256,22 @@ async function startServer() {
     redirectRateLimiter,
     async (req, res, next) => {
       const host = req.get("host") || "";
+      // 优化：解析 defaultHost 时移除协议头和末尾斜杠
       const defaultHost =
-        process.env.VITE_APP_ID?.replace(/^https?:\/\//, "") || "localhost";
+        process.env.VITE_APP_ID?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "localhost";
+      
+      // 提取当前的域名部分（去掉端口，用于匹配）
+      const currentHost = host.split(":")[0];
+      const defaultHostName = defaultHost.split(":")[0];
+
+      // 诊断日志：仅在生产环境或特定调试需求下开启，记录关键匹配信息
+      if (process.env.DEBUG_REDIRECTS === "true" || process.env.NODE_ENV === "production") {
+        logger.debug(`[Redirect Debug] Host: ${host}, CurrentHost: ${currentHost}, DefaultHost: ${defaultHost}, DefaultHostName: ${defaultHostName}, URL: ${req.originalUrl}`);
+      }
 
       // 如果是默认域名，跳过（交给前端路由处理）
       if (
-        host === defaultHost ||
+        currentHost === defaultHostName ||
         host.startsWith("localhost") ||
         host.startsWith("127.0.0.1") ||
         host.includes(":3000")

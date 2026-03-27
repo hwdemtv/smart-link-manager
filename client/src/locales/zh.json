@@ -342,6 +342,7 @@
     "exporting": "正在导出数据",
     "failedToExport": "导出链接失败",
     "copySuccess": "链接已复制到剪贴板",
+    "copyShareSuccess": "社交分享口令已复制到剪贴板",
     "pending": "(待验证)",
     "shortCodePatternTip": "3-20 个字符，仅支持字母、数字、连字符或下划线",
     "linkPassword": "访问密码",

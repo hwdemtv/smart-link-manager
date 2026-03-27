@@ -387,11 +387,13 @@ export async function handleShortLinkRedirect(
     const link = await getCachedLink(shortCode);
 
     if (!link || !link.isActive || !link.isValid || link.deletedAt) {
+      logger.warn(`[Redirect Blocked] Link not accessible: Code=${shortCode}, LinkExists=${!!link}, IsActive=${link?.isActive}, IsValid=${link?.isValid}, Deleted=${!!link?.deletedAt}`);
       return res.redirect(302, "/error?type=NOT_FOUND");
     }
 
     // Check if link has expired
     if (link.expiresAt && new Date(link.expiresAt) < new Date()) {
+      logger.warn(`[Redirect Blocked] Link expired: Code=${shortCode}, ExpiresAt=${link.expiresAt}`);
       return res.redirect(302, "/error?type=EXPIRED");
     }
 

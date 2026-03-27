@@ -25,6 +25,7 @@ interface LinksTableProps {
   onCopy: (link: Link) => void;
   onTagClick: (tag: string) => void;
   onQrCode: (shortCode: string) => void;
+  onShare: (link: Link) => void;
   onCreateClick: () => void;
 
   // Pagination
@@ -53,6 +54,7 @@ export function LinksTable({
   onCopy,
   onTagClick,
   onQrCode,
+  onShare,
   onCreateClick,
   currentPage,
   totalPages,
@@ -187,6 +189,7 @@ export function LinksTable({
                   onCopy={() => onCopy(link)}
                   onTagClick={onTagClick}
                   onQrCode={() => onQrCode(link.shortCode)}
+                  onShare={() => onShare(link)}
                   onCheck={() => onCheck(link.id)}
                   isChecking={checkingLinkId === link.id}
                 />
