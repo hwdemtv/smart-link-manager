@@ -381,6 +381,7 @@
     "advanced": "高级设置",
     "shareSuffix": "分享口令后缀 (可选)",
     "shareSuffixPlaceholder": "例如：来自 互为AI超级个体",
+    "generateRandom": "随机生成",
     "urlRequiredForSeo": "请先填写包含 http 的原始目标链接",
     "seoGenerated": "✨ 智能生成的 SEO 标题已填入表单",
     "seoGenerateFailed": "智能提炼失败",
