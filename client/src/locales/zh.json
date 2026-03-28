@@ -593,14 +593,18 @@
         "subscription.cancel": "取消订阅",
         "apikey.create": "创建 API 密钥",
         "apikey.revoke": "撤销 API 密钥",
-        "apikey.delete": "删除 API 密钥"
+        "apikey.delete": "删除 API 密钥",
+        "group.create": "创建分组",
+        "group.update": "更新分组",
+        "group.delete": "删除分组"
       },
       "targetTypes": {
         "user": "用户",
         "link": "链接",
         "domain": "域名",
         "subscription": "订阅",
-        "apikey": "API 密钥"
+        "apikey": "API 密钥",
+        "group": "分组"
       },
       "userAgent": "浏览器标识 (User Agent)"
     },

@@ -598,14 +598,18 @@
         "subscription.cancel": "Cancel Subscription",
         "apikey.create": "Create API Key",
         "apikey.revoke": "Revoke API Key",
-        "apikey.delete": "Delete API Key"
+        "apikey.delete": "Delete API Key",
+        "group.create": "Create Group",
+        "group.update": "Update Group",
+        "group.delete": "Delete Group"
       },
       "targetTypes": {
         "user": "User",
         "link": "Link",
         "domain": "Domain",
         "subscription": "Subscription",
-        "apikey": "API Key"
+        "apikey": "API Key",
+        "group": "Group"
       },
       "userAgent": "User Agent"
     },
