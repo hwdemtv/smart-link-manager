@@ -402,6 +402,28 @@ export const adminRouter = router({
     .mutation(async ({ input }) => {
       // 动态导入以避免循环依赖或加载顺序问题
       const { testAiConnection } = await import("../aiSeoService");
-      return await testAiConnection(input);
+      const { getSystemConfig } = await import("../db");
+
+      // 如果 apiKey 是脱敏值（包含 ...），从数据库读取真实值
+      let apiKey = input.apiKey;
+      if (!apiKey || apiKey.includes("...")) {
+        const dbConfigValue = await getSystemConfig("aiConfig");
+        if (dbConfigValue) {
+          try {
+            const dbConfig =
+              typeof dbConfigValue === "string"
+                ? JSON.parse(dbConfigValue)
+                : dbConfigValue;
+            apiKey = dbConfig.apiKey || "";
+          } catch (e) {
+            console.error("Failed to parse AI config from DB", e);
+          }
+        }
+      }
+
+      return await testAiConnection({
+        ...input,
+        apiKey,
+      });
     }),
 });
