@@ -38,6 +38,7 @@ import {
   ipBlacklist,
   configs,
   InsertConfig,
+  apiKeys,
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -1703,7 +1704,7 @@ export async function getPlatformUsageStats(days: number = 30) {
   startDate.setDate(startDate.getDate() - days);
   const startDateStr = startDate.toISOString().split("T")[0];
 
-  // Get daily aggregated usage
+  // Get daily aggregated usage from usage_logs (for trend charts)
   const dailyUsage = await db
     .select({
       date: usageLogs.date,
@@ -1716,38 +1717,39 @@ export async function getPlatformUsageStats(days: number = 30) {
     .groupBy(usageLogs.date)
     .orderBy(usageLogs.date);
 
-  // Calculate totals
-  const totals = dailyUsage.reduce(
-    (
-      acc: { linksCreated: number; apiCalls: number; totalClicks: number },
-      log: {
-        linksCreated: number | null;
-        apiCalls: number | null;
-        totalClicks: number | null;
-      }
-    ) => ({
-      linksCreated: acc.linksCreated + Number(log.linksCreated || 0),
-      apiCalls: acc.apiCalls + Number(log.apiCalls || 0),
-      totalClicks: acc.totalClicks + Number(log.totalClicks || 0),
-    }),
-    { linksCreated: 0, apiCalls: 0, totalClicks: 0 }
-  );
+  // Get REAL-TIME totals from actual data sources (not from usage_logs)
+  // This ensures consistency with getAdminDashboardStats()
+  const [linksTotal] = await db
+    .select({
+      count: sql<number>`count(*)`,
+      totalClicks: sql<number>`coalesce(sum(clickCount), 0)`,
+    })
+    .from(links);
 
-  // Get per-user stats
+  const [apiKeysCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(apiKeys);
+
+  const totals = {
+    linksCreated: Number(linksTotal?.count) || 0,
+    apiCalls: Number(apiKeysCount?.count) || 0,
+    totalClicks: Number(linksTotal?.totalClicks) || 0,
+  };
+
+  // Get per-user REAL-TIME stats
   const userStats = await db
     .select({
-      userId: usageLogs.userId,
+      userId: users.id,
       userName: users.name,
       userUsername: users.username,
-      linksCreated: sql<number>`SUM(${usageLogs.linksCreated})`,
-      apiCalls: sql<number>`SUM(${usageLogs.apiCalls})`,
-      totalClicks: sql<number>`SUM(${usageLogs.totalClicks})`,
+      linksCreated: sql<number>`count(*)`,
+      totalClicks: sql<number>`coalesce(sum(${links.clickCount}), 0)`,
+      apiCalls: sql<number>`0`, // API calls per user not tracked in real-time
     })
-    .from(usageLogs)
-    .leftJoin(users, eq(usageLogs.userId, users.id))
-    .where(sql`${usageLogs.date} >= ${startDateStr}`)
-    .groupBy(usageLogs.userId)
-    .orderBy(desc(sql`SUM(${usageLogs.totalClicks})`));
+    .from(users)
+    .leftJoin(links, eq(users.id, links.userId))
+    .groupBy(users.id)
+    .orderBy(desc(sql`coalesce(sum(${links.clickCount}), 0)`));
 
   return {
     daily: dailyUsage,
