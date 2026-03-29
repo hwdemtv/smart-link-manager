@@ -609,9 +609,19 @@ export async function handleShortLinkRedirect(
       return res.redirect(302, verifyPageUrl); // 密码验证页始终使用 302
     } else {
       // Desktop without password: Server-side render QR page (FAST!)
-      const baseUrl = link.customDomain
-        ? `https://${link.customDomain}`
-        : `${req.protocol}://${req.get("host")}`;
+      // 清理域名中的端口号，避免 HTTPS 使用 HTTP 端口导致 SSL 错误
+      let baseUrl: string;
+      if (link.customDomain) {
+        // 移除 customDomain 中可能存在的端口号
+        const cleanDomain = link.customDomain.split(":")[0];
+        baseUrl = `https://${cleanDomain}`;
+      } else {
+        // 对于非自定义域名，生产环境移除端口号
+        const host = req.get("host") || "";
+        const isDev = host.startsWith("localhost") || host.startsWith("127.0.0.1");
+        const cleanHost = isDev ? host : host.split(":")[0];
+        baseUrl = `${req.protocol}://${cleanHost}`;
+      }
       const fullUrl = `${baseUrl}/s/${shortCode}`;
 
       // Detect language from headers

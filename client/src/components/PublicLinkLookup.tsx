@@ -38,9 +38,12 @@ export function PublicLinkLookup({ initialOpen = false }: PublicLinkLookupProps)
     const generateQR = async () => {
       if (link) {
         try {
-          const url = `${window.location.protocol}//${window.location.host}/s/${link.shortCode}`;
-          const qr = await QRCode.toDataURL(url, { 
-            margin: 2, 
+          // 生产环境移除端口号，避免 HTTPS 使用 HTTP 端口导致 SSL 错误
+          const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+          const host = isDev ? window.location.host : window.location.hostname;
+          const url = `${window.location.protocol}//${host}/s/${link.shortCode}`;
+          const qr = await QRCode.toDataURL(url, {
+            margin: 2,
             width: 600,
             color: { dark: '#0f172a', light: '#ffffff' }
           });

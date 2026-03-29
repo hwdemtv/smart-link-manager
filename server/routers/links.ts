@@ -48,6 +48,29 @@ import {
 import { checkLinkValidity } from "../linkChecker";
 
 /**
+ * 清理域名中的端口号
+ * 避免在 HTTPS URL 中包含 HTTP 端口导致 SSL 错误
+ */
+function cleanDomain(domain: string | null | undefined): string {
+  if (!domain) return "";
+  // 移除协议（如果有）
+  const withoutProtocol = domain.replace(/^https?:\/\//, "");
+  // 移除端口号
+  return withoutProtocol.split(":")[0].replace(/\/+$/, "");
+}
+
+/**
+ * 生成短链接完整 URL
+ */
+function buildFullUrl(customDomain: string | null | undefined, shortCode: string): string {
+  if (customDomain) {
+    return `https://${cleanDomain(customDomain)}/s/${shortCode}`;
+  }
+  const appId = process.env.VITE_APP_ID || "localhost";
+  return `${appId}/s/${shortCode}`;
+}
+
+/**
  * 生成安全的随机短码（使用 crypto.randomBytes）
  * 避免 Math.random() 的可预测性和冲突风险
  */
@@ -183,9 +206,7 @@ export const linksRouter = router({
         success: true,
         shortCode: input.shortCode,
         customDomain: input.customDomain,
-        fullUrl: input.customDomain
-          ? `https://${input.customDomain}/${input.shortCode}`
-          : `${process.env.VITE_APP_ID || "localhost"}/s/${input.shortCode}`,
+        fullUrl: buildFullUrl(input.customDomain, input.shortCode),
       };
     }),
 
@@ -193,9 +214,7 @@ export const linksRouter = router({
     const links = await getLinksByUserId(ctx.user.id);
     return links.map((link: Link) => ({
       ...link,
-      fullUrl: link.customDomain
-        ? `https://${link.customDomain}/${link.shortCode}`
-        : `${process.env.VITE_APP_ID || "localhost"}/s/${link.shortCode}`,
+      fullUrl: buildFullUrl(link.customDomain, link.shortCode),
     }));
   }),
 
@@ -215,9 +234,7 @@ export const linksRouter = router({
       return {
         links: result.links.map((link: Link) => ({
           ...link,
-          fullUrl: link.customDomain
-            ? `https://${link.customDomain}/${link.shortCode}`
-            : `${process.env.VITE_APP_ID || "localhost"}/s/${link.shortCode}`,
+          fullUrl: buildFullUrl(link.customDomain, link.shortCode),
         })),
         total: result.total,
       };
@@ -240,9 +257,7 @@ export const linksRouter = router({
       }
       return {
         ...link,
-        fullUrl: link.customDomain
-          ? `https://${link.customDomain}/${link.shortCode}`
-          : `${process.env.VITE_APP_ID || "localhost"}/s/${link.shortCode}`,
+        fullUrl: buildFullUrl(link.customDomain, link.shortCode),
       };
     }),
 
@@ -773,9 +788,7 @@ export const linksRouter = router({
       }
       return {
         shortCode: link.shortCode,
-        fullUrl: link.customDomain
-          ? `https://${link.customDomain}/${link.shortCode}`
-          : `${process.env.VITE_APP_ID || "localhost"}/s/${link.shortCode}`,
+        fullUrl: buildFullUrl(link.customDomain, link.shortCode),
         expiresAt: link.expiresAt,
         isPasswordProtected: !!link.passwordHash,
       };

@@ -36,6 +36,19 @@ export default function QRPage() {
   if (!baseDomain.startsWith("http")) {
     baseDomain = `${window.location.protocol}//${baseDomain}`;
   }
+  // 移除端口号，避免 HTTPS 使用 HTTP 端口（如 :80）导致 SSL 错误
+  try {
+    const url = new URL(baseDomain);
+    // 只在生产环境（默认端口）移除显式端口号
+    // 开发环境保留端口（如 localhost:5173）
+    const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (!isDev && url.port) {
+      url.port = "";
+      baseDomain = url.origin;
+    }
+  } catch {
+    // URL 解析失败时保持原样
+  }
   const cleanBaseDomain = baseDomain.replace(/\/+$/, "");
   const fullUrl = shortCode ? `${cleanBaseDomain}/s/${shortCode}` : "";
 

@@ -5,6 +5,14 @@ import { eq, and, isNull, sql } from "drizzle-orm";
 import { logger } from "./_core/logger";
 
 /**
+ * 清理域名中的端口号
+ */
+function cleanDomain(domain: string | null | undefined): string {
+  if (!domain) return "";
+  return domain.replace(/^https?:\/\//, "").split(":")[0].replace(/\/+$/, "");
+}
+
+/**
  * SEO Handler - 处理 robots.txt 和 sitemap.xml
  */
 
@@ -161,9 +169,9 @@ export async function handleSitemap(req: Request, res: Response) {
     // 2. 生成动态短链 URL
     const urls = (Array.isArray(rows) ? rows : [])
       .map((link: any) => {
-        // 如果有自定义域名，使用自定义域名
+        // 如果有自定义域名，使用自定义域名（清理端口号）
         const linkBaseUrl = link.customDomain
-          ? `https://${link.customDomain}`
+          ? `https://${cleanDomain(link.customDomain)}`
           : baseUrl;
         const loc = `${linkBaseUrl}/s/${link.shortCode}`;
         const lastmod = link.updatedAt
