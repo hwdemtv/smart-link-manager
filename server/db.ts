@@ -274,8 +274,8 @@ export async function getAllUsers(
       licenseExpiresAt: users.licenseExpiresAt,
       lastSignedIn: users.lastSignedIn,
       createdAt: users.createdAt,
-      linkCount: sql<number>`(SELECT COUNT(*) FROM links WHERE links.userId = ${users.id})`,
-      domainCount: sql<number>`(SELECT COUNT(*) FROM domains WHERE domains.userId = ${users.id})`,
+      linkCount: sql<number>`(SELECT COUNT(*) FROM links WHERE links.userId = users.id)`,
+      domainCount: sql<number>`(SELECT COUNT(*) FROM domains WHERE domains.userId = users.id)`,
     })
     .from(users)
     .where(whereClause)
