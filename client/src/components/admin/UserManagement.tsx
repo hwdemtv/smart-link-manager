@@ -492,6 +492,7 @@ export default function UserManagement() {
                     <TableHead>{t("admin.userMgmt.displayName")}</TableHead>
                     <TableHead>{t("admin.userMgmt.role")}</TableHead>
                     <TableHead>{t("license.title")}</TableHead>
+                    <TableHead>{t("admin.userMgmt.expiresAt")}</TableHead>
                     <TableHead className="text-center">
                       {t("common.links")}
                     </TableHead>
@@ -544,6 +545,15 @@ export default function UserManagement() {
                       <TableCell>{getRoleBadge(item.role)}</TableCell>
                       <TableCell>
                         {getTierBadge(item.subscriptionTier)}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {item.licenseExpiresAt ? (
+                          <span className={new Date(item.licenseExpiresAt) < new Date() ? "text-red-500" : ""}>
+                            {new Date(item.licenseExpiresAt).toLocaleDateString()}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">{t("license.permanent")}</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-center font-mono">
                         <Badge
