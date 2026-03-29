@@ -365,6 +365,7 @@ export default function UserManagement() {
   // 保存授权管理
   const handleAuthSave = async () => {
     if (!selectedUser) return;
+    console.log('[handleAuthSave] authForm.licenseExpiresAt:', authForm.licenseExpiresAt);
     const payload = {
       userId: selectedUser.id,
       name: authForm.name || undefined,
@@ -372,7 +373,7 @@ export default function UserManagement() {
       role: authForm.role,
       subscriptionTier: authForm.subscriptionTier,
       licenseExpiresAt: authForm.licenseExpiresAt
-        ? new Date(authForm.licenseExpiresAt)
+        ? new Date(authForm.licenseExpiresAt + "T23:59:59") // 设置为当天最后一秒，避免时区问题
         : null,
       isActive: authForm.isActive ? 1 : 0,
     };
