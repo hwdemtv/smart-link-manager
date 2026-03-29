@@ -585,6 +585,8 @@
         "link.create": "Create Link",
         "link.update": "Update Link",
         "link.delete": "Delete Link",
+        "link.soft_delete": "Move to Trash",
+        "link.restore": "Restore Link",
         "link.status_change": "Status Change",
         "links_batch_updated": "Batch Links Updated",
         "links_batch_deleted": "Batch Links Deleted",

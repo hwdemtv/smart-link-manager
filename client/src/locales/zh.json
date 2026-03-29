@@ -580,6 +580,8 @@
         "link.create": "创建链接",
         "link.update": "更新链接",
         "link.delete": "删除链接",
+        "link.soft_delete": "移入回收站",
+        "link.restore": "恢复链接",
         "link.status_change": "链接状态变更",
         "links_batch_updated": "批量更新链接",
         "links_batch_deleted": "批量删除链接",
