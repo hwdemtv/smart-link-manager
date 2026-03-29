@@ -166,15 +166,13 @@ export default function LicenseSettings() {
                 </code>
               </div>
             )}
-            {subscription?.expiresAt && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">
-                  {t("license.expiresAt")}:
-                </span>
-                <span>{formatDate(subscription.expiresAt)}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">
+                {t("license.expiresAt")}:
+              </span>
+              <span>{subscription?.expiresAt ? formatDate(subscription.expiresAt) : t("license.permanent")}</span>
+            </div>
           </CardContent>
         </Card>
 
