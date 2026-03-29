@@ -7,15 +7,22 @@ interface GeoLocation {
   city?: string;
 }
 
-// In-memory LRU cache to avoid rate-limiting and accelerate lookups
-// Key: IP Address, Value: GeoLocation
-const geoCache = new Map<string, GeoLocation>();
-const MAX_CACHE_SIZE = 10000;
+// IP 缓存结构：包含数据过期时间
+interface CachedGeoData {
+  location: GeoLocation;
+  expiresAt: number;
+}
 
-// 请求频率限制器 (ipapi.co 免费版限制: 1000 次/月)
+// In-memory LRU cache to avoid rate-limiting and accelerate lookups
+// Key: IP Address, Value: CachedGeoData
+const geoCache = new Map<string, CachedGeoData>();
+const MAX_CACHE_SIZE = 50000; // 增加缓存大小
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 缓存 24 小时
+
+// 请求频率限制器 (ip-api.com 免费版限制: 45 次/分钟)
 const requestTimestamps: number[] = [];
-const RATE_LIMIT_PER_HOUR = 100; // 保守限制
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 小时窗口
+const RATE_LIMIT_PER_MINUTE = 40; // 留 5 次余量
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 分钟窗口
 
 function isRateLimited(): boolean {
   const now = Date.now();
@@ -26,11 +33,21 @@ function isRateLimited(): boolean {
   ) {
     requestTimestamps.shift();
   }
-  return requestTimestamps.length >= RATE_LIMIT_PER_HOUR;
+  return requestTimestamps.length >= RATE_LIMIT_PER_MINUTE;
 }
 
 function recordRequest(): void {
   requestTimestamps.push(Date.now());
+}
+
+// 清理过期缓存
+function cleanExpiredCache(): void {
+  const now = Date.now();
+  for (const [ip, data] of geoCache.entries()) {
+    if (data.expiresAt < now) {
+      geoCache.delete(ip);
+    }
+  }
 }
 
 // MaxMind GeoLite2 离线库支持
@@ -101,12 +118,13 @@ async function resolveViaIpApi(ip: string): Promise<GeoLocation> {
   recordRequest();
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
 
   try {
-    // 使用 ipapi.co (支持 HTTPS，免费 1000 次/月)
+    // 使用 ip-api.com (免费版: 45次/分钟，支持 HTTP)
+    // 注意：免费版不支持 HTTPS，但响应更快
     const response = await fetch(
-      `https://ipapi.co/${ip}/json/`,
+      `http://ip-api.com/json/${ip}?fields=status,country,city`,
       {
         signal: controller.signal,
       }
@@ -120,12 +138,12 @@ async function resolveViaIpApi(ip: string): Promise<GeoLocation> {
 
     const data = await response.json();
 
-    if (data.error) {
-      throw new Error(`API returned error: ${data.reason || data.error}`);
+    if (data.status === "fail") {
+      throw new Error(`API returned fail for IP: ${ip}`);
     }
 
     return {
-      country: data.country_name,
+      country: data.country,
       city: data.city,
     };
   } finally {
@@ -146,9 +164,17 @@ export async function resolveGeoIp(
     return { country: "Local", city: "Local" };
   }
 
-  // Check cache first
-  if (geoCache.has(ip)) {
-    return geoCache.get(ip)!;
+  const now = Date.now();
+
+  // Check cache first (with expiry check)
+  const cached = geoCache.get(ip);
+  if (cached && cached.expiresAt > now) {
+    return cached.location;
+  }
+
+  // 定期清理过期缓存
+  if (geoCache.size > MAX_CACHE_SIZE / 2) {
+    cleanExpiredCache();
   }
 
   // 初始化 MaxMind (仅首次)
@@ -166,7 +192,7 @@ export async function resolveGeoIp(
     }
   }
 
-  // MaxMind 不可用或解析失败，回退到在线 API (HTTPS)
+  // MaxMind 不可用或解析失败，回退到在线 API
   if (!result.country) {
     try {
       result = await resolveViaIpApi(ip);
@@ -188,7 +214,10 @@ export async function resolveGeoIp(
     }
   }
 
-  // Save to cache
-  geoCache.set(ip, result);
+  // Save to cache with TTL
+  geoCache.set(ip, {
+    location: result,
+    expiresAt: now + CACHE_TTL_MS,
+  });
   return result;
 }
