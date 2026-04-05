@@ -59,7 +59,7 @@ async function getQRDataUrl(url: string): Promise<string> {
     for (const [key, value] of qrCache.entries()) {
       if (value.expiresAt < now) qrCache.delete(key);
     }
-    
+
     // 绝对上限防御：即使全部未过期，超过 2000 强制清空防止 OOM
     if (qrCache.size > 2000) {
       qrCache.clear();
@@ -77,10 +77,10 @@ async function getQRDataUrl(url: string): Promise<string> {
 const SSR_TRANSLATIONS = {
   zh: {
     title: "扫码安全访问",
-    subtitle: "出于安全考虑，请使用手机相机扫描二维码进行访问",
+    subtitle: "出于安全考虑，请使用手机相机或微信扫码访问",
     copyBtn: "复制地址",
     copySuccess: "链接已复制",
-    qrCodeTip: "微信扫码或指纹长按识别",
+    qrCodeTip: "使用手机相机或微信扫码访问",
     footer: "安全验证中心 · Smart Link Manager",
   },
   en: {
@@ -96,7 +96,7 @@ const SSR_TRANSLATIONS = {
 /**
  * 服务端渲染 QR 验证页面（极速响应，跳过前端加载）
  */
-async function renderQRPage(
+export async function renderQRPage(
   res: Response,
   shortCode: string,
   fullUrl: string,
@@ -435,10 +435,10 @@ export async function handleShortLinkRedirect(
       const description = isProtected
         ? "此链接受密码保护，请验证后访问。"
         : escapeHtml(
-            link.seoDescription ||
-              link.description ||
-              "Click to open this smart link."
-          );
+          link.seoDescription ||
+          link.description ||
+          "Click to open this smart link."
+        );
       const image = escapeHtml(link.seoImage || "");
       const currentUrl = escapeHtml(
         `${req.protocol}://${req.get("host")}${req.originalUrl}`
@@ -465,29 +465,29 @@ export async function handleShortLinkRedirect(
       // JSON-LD 结构化数据
       const jsonLd = isProtected
         ? JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            "name": "Protected Link",
-            "description": "This link is password protected",
-            "url": currentUrl,
-            "isAccessibleForFree": false,
-          })
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Protected Link",
+          "description": "This link is password protected",
+          "url": currentUrl,
+          "isAccessibleForFree": false,
+        })
         : JSON.stringify({
-            "@context": "https://schema.org",
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": title,
+          "description": description,
+          "url": currentUrl,
+          ...(image && { image }),
+          "mainEntity": {
             "@type": "WebPage",
-            "name": title,
-            "description": description,
-            "url": currentUrl,
-            ...(image && { image }),
-            "mainEntity": {
-              "@type": "WebPage",
-              "url": link.originalUrl,
-            },
-            "potentialAction": {
-              "@type": "ViewAction",
-              "target": link.originalUrl,
-            },
-          });
+            "url": link.originalUrl,
+          },
+          "potentialAction": {
+            "@type": "ViewAction",
+            "target": link.originalUrl,
+          },
+        });
 
       return res.status(200).send(
         `
@@ -530,14 +530,13 @@ export async function handleShortLinkRedirect(
   <!-- JSON-LD Structured Data -->
   <script type="application/ld+json">${jsonLd}</script>
 
-  ${
-    !isProtected
-      ? `
+  ${!isProtected
+            ? `
   <meta http-equiv="refresh" content="0;url=${displayUrl}">
   <script>window.location.href = "${jsonOriginalUrl}";</script>
   `
-      : ""
-  }
+            : ""
+          }
 </head>
 <body>
   <div style="font-family: sans-serif; text-align: center; margin-top: 50px; padding: 20px;">
