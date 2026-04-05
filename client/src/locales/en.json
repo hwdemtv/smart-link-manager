@@ -271,7 +271,7 @@
   "dashboard": {
     "myLinks": "My Links",
     "createLink": "Create Link",
-    "searchLinks": "Search links...",
+    "searchLinks": "Search by code, URL, or description...",
     "noLinks": "No links yet, start by creating one!",
     "totalClicks": "Total Clicks",
     "activeLinks": "Active Links",
@@ -313,7 +313,7 @@
     "expired": "Expired",
     "yourLinks": "Your Links",
     "requiredFields": "Please fill in all required fields",
-    "searchPlaceholder": "Search by code or URL...",
+    "searchPlaceholder": "Search by code, URL, or description...",
     "noLinksMatch": "No links matching your filter",
     "noLinksFound": "No links matching your filter",
     "clearFilters": "Clear all filters",
@@ -512,7 +512,7 @@
     "linkMgmt": {
       "title": "Link Management",
       "subtitle": "View and manage all platform links",
-      "searchPlaceholder": "Search by code or URL...",
+      "searchPlaceholder": "Search by code, URL, or description...",
       "filterStatus": "Filter Status",
       "filterValid": "Filter Validity",
       "allStatus": "All Status",

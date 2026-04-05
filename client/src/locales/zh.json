@@ -316,7 +316,7 @@
     "expired": "已过期",
     "yourLinks": "您的链接",
     "requiredFields": "请填写所有必填字段",
-    "searchPlaceholder": "按短代码或 URL 搜索...",
+    "searchPlaceholder": "按短代码、URL 或描述搜索...",
     "noLinksMatch": "没有匹配您过滤条件的链接",
     "noLinksFound": "没有找到匹配的链接",
     "clearFilters": "重置所有筛选",
@@ -515,7 +515,7 @@
     "linkMgmt": {
       "title": "链接管理",
       "subtitle": "查看和管理平台所有链接",
-      "searchPlaceholder": "搜索短代码或 URL...",
+      "searchPlaceholder": "搜索短代码、URL 或描述...",
       "filterStatus": "状态筛选",
       "filterValid": "有效性筛选",
       "allStatus": "所有状态",
