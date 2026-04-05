@@ -121,11 +121,12 @@ export function PublicLinkLookup({ initialOpen = false }: PublicLinkLookupProps)
                   </p>
                 </div>
 
-                {qrDataUrl && (
-                  <div className="p-7 bg-muted/40 rounded-[2.5rem] border border-border/20 shadow-inner mb-10">
-                    <img src={qrDataUrl} alt="QR Code" className="w-64 h-64 rounded-2xl shadow-xl" />
+                  <div className="p-7 bg-muted/40 rounded-[2.5rem] border border-border/20 shadow-inner mb-10 text-center">
+                    <img src={qrDataUrl} alt="QR Code" className="w-64 h-64 rounded-2xl shadow-xl mx-auto" />
+                    <p className="mt-4 text-[10px] sm:text-xs font-medium text-muted-foreground opacity-60">
+                      {t("query.qrCodeTip")}
+                    </p>
                   </div>
-                )}
 
                 <div className="w-full">
                   <Button 

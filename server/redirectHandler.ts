@@ -80,6 +80,7 @@ const SSR_TRANSLATIONS = {
     subtitle: "出于安全考虑，请使用手机相机扫描二维码进行访问",
     copyBtn: "复制地址",
     copySuccess: "链接已复制",
+    qrCodeTip: "微信扫码或指纹长按识别",
     footer: "安全验证中心 · Smart Link Manager",
   },
   en: {
@@ -87,6 +88,7 @@ const SSR_TRANSLATIONS = {
     subtitle: "For security, please scan the QR code with your phone camera",
     copyBtn: "Copy Link",
     copySuccess: "Link Copied",
+    qrCodeTip: "Scan with WeChat or Long press",
     footer: "Security Center · Smart Link Manager",
   },
 };
@@ -264,6 +266,9 @@ async function renderQRPage(
 
       <div class="qr-wrap">
         <img src="${qrDataUrl}" alt="QR Code" />
+        <p style="margin-top: 10px; font-size: 11px; color: #94a3b8; font-weight: 500;">
+          ${t.qrCodeTip}
+        </p>
       </div>
 
       <button class="btn" onclick="copyShareText()">
