@@ -90,6 +90,13 @@ export function LinkTableRow({
         </div>
       </TableCell>
 
+      {/* Description */}
+      <TableCell className="max-w-[150px] truncate" title={link.description || ""}>
+        <span className="text-sm text-muted-foreground">
+          {link.description || "-"}
+        </span>
+      </TableCell>
+
       {/* Click Count */}
       <TableCell className="font-medium">{link.clickCount || 0}</TableCell>
 

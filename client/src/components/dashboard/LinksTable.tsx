@@ -87,6 +87,7 @@ export function LinksTable({
                 </TableHead>
                 <TableHead className="w-32"><Skeleton className="h-4 w-16" /></TableHead>
                 <TableHead><Skeleton className="h-4 w-32" /></TableHead>
+                <TableHead className="w-32"><Skeleton className="h-4 w-24" /></TableHead>
                 <TableHead className="w-24"><Skeleton className="h-4 w-12" /></TableHead>
                 <TableHead className="w-24"><Skeleton className="h-4 w-12" /></TableHead>
                 <TableHead className="w-32"><Skeleton className="h-4 w-20" /></TableHead>
@@ -102,6 +103,7 @@ export function LinksTable({
                     <TableCell><Skeleton className="h-4 w-4" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-12" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-20" /></TableCell>
@@ -136,6 +138,7 @@ export function LinksTable({
               </TableHead>
               <TableHead>{t("dashboard.shortCode")}</TableHead>
               <TableHead>{t("dashboard.originalUrl")}</TableHead>
+              <TableHead>{t("dashboard.description")}</TableHead>
               <TableHead>{t("dashboard.totalClicks")}</TableHead>
               <TableHead>{t("dashboard.status")}</TableHead>
               <TableHead>{t("dashboard.expiresAt")}</TableHead>
@@ -148,7 +151,7 @@ export function LinksTable({
           <TableBody>
             {links.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-48 text-center">
+                <TableCell colSpan={9} className="h-48 text-center">
                   <div className="flex flex-col items-center justify-center space-y-3">
                     <div className="p-4 rounded-full bg-muted/50 text-muted-foreground">
                       <Link2 className="w-8 h-8 opacity-20" />

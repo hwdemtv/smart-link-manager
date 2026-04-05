@@ -383,6 +383,7 @@ export default function LinkManagement() {
                       </TableHead>
                       <TableHead>{t("admin.linkMgmt.shortCode")}</TableHead>
                       <TableHead>{t("admin.linkMgmt.originalUrl")}</TableHead>
+                      <TableHead>{t("dashboard.description")}</TableHead>
                       <TableHead>{t("admin.linkMgmt.owner")}</TableHead>
                       <TableHead>{t("admin.linkMgmt.clicks")}</TableHead>
                       <TableHead>{t("admin.linkMgmt.status")}</TableHead>
@@ -428,6 +429,14 @@ export default function LinkManagement() {
                             >
                               <ExternalLink className="w-3 h-3" />
                             </a>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div
+                            className="max-w-[150px] truncate text-sm text-muted-foreground"
+                            title={link.description || ""}
+                          >
+                            {link.description || "-"}
                           </div>
                         </TableCell>
                         <TableCell className="text-sm">
