@@ -112,6 +112,7 @@
     "shortLink": "Secure Link",
     "copyLink": "Copy Link",
     "download": "Download QR",
+    "qrCodeTip": "Scan with WeChat or Camera",
     "footer": "This page is for mobile guidance only and cannot be opened directly on this device",
     "copySuccess": "Link copied to clipboard!",
     "copyFailed": "Copy failed, please copy manually",
@@ -706,6 +707,7 @@
     "linkId": "Security Token",
     "copy": "Copy Token",
     "download": "Download QR",
+    "qrCodeTip": "Scan with Phone Camera or WeChat",
     "secureStamp": "Protected by Smart Link Security Engine",
     "expiredTitle": "Token Expired",
     "expiredDesc": "For security, this token expired after 5 minutes. Please retry from origin.",
@@ -962,9 +964,11 @@
       "expired": "Expired",
       "copyOriginal": "Copy URL",
       "visit": "Visit Directly",
-      "qrCode": "Static QR Code"
+      "qrCode": "Static QR Code",
+      "qrCodeTip": "Scan with WeChat or Browser"
     },
-    "copyShareBtn": "Copy Share Text",
-    "copyShareSuccess": "Share text copied"
+    "copyShareBtn": "Copy Share Command",
+    "qrCodeTip": "Scan with WeChat or Browser",
+    "copyShareSuccess": "Share command copied"
   }
 }

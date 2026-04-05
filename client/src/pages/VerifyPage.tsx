@@ -230,11 +230,16 @@ export default function VerifyPage() {
                       <Loader2 className="w-8 h-8 text-slate-300 animate-spin" />
                     </div>
                   ) : (
-                    <img
-                      src={qrDataUrl}
-                      alt="Secure QR"
-                      className="w-64 h-64 select-none pointer-events-none"
-                    />
+                    <div className="flex flex-col items-center">
+                      <img
+                        src={qrDataUrl}
+                        alt="Secure QR"
+                        className="w-64 h-64 select-none pointer-events-none"
+                      />
+                      <p className="mt-4 text-[10px] font-medium text-slate-400 opacity-80 uppercase tracking-wider">
+                        {t("verify.qrCodeTip")}
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>

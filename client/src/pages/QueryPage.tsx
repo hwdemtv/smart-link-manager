@@ -178,6 +178,9 @@ export default function QueryPage() {
                             alt="QR Code" 
                             className="w-64 h-64 rounded-2xl shadow-xl transition-transform duration-700 group-hover:scale-110"
                           />
+                          <p className="mt-4 text-[10px] sm:text-xs font-medium text-muted-foreground opacity-60">
+                            {t("query.qrCodeTip")}
+                          </p>
                         </div>
                       </div>
                     )}

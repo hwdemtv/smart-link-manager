@@ -107,12 +107,13 @@
   },
   "qr": {
     "title": "扫码访问",
-    "subtitle": "出于安全考虑，请使用手机相机扫描该二维码进行访问",
+    "subtitle": "出于安全考虑，请使用微信扫码或手机相机扫描进行访问",
     "generating": "正在生成安全访问二维码...",
     "failed": "二维码生成失败",
     "shortLink": "安全访问地址",
     "copyLink": "复制地址",
     "download": "下载二维码",
+    "qrCodeTip": "微信扫码或手机相机扫描",
     "footer": "该页面仅限扫码引导，无法在当前设备直接打开",
     "copySuccess": "链接已复制到剪贴板！",
     "copyFailed": "复制失败，请手动复制",
@@ -703,6 +704,7 @@
     "linkId": "安全索引令牌",
     "copy": "复制令牌",
     "download": "下载 QR",
+    "qrCodeTip": "使用手机相机或微信扫码访问",
     "secureStamp": "由 Smart Link 云安全引擎实时保护",
     "expiredTitle": "安全令牌已过期",
     "expiredDesc": "为了您的访问安全，临时验证令牌的行为已在 5 分钟后自动失效。请重新在原始入口尝试。",
@@ -970,6 +972,7 @@
       "qrCode": "生成静态二维码"
     },
     "copyShareBtn": "复制分享口令",
+    "qrCodeTip": "微信扫码或指纹长按识别",
     "copyShareSuccess": "分享口令已复制"
   }
 }

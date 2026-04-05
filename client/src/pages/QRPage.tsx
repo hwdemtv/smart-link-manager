@@ -120,8 +120,11 @@ export default function QRPage() {
               </div>
             </div>
           ) : qrDataUrl ? (
-            <div className="p-4 bg-white rounded-lg shadow-sm border border-border">
+            <div className="p-4 bg-white rounded-lg shadow-sm border border-border flex flex-col items-center">
               <img src={qrDataUrl} alt="QR Code" className="w-64 h-64" />
+              <p className="mt-2 text-xs font-medium text-muted-foreground opacity-70">
+                {t("qr.qrCodeTip")}
+              </p>
             </div>
           ) : (
             <div className="w-72 h-72 bg-secondary rounded-lg flex items-center justify-center">
