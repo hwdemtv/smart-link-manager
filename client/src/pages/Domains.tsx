@@ -315,6 +315,27 @@ export default function Domains() {
             <p>{t("domains.howToUseDesc3")}</p>
           </div>
         </Card>
+
+        {/* SSL Configuration Tip */}
+        <Card className="p-6 mt-4 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
+          <h2 className="text-lg font-semibold mb-3 text-blue-700 dark:text-blue-300">
+            {t("domains.sslTipTitle")}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-3">
+            {t("domains.sslTipDesc")}
+          </p>
+          <ul className="space-y-2 text-sm">
+            <li className="flex items-start gap-2">
+              <span className="text-blue-500 font-medium">{t("domains.sslTipStep1")}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-500 font-medium">{t("domains.sslTipStep2")}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-blue-500 font-medium">{t("domains.sslTipStep3")}</span>
+            </li>
+          </ul>
+        </Card>
       </div>
     </div>
   );
